@@ -1,0 +1,6 @@
+{
+  "name": "ForensiCrypt - Digital Evidence & Cyber Incident Forensic Platform",
+  "description": "Tamper-proof citizen cyber incident reporting platform converting evidence into SHA-256 cryptographic hashes under WORM custody rules.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
