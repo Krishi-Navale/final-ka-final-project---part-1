@@ -52,6 +52,10 @@ import { addNotification, getStoredNotifications, saveStoredNotifications, syncN
 import { dispatchInvestigatorMessageAPI, updateIncidentAPI, fetchRegisteredUsersAPI, updateCustodyLogAPI, createNotificationAPI } from '../data/apiClient';
 import { OriginalFormatGallery } from './OriginalFormatGallery';
 import { DontpadWorkspace } from './DontpadWorkspace';
+import { MaskedLineReveal } from './effects/MaskedLineReveal';
+import { PageStudioHeader } from './effects/PageStudioHeader';
+import { KineticMarquee } from './effects/KineticMarquee';
+import { ScrollExpandBlock } from './effects/ScrollExpandBlock';
 
 interface CitizenDashboardPageProps {
   incidents: IncidentReport[];
@@ -935,19 +939,88 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#F0F2F5] py-6 sm:py-10 px-3 sm:px-6 lg:px-8 font-sans">
-      
-      {/* Outer Frosted Glass Canvas Wrapper */}
-      <div className="max-w-[1600px] mx-auto bg-white/85 backdrop-blur-2xl rounded-[36px] sm:rounded-[44px] border border-white/90 shadow-2xl overflow-hidden p-4 sm:p-8 relative">
+    <div className="w-full min-h-screen bg-[#F5F5F7] text-[#0D0D10] font-sans">
+      <PageStudioHeader
+        kicker="Citizen Evidentiary & Custody Portal"
+        title={
+          isLoggedIn
+            ? currentUser.name
+              ? `Welcome back, ${currentUser.name.split(' ')[0]}.`
+              : 'Personal Case Vault.'
+            : 'Citizen Custody Portal.'
+        }
+        subtitle={
+          isLoggedIn
+            ? 'Inspect immutable WORM evidence folders, track senior investigator dispatches, verify file hashes bit-for-bit, and download Section 65B court certificates.'
+            : 'Public intake and cryptographic evidence hub. Sign in to activate your personal verified case docket and download court admissibility certificates.'
+        }
+        nodeLabel={
+          isLoggedIn
+            ? `${userSortedIncidents.length} DOCKETS · ${allUserEvidenceFiles.length} RAW FILES`
+            : 'PUBLIC PREVIEW · WORM LOCKED'
+        }
+        ctaLabel="+ File a Complaint"
+        onCtaClick={onOpenReportModal}
+        showOrb
+      >
+        <div className="pt-4 border-t border-black/10 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { id: 'dashboard', label: '01. Overall Information' },
+              { id: 'repository', label: `02. Evidence Repo (${allUserEvidenceFiles.length})` },
+              { id: 'dontpad', label: '03. Dontpad 24h' },
+              { id: 'cases', label: `04. My Cases (${userSortedIncidents.length})` },
+              { id: 'documents', label: '05. Sec 65B Certs' },
+              { id: 'notifications', label: `06. Dispatches${unreadCount > 0 ? ` (${unreadCount})` : ''}` },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveNav(tab.id as any)}
+                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
+                  activeNav === tab.id || (tab.id === 'repository' && activeNav === 'original-gallery')
+                    ? 'bg-[#0D0D10] text-white shadow-sm'
+                    : 'bg-white text-zinc-600 border border-black/10 hover:text-[#0D0D10]'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={onOpenAuthModal}
+            className="px-4 py-2 rounded-full bg-white hover:bg-[#0D0D10] text-[#0D0D10] hover:text-white border border-black/15 text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
+          >
+            {isLoggedIn ? `Account · ${currentUser.email}` : 'Sign In / Activate Docket'}
+          </button>
+        </div>
+      </PageStudioHeader>
+
+      <KineticMarquee
+        theme="light"
+        variant="band"
+        items={[
+          'PERSONAL CUSTODY VAULT',
+          'BIT-LEVEL SHA-256 INTEGRITY',
+          'TWO-WAY EXAMINER DISPATCH',
+          'SECTION 65B ADMISSIBLE',
+        ]}
+      />
+
+      <section className="w-full py-8 sm:py-10 px-3 sm:px-5 lg:px-6 bg-white border-b border-black/10">
+        <ScrollExpandBlock
+          minScale={0.97}
+          className="w-full bg-[#0D0D10] text-white rounded-[28px] sm:rounded-[36px] border border-black/10 shadow-2xl overflow-hidden p-4 sm:p-7 relative"
+        >
         
         {/* Floating Toast Notification */}
         {dashboardToast && (
-          <div className="mb-4 p-3.5 rounded-2xl bg-slate-950 text-white text-xs font-medium flex items-center justify-between shadow-xl animate-fade-in z-50">
+          <div className="mb-4 p-3.5 rounded-2xl bg-[#18181E] border border-[#FF4D15]/40 text-white text-xs font-medium flex items-center justify-between shadow-xl animate-fade-in z-50">
             <div className="flex items-center gap-2.5">
-              <span className="w-2 h-2 rounded-full bg-[#FF5A1F] animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-[#FF4D15] animate-ping" />
               <span>{dashboardToast}</span>
             </div>
-            <button onClick={() => setDashboardToast(null)} className="text-slate-400 hover:text-white">
+            <button onClick={() => setDashboardToast(null)} className="text-zinc-400 hover:text-white">
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -957,17 +1030,17 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
             NOTIFICATION DRAWER / POPOVER
         ========================================================================= */}
         {isNotificationOpen && (
-          <div className="absolute right-6 top-24 z-50 w-80 sm:w-96 bg-white/95 backdrop-blur-xl rounded-3xl border border-slate-200/90 shadow-2xl p-5 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="absolute right-6 top-24 z-50 w-80 sm:w-96 bg-[#111115]/95 backdrop-blur-xl rounded-3xl border border-white/15 shadow-2xl p-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-[#FF5A1F]" />
-                <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                <Bell className="w-4 h-4 text-[#FF4D15]" />
+                <h4 className="text-xs font-black text-white uppercase tracking-wider">
                   Custody Notifications ({unreadCount} new)
                 </h4>
               </div>
               <button 
                 onClick={() => setIsNotificationOpen(false)}
-                className="text-slate-400 hover:text-slate-900 p-1"
+                className="text-zinc-400 hover:text-white p-1"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -975,7 +1048,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
             <div className="my-3 space-y-2.5 max-h-72 overflow-y-auto pr-1">
               {combinedNotifications.length === 0 ? (
-                <div className="py-6 text-center text-xs text-slate-400 font-medium">
+                <div className="py-6 text-center text-xs text-zinc-500 font-medium">
                   No notifications. All evidence hashes are locked.
                 </div>
               ) : (
@@ -984,22 +1057,22 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                     key={n.id}
                     className={`p-3 rounded-2xl border text-xs transition-colors ${
                       n.unread 
-                        ? 'bg-orange-50/70 border-orange-200 text-slate-900 shadow-xs' 
-                        : 'bg-slate-50 border-slate-100 text-slate-600'
+                        ? 'bg-[#FF4D15]/10 border-[#FF4D15]/40 text-white shadow-xs' 
+                        : 'bg-[#18181E] border-white/10 text-zinc-300'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
-                        {n.unread && <span className="w-2 h-2 rounded-full bg-[#FF5A1F]" />}
+                      <span className="font-bold text-xs text-white flex items-center gap-1.5">
+                        {n.unread && <span className="w-2 h-2 rounded-full bg-[#FF4D15]" />}
                         {n.title}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-mono-code">{n.timestamp}</span>
+                      <span className="text-[10px] text-zinc-500 font-mono-code">{n.timestamp}</span>
                     </div>
-                    <p className="text-[11px] leading-relaxed text-slate-600">{n.message}</p>
+                    <p className="text-[11px] leading-relaxed text-zinc-400">{n.message}</p>
 
                     {n.isInvestigatorDispatch && n.dispatchType !== 'CITIZEN_REPLY' && (
-                      <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
-                        <span className="text-[9px] font-mono-code text-slate-400">Officer: {n.senderName || 'Senior Investigator'}</span>
+                      <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between">
+                        <span className="text-[9px] font-mono-code text-zinc-500">Officer: {n.senderName || 'Senior Investigator'}</span>
                         <button
                           onClick={() => {
                             setIsNotificationOpen(false);
@@ -1014,8 +1087,8 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           }}
                           className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${
                             n.dispatchType === 'EVIDENCE_REQUEST'
-                              ? 'bg-[#FF5A1F] text-white hover:bg-[#E04B14]'
-                              : 'bg-slate-900 text-white hover:bg-slate-800'
+                              ? 'bg-[#FF4D15] text-white hover:bg-[#E03E0B]'
+                              : 'bg-white/10 text-white hover:bg-white/20'
                           }`}
                         >
                           {n.dispatchType === 'EVIDENCE_REQUEST' ? '⚡ Fulfill Request' : 'Reply'}
@@ -1027,16 +1100,16 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
               )}
             </div>
 
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold">
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-bold">
               <button 
                 onClick={markAllNotificationsAsRead}
-                className="text-[#FF5A1F] hover:underline"
+                className="text-[#FF4D15] hover:underline"
               >
                 Mark all as read
               </button>
               <button 
                 onClick={clearAllNotifications}
-                className="text-slate-400 hover:text-slate-700"
+                className="text-zinc-400 hover:text-white"
               >
                 Clear all
               </button>
@@ -1049,20 +1122,20 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
           {/* =========================================================================
               LEFT NAVIGATION SIDEBAR
           ========================================================================= */}
-          <aside className="lg:col-span-3 xl:col-span-2.5 bg-white rounded-[32px] p-6 border border-slate-200/80 shadow-sm flex flex-col justify-between min-h-[820px]">
+          <aside className="lg:col-span-3 bg-[#070709] rounded-[28px] sm:rounded-[32px] p-5 sm:p-6 border border-white/10 shadow-sm flex flex-col justify-between lg:min-h-[820px] gap-6">
             <div className="space-y-7">
               
               {/* App Brand Logo */}
               <div className="flex items-center justify-between px-2">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-2xl bg-slate-950 text-white flex items-center justify-center font-black text-lg shadow-md">
-                    <ShieldCheck className="w-5 h-5 text-[#FF5A1F]" />
+                  <div className="w-9 h-9 rounded-2xl bg-[#18181E] border border-white/10 text-white flex items-center justify-center font-black text-lg shadow-md">
+                    <ShieldCheck className="w-5 h-5 text-[#FF4D15]" />
                   </div>
-                  <div className="text-2xl font-black tracking-tight text-slate-950 font-sans">
-                    fip<span className="text-[#FF5A1F]">.</span>
+                  <div className="text-2xl font-black tracking-tight text-white font-sans">
+                    fip<span className="text-[#FF4D15]">.</span>
                   </div>
                 </div>
-                <span className="text-[9px] font-mono-code font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 uppercase">
+                <span className="text-[9px] font-mono-code font-bold px-2 py-0.5 rounded-full bg-[#18181E] border border-white/10 text-zinc-400 uppercase">
                   v2.6 WORM
                 </span>
               </div>
@@ -1073,8 +1146,8 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   onClick={() => setActiveNav('dashboard')}
                   className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-left ${
                     activeNav === 'dashboard'
-                      ? 'bg-slate-950 text-white shadow-md'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                      ? 'bg-[#FF4D15] text-white shadow-[0_0_20px_rgba(255,77,21,0.3)]'
+                      : 'text-zinc-400 hover:bg-[#18181E] hover:text-white'
                   }`}
                 >
                   <LayoutDashboard className="w-4 h-4" />
@@ -1085,15 +1158,15 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   onClick={() => setActiveNav('repository')}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all text-left ${
                     activeNav === 'repository' || activeNav === 'original-gallery'
-                      ? 'bg-slate-950 text-white shadow-md'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                      ? 'bg-[#FF4D15] text-white shadow-[0_0_20px_rgba(255,77,21,0.3)]'
+                      : 'text-zinc-400 hover:bg-[#18181E] hover:text-white'
                   }`}
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
-                    <Folder className="w-4 h-4 text-[#FF5A1F] shrink-0" />
+                    <Folder className={`w-4 h-4 shrink-0 ${activeNav === 'repository' || activeNav === 'original-gallery' ? 'text-white' : 'text-[#FF4D15]'}`} />
                     <span className="truncate">Original Format Evidence Repository</span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full bg-orange-100 text-[#FF5A1F] text-[10px] font-mono shrink-0 font-bold">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono shrink-0 font-bold ${activeNav === 'repository' || activeNav === 'original-gallery' ? 'bg-black/25 text-white' : 'bg-[#FF4D15]/15 text-[#FF4D15]'}`}>
                     {allUserEvidenceFiles.length} Raw
                   </span>
                 </button>
@@ -1105,15 +1178,15 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   }}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all text-left ${
                     activeNav === 'dontpad'
-                      ? 'bg-slate-950 text-white shadow-md'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                      ? 'bg-[#FF4D15] text-white shadow-[0_0_20px_rgba(255,77,21,0.3)]'
+                      : 'text-zinc-400 hover:bg-[#18181E] hover:text-white'
                   }`}
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
-                    <Edit3 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <Edit3 className={`w-4 h-4 shrink-0 ${activeNav === 'dontpad' ? 'text-white' : 'text-emerald-400'}`} />
                     <span className="truncate">Dontpad System</span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono shrink-0 font-bold">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono shrink-0 font-bold ${activeNav === 'dontpad' ? 'bg-black/25 text-white' : 'bg-emerald-500/15 text-emerald-300'}`}>
                     24h Live
                   </span>
                 </button>
@@ -1122,11 +1195,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   onClick={() => setActiveNav('weekly')}
                   className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-left ${
                     activeNav === 'weekly'
-                      ? 'bg-slate-950 text-white shadow-md'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                      ? 'bg-[#FF4D15] text-white shadow-[0_0_20px_rgba(255,77,21,0.3)]'
+                      : 'text-zinc-400 hover:bg-[#18181E] hover:text-white'
                   }`}
                 >
-                  <TrendingUp className="w-4 h-4 text-emerald-600" />
+                  <TrendingUp className={`w-4 h-4 ${activeNav === 'weekly' ? 'text-white' : 'text-emerald-400'}`} />
                   <span>Weekly Evidence System</span>
                 </button>
 
@@ -1134,11 +1207,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   onClick={() => setActiveNav('compliance')}
                   className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-left ${
                     activeNav === 'compliance'
-                      ? 'bg-slate-950 text-white shadow-md'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                      ? 'bg-[#FF4D15] text-white shadow-[0_0_20px_rgba(255,77,21,0.3)]'
+                      : 'text-zinc-400 hover:bg-[#18181E] hover:text-white'
                   }`}
                 >
-                  <Award className="w-4 h-4 text-amber-500" />
+                  <Award className={`w-4 h-4 ${activeNav === 'compliance' ? 'text-white' : 'text-amber-400'}`} />
                   <span>Custody Compliance</span>
                 </button>
 
@@ -1146,16 +1219,16 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   onClick={() => setActiveNav('notifications')}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all text-left ${
                     activeNav === 'notifications'
-                      ? 'bg-slate-950 text-white shadow-md'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                      ? 'bg-[#FF4D15] text-white shadow-[0_0_20px_rgba(255,77,21,0.3)]'
+                      : 'text-zinc-400 hover:bg-[#18181E] hover:text-white'
                   }`}
                 >
                   <div className="flex items-center gap-3.5">
-                    <Bell className="w-4 h-4 text-purple-600" />
+                    <Bell className={`w-4 h-4 ${activeNav === 'notifications' ? 'text-white' : 'text-purple-400'}`} />
                     <span>Notifications</span>
                   </div>
                   {unreadCount > 0 && (
-                    <span className="px-2 py-0.5 rounded-full bg-[#FF5A1F] text-white text-[10px] font-mono font-bold animate-pulse">
+                    <span className="px-2 py-0.5 rounded-full bg-white text-[#FF4D15] text-[10px] font-mono font-bold animate-pulse">
                       {unreadCount}
                     </span>
                   )}
@@ -1165,11 +1238,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   onClick={() => setActiveNav('stats')}
                   className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-left ${
                     activeNav === 'stats'
-                      ? 'bg-slate-950 text-white shadow-md'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                      ? 'bg-[#FF4D15] text-white shadow-[0_0_20px_rgba(255,77,21,0.3)]'
+                      : 'text-zinc-400 hover:bg-[#18181E] hover:text-white'
                   }`}
                 >
-                  <BarChart2 className="w-4 h-4 text-blue-600" />
+                  <BarChart2 className={`w-4 h-4 ${activeNav === 'stats' ? 'text-white' : 'text-sky-400'}`} />
                   <span>Forensic Statistics</span>
                 </button>
 
@@ -1177,11 +1250,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   onClick={() => setActiveNav('documents')}
                   className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-left ${
                     activeNav === 'documents'
-                      ? 'bg-slate-950 text-white shadow-md'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                      ? 'bg-[#FF4D15] text-white shadow-[0_0_20px_rgba(255,77,21,0.3)]'
+                      : 'text-zinc-400 hover:bg-[#18181E] hover:text-white'
                   }`}
                 >
-                  <FileText className="w-4 h-4 text-rose-600" />
+                  <FileText className={`w-4 h-4 ${activeNav === 'documents' ? 'text-white' : 'text-rose-400'}`} />
                   <span>Section 65B Certificates</span>
                 </button>
 
@@ -1189,11 +1262,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   onClick={() => setActiveNav('cases')}
                   className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-left ${
                     activeNav === 'cases'
-                      ? 'bg-slate-950 text-white shadow-md'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                      ? 'bg-[#FF4D15] text-white shadow-[0_0_20px_rgba(255,77,21,0.3)]'
+                      : 'text-zinc-400 hover:bg-[#18181E] hover:text-white'
                   }`}
                 >
-                  <Folder className="w-4 h-4 text-slate-500" />
+                  <Folder className={`w-4 h-4 ${activeNav === 'cases' ? 'text-white' : 'text-zinc-400'}`} />
                   <span>My Cases ({userSortedIncidents.length})</span>
                 </button>
 
@@ -1201,30 +1274,30 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   onClick={() => setActiveNav('timeline')}
                   className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs font-bold transition-all text-left ${
                     activeNav === 'timeline'
-                      ? 'bg-slate-950 text-white shadow-md'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                      ? 'bg-[#FF4D15] text-white shadow-[0_0_20px_rgba(255,77,21,0.3)]'
+                      : 'text-zinc-400 hover:bg-[#18181E] hover:text-white'
                   }`}
                 >
-                  <Calendar className="w-4 h-4 text-slate-500" />
+                  <Calendar className={`w-4 h-4 ${activeNav === 'timeline' ? 'text-white' : 'text-zinc-400'}`} />
                   <span>Case Timeline</span>
                 </button>
               </nav>
 
               {/* Connected Wings */}
-              <div className="space-y-3 pt-4 border-t border-slate-100 px-2">
-                <div className="text-[10px] font-mono-code uppercase font-bold text-slate-400 tracking-wider">
+              <div className="space-y-3 pt-4 border-t border-white/10 px-2">
+                <div className="text-[10px] font-mono-code uppercase font-bold text-zinc-500 tracking-wider">
                   Connected Wings
                 </div>
-                <div className="space-y-2 text-xs font-semibold text-slate-600">
-                  <div className="flex items-center gap-2.5 text-slate-700">
+                <div className="space-y-2 text-xs font-semibold text-zinc-300">
+                  <div className="flex items-center gap-2.5 text-zinc-300">
                     <span className="w-2 h-2 rounded-full bg-emerald-500" />
                     <span>NCRP 1930 Nodal Hub</span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-slate-700">
-                    <span className="w-2 h-2 rounded-full bg-orange-500" />
+                  <div className="flex items-center gap-2.5 text-zinc-300">
+                    <span className="w-2 h-2 rounded-full bg-[#FF4D15]" />
                     <span>Delhi IFSO Cyber Cell</span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-slate-700">
+                  <div className="flex items-center gap-2.5 text-zinc-300">
                     <span className="w-2 h-2 rounded-full bg-rose-500" />
                     <span>Maha Cyber Directorate</span>
                   </div>
@@ -1232,38 +1305,54 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
               </div>
 
               {/* Forensic Examiner Community Names */}
-              <div className="space-y-2.5 pt-4 border-t border-slate-100 px-2">
-                <div className="text-[10px] font-mono-code uppercase font-bold text-slate-400 tracking-wider">
+              <div className="space-y-2.5 pt-4 border-t border-white/10 px-2">
+                <div className="text-[10px] font-mono-code uppercase font-bold text-zinc-500 tracking-wider">
                   Examiners on Case
                 </div>
-                <div className="space-y-2 text-xs font-semibold text-slate-700">
+                <div className="space-y-2 text-xs font-semibold text-zinc-300">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-slate-900" />
+                      <img
+                        src="/assets/aistudio/image_acc490cb.png"
+                        alt="Bibi Zohara"
+                        className="w-4 h-4 rounded-full object-cover object-top border border-[#FF4D15]"
+                      />
                       <span>1. BIBI ZOHARA</span>
                     </div>
-                    <span className="text-[9px] font-mono-code text-slate-400">Lead IFSO</span>
+                    <span className="text-[9px] font-mono-code text-zinc-500">Lead IFSO</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-slate-900" />
+                      <img
+                        src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_8.28.47_PM_76cc2fa2.jpeg"
+                        alt="Balchandra"
+                        className="w-4 h-4 rounded-full object-cover object-top border border-[#FF4D15]"
+                      />
                       <span>2. BALCHANDRA</span>
                     </div>
-                    <span className="text-[9px] font-mono-code text-slate-400">SP Cyber</span>
+                    <span className="text-[9px] font-mono-code text-zinc-500">SP Cyber</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-slate-900" />
+                      <img
+                        src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg"
+                        alt="Afsheen S"
+                        className="w-4 h-4 rounded-full object-cover object-top border border-[#FF4D15]"
+                      />
                       <span>3. AFSHEEN S</span>
                     </div>
-                    <span className="text-[9px] font-mono-code text-slate-400">Forensics</span>
+                    <span className="text-[9px] font-mono-code text-zinc-500">Forensics</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-slate-900" />
+                      <img
+                        src="/assets/aistudio/image_526c1ede.png"
+                        alt="Krishi"
+                        className="w-4 h-4 rounded-full object-cover object-top border border-[#FF4D15]"
+                      />
                       <span>4. KRISHI</span>
                     </div>
-                    <span className="text-[9px] font-mono-code text-slate-400">I4C Nodal</span>
+                    <span className="text-[9px] font-mono-code text-zinc-500">I4C Nodal</span>
                   </div>
                 </div>
               </div>
@@ -1271,18 +1360,18 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
             </div>
 
             {/* Bottom Account & Credentials Card */}
-            <div className="pt-6 border-t border-slate-100 px-2">
+            <div className="pt-6 border-t border-white/10 px-2">
               {isLoggedIn ? (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-9 h-9 rounded-full bg-[#FF5A1F] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs uppercase">
+                    <div className="w-9 h-9 rounded-full bg-[#FF4D15] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs uppercase">
                       {currentUser.name ? currentUser.name.charAt(0) : (currentUser.email ? currentUser.email.charAt(0) : 'U')}
                     </div>
                     <div className="truncate">
-                      <div className="text-xs font-black text-slate-900 truncate">
+                      <div className="text-xs font-black text-white truncate">
                         {currentUser.name || 'Verified Citizen'}
                       </div>
-                      <div className="text-[10px] text-emerald-600 font-mono-code font-bold truncate">
+                      <div className="text-[10px] text-emerald-400 font-mono-code font-bold truncate">
                         {currentUser.email}
                       </div>
                     </div>
@@ -1290,7 +1379,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   <button
                     onClick={onOpenAuthModal}
                     title="Account settings / Switch profile"
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                    className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-[#18181E] transition-colors"
                   >
                     <Settings className="w-4 h-4" />
                   </button>
@@ -1298,9 +1387,9 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
               ) : (
                 <button
                   onClick={onOpenAuthModal}
-                  className="w-full py-2.5 px-3 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-[#FF5A1F] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-xs"
+                  className="w-full py-2.5 px-3 rounded-xl bg-[#FF4D15]/15 hover:bg-[#FF4D15]/25 border border-[#FF4D15]/40 text-[#FF4D15] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-xs"
                 >
-                  <Lock className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                  <Lock className="w-3.5 h-3.5 text-[#FF4D15]" />
                   <span>LOGIN / SIGN IN</span>
                 </button>
               )}
@@ -1311,35 +1400,62 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
           {/* =========================================================================
               MAIN DASHBOARD CONTENT
           ========================================================================= */}
-          <main className="lg:col-span-9 xl:col-span-9.5 space-y-6">
+          <main className="lg:col-span-9 min-w-0 space-y-6">
             
             {/* Top Header Row: Name shown ONLY after login */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-white/10">
               <div>
                 {isLoggedIn ? (
-                  <div>
-                    <h1 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
-                      {currentUser.name ? `Welcome, ${currentUser.name} 👋` : 'Personal Forensic Case Dashboard 👋'}
-                    </h1>
-                    <div className="flex flex-wrap items-center gap-2.5 mt-1">
-                      <span className="text-xs sm:text-sm font-bold text-slate-700">
-                        {currentUser.name ? `${currentUser.name}'s Evidentiary Custody Docket` : 'Citizen Evidentiary Custody Docket'}
-                      </span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono-code font-bold flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                        Verified Citizen Docket
-                      </span>
-                      <span className="text-[11px] text-slate-400 font-mono-code">
-                        {currentUser.email}
-                      </span>
+                  <div className="flex items-center gap-3.5">
+                    {(`${currentUser.name || ''} ${currentUser.email || ''}`).toLowerCase().includes('krishi') && (
+                      <img
+                        src="/assets/aistudio/image_526c1ede.png"
+                        alt={currentUser.name || 'Krishi'}
+                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl object-cover object-top border-2 border-[#FF4D15] shadow-[0_0_20px_rgba(255,77,21,0.35)] shrink-0"
+                      />
+                    )}
+                    {(`${currentUser.name || ''} ${currentUser.email || ''}`).toLowerCase().includes('zohara') && (
+                      <img
+                        src="/assets/aistudio/image_acc490cb.png"
+                        alt={currentUser.name || 'Bibi Zohara'}
+                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl object-cover object-top border-2 border-[#FF4D15] shadow-[0_0_20px_rgba(255,77,21,0.35)] shrink-0"
+                      />
+                    )}
+                    {(`${currentUser.name || ''} ${currentUser.email || ''}`).toLowerCase().includes('afsheen') && (
+                      <img
+                        src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg"
+                        alt={currentUser.name || 'Afsheen S'}
+                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl object-cover object-top border-2 border-[#FF4D15] shadow-[0_0_20px_rgba(255,77,21,0.35)] shrink-0"
+                      />
+                    )}
+                    <div>
+                      <MaskedLineReveal>
+                        <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                          {currentUser.name ? `Welcome, ${currentUser.name} 👋` : 'Personal Forensic Case Dashboard 👋'}
+                        </h1>
+                      </MaskedLineReveal>
+                      <div className="flex flex-wrap items-center gap-2.5 mt-1.5">
+                        <span className="text-xs sm:text-sm font-bold text-zinc-300">
+                          {currentUser.name ? `${currentUser.name}'s Evidentiary Custody Docket` : 'Citizen Evidentiary Custody Docket'}
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono-code font-bold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Verified Citizen Docket
+                        </span>
+                        <span className="text-[11px] text-zinc-400 font-mono-code">
+                          {currentUser.email}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ) : (
                   <div>
-                    <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
-                      Citizen Case & Forensic Evidence Portal
-                    </h1>
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+                    <MaskedLineReveal>
+                      <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                        Citizen Case & Forensic Evidence Portal
+                      </h1>
+                    </MaskedLineReveal>
+                    <p className="text-xs sm:text-sm text-zinc-400 font-medium mt-1">
                       Public intake and cryptographic evidence hub. Log in to access your personal verified case docket.
                     </p>
                   </div>
@@ -1347,10 +1463,10 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
               </div>
 
               {/* Right Action Tools: Dedicated File a Complaint & Folder Workflow Button */}
-              <div className="flex items-center gap-2.5 shrink-0">
+              <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
                 <button
                   onClick={onOpenReportModal}
-                  className="px-5 py-2.5 rounded-full bg-[#FF5A1F] hover:bg-[#E04B14] text-white font-black text-xs tracking-wider uppercase shadow-md shadow-orange-500/25 flex items-center gap-2 transition-transform hover:scale-105"
+                  className="px-5 py-2.5 rounded-full bg-[#FF4D15] hover:bg-[#E03E0B] text-white font-black text-xs tracking-wider uppercase shadow-[0_0_24px_rgba(255,77,21,0.35)] flex items-center gap-2 transition-transform hover:scale-105"
                   title="File a Complaint & Folder Management Workflow"
                 >
                   <span>🛡️ File a Complaint</span>
@@ -1359,7 +1475,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 <button
                   onClick={() => setActiveNav('cases')}
                   title="Search Cases & Evidentiary Hashes"
-                  className="w-10 h-10 rounded-full bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center shadow-xs transition-colors"
+                  className="w-10 h-10 rounded-full bg-[#18181E] hover:bg-white/10 border border-white/10 text-zinc-300 flex items-center justify-center shadow-xs transition-colors"
                 >
                   <Search className="w-4 h-4" />
                 </button>
@@ -1368,11 +1484,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 <button
                   onClick={() => setIsNotificationOpen(!isNotificationOpen)}
                   title="Custody Ledger Notifications"
-                  className="w-10 h-10 rounded-full bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center shadow-xs transition-colors relative"
+                  className="w-10 h-10 rounded-full bg-[#18181E] hover:bg-white/10 border border-white/10 text-zinc-300 flex items-center justify-center shadow-xs transition-colors relative"
                 >
                   <Bell className="w-4 h-4" />
                   {unreadCount > 0 && (
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#FF5A1F] absolute top-2 right-2 border-2 border-white" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#FF4D15] absolute top-2 right-2 border-2 border-[#111115]" />
                   )}
                 </button>
 
@@ -1380,10 +1496,10 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 {currentUser.role === 'senior_investigator' && onNavigateToInvestigator && (
                   <button
                     onClick={onNavigateToInvestigator}
-                    className="px-4 py-2 rounded-full bg-slate-950 hover:bg-slate-800 text-orange-400 border border-orange-500/40 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-orange-500/10 hover:scale-[1.02] transition-all"
+                    className="px-4 py-2 rounded-full bg-[#18181E] hover:bg-white/10 text-[#FF4D15] border border-[#FF4D15]/40 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md hover:scale-[1.02] transition-all"
                     title="Open Secret Workstation"
                   >
-                    <ShieldAlert className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                    <ShieldAlert className="w-3.5 h-3.5 text-[#FF4D15]" />
                     <span>Secret Workstation ⚡</span>
                   </button>
                 )}
@@ -1393,7 +1509,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   <button
                     onClick={onOpenAuthModal}
                     title="Account Session / Switch"
-                    className="px-4 py-2 rounded-full bg-[#FF5A1F] hover:bg-[#E04B14] text-white text-xs font-black uppercase tracking-wider shadow-md shadow-orange-500/25 flex items-center gap-1.5 transition-transform"
+                    className="px-4 py-2 rounded-full bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-black uppercase tracking-wider shadow-[0_0_20px_rgba(255,77,21,0.3)] flex items-center gap-1.5 transition-transform"
                   >
                     <UserCheck className="w-3.5 h-3.5" />
                     <span>LOGIN / SIGN IN</span>
@@ -1402,7 +1518,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 ) : (
                   <button
                     onClick={onOpenAuthModal}
-                    className="px-5 py-2 rounded-full bg-[#FF5A1F] hover:bg-[#E04B14] text-white text-xs font-black uppercase tracking-wider shadow-md shadow-orange-500/25 transition-colors flex items-center gap-1.5"
+                    className="px-5 py-2 rounded-full bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-black uppercase tracking-wider shadow-[0_0_20px_rgba(255,77,21,0.3)] transition-colors flex items-center gap-1.5"
                   >
                     <Lock className="w-3.5 h-3.5" />
                     <span>LOGIN / SIGN IN</span>
@@ -1413,23 +1529,23 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
             {/* Guest Banner if user has not logged in */}
             {!isLoggedIn && (
-              <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 border border-orange-200 rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+              <div className="bg-[#18181E] border border-[#FF4D15]/30 rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
                 <div className="flex items-center gap-3.5">
-                  <div className="w-11 h-11 rounded-2xl bg-[#FF5A1F] text-white flex items-center justify-center font-bold shrink-0 shadow-md">
+                  <div className="w-11 h-11 rounded-2xl bg-[#FF4D15] text-white flex items-center justify-center font-bold shrink-0 shadow-md">
                     <Lock className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-xs sm:text-sm font-black text-slate-900">
+                    <h3 className="text-xs sm:text-sm font-black text-white">
                       You are in Public Guest Preview Mode
                     </h3>
-                    <p className="text-xs text-slate-600 mt-0.5">
+                    <p className="text-xs text-zinc-400 mt-0.5">
                       Log in or sign up to activate your personalized case docket, assigned senior investigator notes, and download Section 65B admissibility certificates.
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={onOpenAuthModal}
-                  className="px-6 py-2.5 rounded-full bg-slate-950 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-md shrink-0 flex items-center gap-1.5"
+                  className="px-6 py-2.5 rounded-full bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-bold transition-all shadow-md shrink-0 flex items-center gap-1.5"
                 >
                   <span>Log In / Sign Up</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
@@ -1448,10 +1564,10 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch">
                   
                   {/* Card 1: Overall Information (Dark Sleek Card) */}
-                  <div className="md:col-span-4 bg-slate-950 text-white rounded-[32px] p-6 flex flex-col justify-between shadow-xl relative overflow-hidden">
+                  <div className="md:col-span-4 bg-[#18181E] border border-[#FF4D15]/30 text-white rounded-[32px] p-6 flex flex-col justify-between shadow-xl relative overflow-hidden">
                     <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                      <span className="text-xs font-bold text-slate-200">Overall Information</span>
-                      <div className="flex items-center gap-2 text-slate-400">
+                      <span className="text-xs font-bold text-zinc-200">Overall Information</span>
+                      <div className="flex items-center gap-2 text-zinc-400">
                         <Share2 className="w-3.5 h-3.5 cursor-pointer hover:text-white" />
                         <MoreVertical className="w-3.5 h-3.5 cursor-pointer hover:text-white" />
                       </div>
@@ -1460,55 +1576,55 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                     <div className="my-5 flex items-baseline justify-between">
                       <div>
                         <div className="text-4xl sm:text-5xl font-black font-mono-code text-white">43</div>
-                        <div className="text-[11px] text-slate-400 mt-1">Hashes locked for all time</div>
+                        <div className="text-[11px] text-zinc-400 mt-1">Hashes locked for all time</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-4xl sm:text-5xl font-black font-mono-code text-[#FF5A1F]">0</div>
-                        <div className="text-[11px] text-slate-400 mt-1">tampered records</div>
+                        <div className="text-4xl sm:text-5xl font-black font-mono-code text-[#FF4D15]">0</div>
+                        <div className="text-[11px] text-zinc-400 mt-1">tampered records</div>
                       </div>
                     </div>
 
-                    {/* 3 White Pill Cards Inside */}
+                    {/* 3 Obsidian Pill Cards Inside */}
                     <div className="grid grid-cols-3 gap-2">
-                      <div className="bg-white text-slate-950 p-3 rounded-2xl text-center shadow-sm">
-                        <div className="w-4 h-4 mx-auto rounded-full border-2 border-slate-900 mb-1 flex items-center justify-center text-[8px] font-bold">◎</div>
+                      <div className="bg-[#070709] border border-white/10 text-white p-3 rounded-2xl text-center shadow-sm">
+                        <div className="w-4 h-4 mx-auto rounded-full border-2 border-white mb-1 flex items-center justify-center text-[8px] font-bold">◎</div>
                         <div className="text-base font-black font-mono-code">28</div>
-                        <div className="text-[9px] font-semibold text-slate-500">Vault Locked</div>
+                        <div className="text-[9px] font-semibold text-zinc-400">Vault Locked</div>
                       </div>
 
-                      <div className="bg-white text-slate-950 p-3 rounded-2xl text-center shadow-sm">
-                        <div className="w-4 h-4 mx-auto rounded-full border-2 border-dashed border-orange-500 mb-1 flex items-center justify-center text-[8px] font-bold">◌</div>
-                        <div className="text-base font-black font-mono-code">14</div>
-                        <div className="text-[9px] font-semibold text-slate-500">In Triage</div>
+                      <div className="bg-[#070709] border border-white/10 text-white p-3 rounded-2xl text-center shadow-sm">
+                        <div className="w-4 h-4 mx-auto rounded-full border-2 border-dashed border-[#FF4D15] text-[#FF4D15] mb-1 flex items-center justify-center text-[8px] font-bold">◌</div>
+                        <div className="text-base font-black font-mono-code text-[#FF4D15]">14</div>
+                        <div className="text-[9px] font-semibold text-zinc-400">In Triage</div>
                       </div>
 
-                      <div className="bg-white text-slate-950 p-3 rounded-2xl text-center shadow-sm">
-                        <div className="w-4 h-4 mx-auto rounded-full border-2 border-emerald-600 mb-1 flex items-center justify-center text-[8px] font-bold text-emerald-600">✓</div>
-                        <div className="text-base font-black font-mono-code">11</div>
-                        <div className="text-[9px] font-semibold text-slate-500">Sec 65B Cert</div>
+                      <div className="bg-[#070709] border border-white/10 text-white p-3 rounded-2xl text-center shadow-sm">
+                        <div className="w-4 h-4 mx-auto rounded-full border-2 border-emerald-400 mb-1 flex items-center justify-center text-[8px] font-bold text-emerald-400">✓</div>
+                        <div className="text-base font-black font-mono-code text-emerald-400">11</div>
+                        <div className="text-[9px] font-semibold text-zinc-400">Sec 65B Cert</div>
                       </div>
                     </div>
                   </div>
 
 
                   {/* Card 2: Weekly Progress (Interactive Line Chart + Tracker) */}
-                  <div className="md:col-span-4 bg-white rounded-[32px] p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+                  <div className="md:col-span-4 bg-[#070709] rounded-[32px] p-6 border border-white/10 shadow-sm flex flex-col justify-between">
                     <div className="flex items-center justify-between mb-2">
                       <div>
-                        <h3 className="text-xs font-bold text-slate-900">Weekly Evidence System</h3>
-                        <div className="flex items-center gap-3 text-[10px] text-slate-500 mt-1 font-medium">
+                        <h3 className="text-xs font-bold text-white">Weekly Evidence System</h3>
+                        <div className="flex items-center gap-3 text-[10px] text-zinc-400 mt-1 font-medium">
                           <span className="flex items-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-slate-900" />
+                            <span className="w-2 h-2 rounded-full bg-white" />
                             Ingested ({weeklyDayData.reduce((acc, d) => acc + d.ingested, 0)})
                           </span>
                           <span className="flex items-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-[#FF5A1F]" />
+                            <span className="w-2 h-2 rounded-full bg-[#FF4D15]" />
                             Verified ({weeklyDayData.reduce((acc, d) => acc + d.verified, 0)})
                           </span>
                         </div>
                       </div>
 
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
                         +24%
                       </span>
                     </div>
@@ -1519,13 +1635,13 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         <path
                           d="M 0 55 C 30 65, 45 40, 70 45 C 95 50, 115 15, 140 20 C 165 25, 180 5, 200 10"
                           fill="none"
-                          stroke="#0F172A"
+                          stroke="#FFFFFF"
                           strokeWidth="2.5"
                         />
                         <path
                           d="M 0 70 C 30 72, 50 60, 80 58 C 110 56, 130 35, 160 40 C 180 44, 190 30, 200 32"
                           fill="none"
-                          stroke="#FF5A1F"
+                          stroke="#FF4D15"
                           strokeWidth="2"
                           strokeDasharray="4 3"
                         />
@@ -1533,15 +1649,15 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                     </div>
 
                     {/* Interactive Days of Week Selector (M T W T F S S) */}
-                    <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-mono-code font-bold text-slate-400 pt-2 border-t border-slate-100">
+                    <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-mono-code font-bold text-zinc-400 pt-2 border-t border-white/10">
                       {weeklyDayData.map((d, idx) => (
                         <button
                           key={idx}
                           onClick={() => setSelectedDayIndex(idx)}
                           className={`w-6 h-6 mx-auto rounded-full flex items-center justify-center transition-all ${
                             selectedDayIndex === idx
-                              ? 'bg-slate-900 text-white font-bold shadow-xs scale-110'
-                              : 'text-slate-600 hover:bg-slate-100'
+                              ? 'bg-[#FF4D15] text-white font-bold shadow-xs scale-110'
+                              : 'text-zinc-400 hover:bg-[#18181E] hover:text-white'
                           }`}
                         >
                           {d.day}
@@ -1550,11 +1666,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                     </div>
 
                     {/* Day Detail Preview */}
-                    <div className="mt-2 text-[10px] text-slate-500 font-mono-code truncate flex items-center justify-between">
+                    <div className="mt-2 text-[10px] text-zinc-400 font-mono-code truncate flex items-center justify-between">
                       <span>{weeklyDayData[selectedDayIndex].name}: {weeklyDayData[selectedDayIndex].ingested} in / {weeklyDayData[selectedDayIndex].verified} ver</span>
                       <button 
                         onClick={handleTrackEvidenceToday} 
-                        className="text-[#FF5A1F] hover:underline font-bold"
+                        className="text-[#FF4D15] hover:underline font-bold"
                       >
                         + Track
                       </button>
@@ -1563,38 +1679,38 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
 
                   {/* Card 3: Month Progress / Custody Compliance */}
-                  <div className="md:col-span-4 bg-white rounded-[32px] p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+                  <div className="md:col-span-4 bg-[#070709] rounded-[32px] p-6 border border-white/10 shadow-sm flex flex-col justify-between">
                     <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-xs font-bold text-slate-900">Custody Compliance</h3>
-                      <Award className="w-4 h-4 text-[#FF5A1F]" />
+                      <h3 className="text-xs font-bold text-white">Custody Compliance</h3>
+                      <Award className="w-4 h-4 text-[#FF4D15]" />
                     </div>
-                    <div className="text-[10px] text-slate-500 font-medium">
+                    <div className="text-[10px] text-zinc-400 font-medium">
                       +20% compared to last month*
                     </div>
 
                     {/* Donut Progress Ring */}
                     <div className="my-3 flex items-center justify-between gap-4">
-                      <div className="space-y-1.5 text-[11px] font-medium text-slate-600">
+                      <div className="space-y-1.5 text-[11px] font-medium text-zinc-300">
                         <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-slate-900" />
+                          <span className="w-2 h-2 rounded-full bg-white" />
                           <span>Chat Screenshots</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-[#FF5A1F]" />
+                          <span className="w-2 h-2 rounded-full bg-[#FF4D15]" />
                           <span>UPI & Bank Debits</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                          <span className="w-2 h-2 rounded-full bg-emerald-400" />
                           <span>Coercive Calls</span>
                         </div>
                       </div>
 
                       {/* Circular 100% Ring */}
-                      <div className="relative w-24 h-24 rounded-full border-8 border-slate-100 flex items-center justify-center shrink-0">
-                        <div className="absolute inset-0 rounded-full border-8 border-slate-950 border-t-[#FF5A1F] border-r-emerald-500" />
+                      <div className="relative w-24 h-24 rounded-full border-8 border-[#18181E] flex items-center justify-center shrink-0">
+                        <div className="absolute inset-0 rounded-full border-8 border-white border-t-[#FF4D15] border-r-emerald-400" />
                         <div className="text-center">
-                          <div className="text-sm font-black font-mono-code text-slate-900">100%</div>
-                          <div className="text-[8px] font-bold uppercase text-slate-400">Admissible</div>
+                          <div className="text-sm font-black font-mono-code text-white">100%</div>
+                          <div className="text-[8px] font-bold uppercase text-zinc-400">Admissible</div>
                         </div>
                       </div>
                     </div>
@@ -1607,14 +1723,14 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           else if (userSortedIncidents.length > 0) onViewCertificate(userSortedIncidents[0]);
                           else onOpenReportModal();
                         }}
-                        className="flex-1 py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
+                        className="flex-1 py-2.5 px-4 rounded-xl bg-[#18181E] hover:bg-white/10 border border-white/10 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
                       >
                         <Download className="w-3.5 h-3.5" />
                         <span>Download Report ↓</span>
                       </button>
                       <button
                         onClick={() => showToast(`Custody verified under WORM ledger. Active docket: ${selectedCase?.trackingCode || 'IN-CFC-2026'}`)}
-                        className="p-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors"
+                        className="p-2.5 rounded-xl bg-[#FF4D15] text-white hover:bg-[#E03E0B] transition-colors"
                       >
                         <Share2 className="w-3.5 h-3.5" />
                       </button>
@@ -1628,20 +1744,20 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch">
                   
                   {/* Card 1: Custody Checklist with ADD & DELETE */}
-                  <div className="md:col-span-5 bg-white rounded-[32px] p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+                  <div className="md:col-span-5 bg-[#070709] rounded-[32px] p-6 border border-white/10 shadow-sm flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                      <div className="flex items-center justify-between pb-3 border-b border-white/10">
                         <div>
-                          <h3 className="text-xs font-bold text-slate-900">Custody Checklist</h3>
-                          <p className="text-[10px] text-slate-400">Track, add, or remove verification tasks</p>
+                          <h3 className="text-xs font-bold text-white">Custody Checklist</h3>
+                          <p className="text-[10px] text-zinc-400">Track, add, or remove verification tasks</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono-code text-[10px] font-bold">
+                          <span className="px-2 py-0.5 rounded-full bg-[#18181E] border border-white/10 text-zinc-300 font-mono-code text-[10px] font-bold">
                             {completedGoals}/{checklist.length}
                           </span>
                           <button
                             onClick={() => setIsAddingChecklist(!isAddingChecklist)}
-                            className="p-1 rounded-lg text-slate-600 hover:text-slate-950 hover:bg-slate-100 transition-colors"
+                            className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-[#18181E] transition-colors"
                             title="Add Checklist Task"
                           >
                             <Plus className="w-4 h-4" />
@@ -1658,18 +1774,18 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                             onChange={(e) => setNewChecklistInput(e.target.value)}
                             placeholder="Add custody checklist item..."
                             autoFocus
-                            className="flex-1 px-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-[#FF5A1F]"
+                            className="flex-1 px-3 py-1.5 text-xs rounded-xl bg-[#18181E] border border-white/15 text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
                           />
                           <button
                             type="submit"
-                            className="px-3 py-1.5 rounded-xl bg-slate-950 text-white text-xs font-bold hover:bg-slate-800"
+                            className="px-3 py-1.5 rounded-xl bg-[#FF4D15] text-white text-xs font-bold hover:bg-[#E03E0B]"
                           >
                             Add
                           </button>
                           <button
                             type="button"
                             onClick={() => setIsAddingChecklist(false)}
-                            className="p-1.5 text-slate-400 hover:text-slate-700"
+                            className="p-1.5 text-zinc-400 hover:text-white"
                           >
                             <X className="w-4 h-4" />
                           </button>
@@ -1681,7 +1797,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         {checklist.map((item) => (
                           <div
                             key={item.id}
-                            className="flex items-center justify-between group p-1.5 rounded-xl hover:bg-slate-50 transition-colors"
+                            className="flex items-center justify-between group p-1.5 rounded-xl hover:bg-[#18181E] transition-colors"
                           >
                             <div 
                               onClick={() => toggleCheck(item.id)}
@@ -1689,13 +1805,13 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                             >
                               <div className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 transition-all ${
                                 item.done
-                                  ? 'bg-slate-950 border-slate-950 text-white'
-                                  : 'border-slate-300 group-hover:border-slate-400 bg-white'
+                                  ? 'bg-[#FF4D15] border-[#FF4D15] text-white'
+                                  : 'border-white/25 group-hover:border-white/50 bg-[#18181E]'
                               }`}>
                                 {item.done && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                               </div>
                               <span className={`text-xs font-medium truncate ${
-                                item.done ? 'text-slate-950 line-through opacity-70' : 'text-slate-700'
+                                item.done ? 'text-zinc-500 line-through opacity-75' : 'text-zinc-200'
                               }`}>
                                 {item.text}
                               </span>
@@ -1704,7 +1820,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                             {/* Delete Checklist Item Button */}
                             <button
                               onClick={(e) => handleDeleteChecklistItem(item.id, e)}
-                              className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-600 transition-opacity ml-2 shrink-0"
+                              className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-rose-400 transition-opacity ml-2 shrink-0"
                               title="Delete task"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1714,9 +1830,9 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                       </div>
                     </div>
 
-                    <div className="pt-4 text-[11px] font-mono-code text-slate-400 border-t border-slate-100 flex items-center justify-between">
+                    <div className="pt-4 text-[11px] font-mono-code text-zinc-500 border-t border-white/10 flex items-center justify-between">
                       <span>Section 65B Criteria</span>
-                      <span className="text-emerald-700 font-bold">In Compliance ✓</span>
+                      <span className="text-emerald-400 font-bold">In Compliance ✓</span>
                     </div>
                   </div>
 
@@ -1724,12 +1840,12 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   {/* Card 2: Cases In Process */}
                   <div className="md:col-span-7 space-y-3">
                     <div className="flex items-center justify-between px-2">
-                      <h3 className="text-xs font-bold text-slate-900">
+                      <h3 className="text-xs font-bold text-white">
                         Cases In Process ({userSortedIncidents.length})
                       </h3>
                       <button
                         onClick={() => setActiveNav('cases')}
-                        className="text-[11px] text-slate-500 hover:text-slate-950 font-bold flex items-center gap-1"
+                        className="text-[11px] text-zinc-400 hover:text-[#FF4D15] font-bold flex items-center gap-1"
                       >
                         <span>Open all cases</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -1742,10 +1858,10 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                       {userSortedIncidents[0] && (
                         <div 
                           onClick={() => setSelectedCase(userSortedIncidents[0])}
-                          className="bg-white p-5 rounded-[28px] border border-slate-200/90 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative cursor-pointer"
+                          className="bg-[#070709] p-5 rounded-[28px] border border-white/10 hover:border-[#FF4D15]/40 shadow-sm flex flex-col justify-between transition-all relative cursor-pointer"
                         >
                           <div className="flex items-center justify-between mb-3">
-                            <div className="w-9 h-9 rounded-2xl bg-orange-50 text-[#FF5A1F] flex items-center justify-center">
+                            <div className="w-9 h-9 rounded-2xl bg-[#FF4D15]/15 text-[#FF4D15] flex items-center justify-center">
                               <AlertCircle className="w-5 h-5" />
                             </div>
                             <div className="relative">
@@ -1754,49 +1870,79 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                                   e.stopPropagation();
                                   setActiveMenuIndex(activeMenuIndex === 0 ? null : 0);
                                 }}
-                                className="text-slate-400 hover:text-slate-900 p-1"
+                                className="text-zinc-400 hover:text-white p-1"
                               >
                                 <MoreHorizontal className="w-4 h-4" />
                               </button>
                               {activeMenuIndex === 0 && (
-                                <div className="absolute right-0 top-6 w-32 bg-slate-950 text-white rounded-xl p-1.5 shadow-xl text-[10px] font-semibold space-y-1 z-30">
-                                  <button onClick={() => onViewCertificate(userSortedIncidents[0])} className="w-full text-left px-2 py-1 hover:bg-slate-800 rounded">View Cert</button>
-                                  <button onClick={() => setSelectedCase(userSortedIncidents[0])} className="w-full text-left px-2 py-1 hover:bg-slate-800 rounded">Inspect Hash</button>
+                                <div className="absolute right-0 top-6 w-32 bg-[#18181E] border border-white/15 text-white rounded-xl p-1.5 shadow-xl text-[10px] font-semibold space-y-1 z-30">
+                                  <button onClick={() => onViewCertificate(userSortedIncidents[0])} className="w-full text-left px-2 py-1 hover:bg-white/10 rounded">View Cert</button>
+                                  <button onClick={() => setSelectedCase(userSortedIncidents[0])} className="w-full text-left px-2 py-1 hover:bg-white/10 rounded">Inspect Hash</button>
                                 </div>
                               )}
                             </div>
                           </div>
 
                           <div>
-                            <h4 className="font-bold text-xs text-slate-900 line-clamp-2 leading-snug">
+                            <h4 className="font-bold text-xs text-white line-clamp-2 leading-snug">
                               {userSortedIncidents[0].title}
                             </h4>
-                            <div className="text-[10px] text-slate-500 font-mono-code mt-1.5 flex items-center justify-between">
-                              <span>{userSortedIncidents[0].seniorOfficerAssigned.split('(')[0]}</span>
-                              <span className="font-bold text-slate-700">{userSortedIncidents[0].investigationProgress || 50}%</span>
+                            <div className="text-[10px] text-zinc-400 font-mono-code mt-1.5 flex items-center justify-between">
+                              <span className="inline-flex items-center gap-1.5">
+                                {(userSortedIncidents[0].seniorOfficerAssigned || '').toLowerCase().includes('balchandra') && (
+                                  <img
+                                    src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_8.28.47_PM_76cc2fa2.jpeg"
+                                    alt="Balchandra"
+                                    className="w-4 h-4 rounded-full object-cover object-top border border-[#FF4D15]"
+                                  />
+                                )}
+                                {(userSortedIncidents[0].seniorOfficerAssigned || '').toLowerCase().includes('krishi') && (
+                                  <img
+                                    src="/assets/aistudio/image_526c1ede.png"
+                                    alt="Krishi"
+                                    className="w-4 h-4 rounded-full object-cover object-top border border-[#FF4D15]"
+                                  />
+                                )}
+                                {(userSortedIncidents[0].seniorOfficerAssigned || '').toLowerCase().includes('zohara') && (
+                                  <img
+                                    src="/assets/aistudio/image_acc490cb.png"
+                                    alt="Bibi Zohara"
+                                    className="w-4 h-4 rounded-full object-cover object-top border border-[#FF4D15]"
+                                  />
+                                )}
+                                {(userSortedIncidents[0].seniorOfficerAssigned || '').toLowerCase().includes('afsheen') && (
+                                  <img
+                                    src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg"
+                                    alt="Afsheen S"
+                                    className="w-4 h-4 rounded-full object-cover object-top border border-[#FF4D15]"
+                                  />
+                                )}
+                                <span>{(userSortedIncidents[0].seniorOfficerAssigned || 'Officer').split('(')[0]}</span>
+                              </span>
+                              <span className="font-bold text-zinc-200">{userSortedIncidents[0].investigationProgress || 50}%</span>
                             </div>
 
                             {/* Live Investigation Progress Bar */}
-                            <div className="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
+                            <div className="w-full bg-[#18181E] rounded-full h-1.5 mt-2 overflow-hidden">
                               <div 
-                                className="bg-[#FF5A1F] h-1.5 rounded-full transition-all duration-500" 
+                                className="bg-[#FF4D15] h-1.5 rounded-full transition-all duration-500" 
                                 style={{ width: `${userSortedIncidents[0].investigationProgress || 50}%` }}
                               />
                             </div>
 
                             {/* Investigator Study Notes Preview */}
                             {(userSortedIncidents[0].investigatorStudyNotes || userSortedIncidents[0].officerNotes) && (
-                              <div className="mt-2.5 p-2 rounded-xl bg-orange-50/70 border border-orange-100/80 text-[10px] text-slate-700 line-clamp-2">
-                                <span className="font-bold text-[#FF5A1F]">Study Note: </span>
+                              <div className="mt-2.5 p-2 rounded-xl bg-[#18181E] border border-[#FF4D15]/30 text-[10px] text-zinc-300 line-clamp-2">
+                                <span className="font-bold text-[#FF4D15]">Study Note: </span>
                                 <span>{userSortedIncidents[0].investigatorStudyNotes || userSortedIncidents[0].officerNotes}</span>
                               </div>
                             )}
                           </div>
 
-                          <div className="mt-4 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
-                            <span className="font-mono-code text-slate-400">{userSortedIncidents[0].trackingCode.substring(0, 10)}...</span>
-                            <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center">
-                              <Bell className="w-3 h-3" />
+                          <div className="mt-4 pt-2 border-t border-white/10 flex items-center justify-between text-[10px]">
+                            <span className="font-mono-code text-zinc-400">{(userSortedIncidents[0].trackingCode || '').substring(0, 10)}...</span>
+                            <div className="w-6 h-6 rounded-full bg-[#18181E] border border-white/10 text-white flex items-center justify-center">
+                              <Bell className="w-3 h-3 text-[#FF4D15]" />
                             </div>
                           </div>
                         </div>
@@ -1806,10 +1952,10 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                       {userSortedIncidents[1] ? (
                         <div 
                           onClick={() => setSelectedCase(userSortedIncidents[1])}
-                          className="bg-white p-5 rounded-[28px] border border-slate-200/90 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow relative cursor-pointer"
+                          className="bg-[#070709] p-5 rounded-[28px] border border-white/10 hover:border-purple-400/40 shadow-sm flex flex-col justify-between transition-all relative cursor-pointer"
                         >
                           <div className="flex items-center justify-between mb-3">
-                            <div className="w-9 h-9 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center">
+                            <div className="w-9 h-9 rounded-2xl bg-purple-500/15 text-purple-300 flex items-center justify-center">
                               <Lock className="w-5 h-5" />
                             </div>
                             <div className="relative">
@@ -1818,49 +1964,79 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                                   e.stopPropagation();
                                   setActiveMenuIndex(activeMenuIndex === 1 ? null : 1);
                                 }}
-                                className="text-slate-400 hover:text-slate-900 p-1"
+                                className="text-zinc-400 hover:text-white p-1"
                               >
                                 <MoreHorizontal className="w-4 h-4" />
                               </button>
                               {activeMenuIndex === 1 && (
-                                <div className="absolute right-0 top-6 w-32 bg-slate-950 text-white rounded-xl p-1.5 shadow-xl text-[10px] font-semibold space-y-1 z-30">
-                                  <button onClick={() => onViewCertificate(userSortedIncidents[1])} className="w-full text-left px-2 py-1 hover:bg-slate-800 rounded">View Cert</button>
-                                  <button onClick={() => setSelectedCase(userSortedIncidents[1])} className="w-full text-left px-2 py-1 hover:bg-slate-800 rounded">Inspect Hash</button>
+                                <div className="absolute right-0 top-6 w-32 bg-[#18181E] border border-white/15 text-white rounded-xl p-1.5 shadow-xl text-[10px] font-semibold space-y-1 z-30">
+                                  <button onClick={() => onViewCertificate(userSortedIncidents[1])} className="w-full text-left px-2 py-1 hover:bg-white/10 rounded">View Cert</button>
+                                  <button onClick={() => setSelectedCase(userSortedIncidents[1])} className="w-full text-left px-2 py-1 hover:bg-white/10 rounded">Inspect Hash</button>
                                 </div>
                               )}
                             </div>
                           </div>
 
                           <div>
-                            <h4 className="font-bold text-xs text-slate-900 line-clamp-2 leading-snug">
+                            <h4 className="font-bold text-xs text-white line-clamp-2 leading-snug">
                               {userSortedIncidents[1].title}
                             </h4>
-                            <div className="text-[10px] text-slate-500 font-mono-code mt-1.5 flex items-center justify-between">
-                              <span>{userSortedIncidents[1].seniorOfficerAssigned.split('(')[0]}</span>
-                              <span className="font-bold text-slate-700">{userSortedIncidents[1].investigationProgress || 70}%</span>
+                            <div className="text-[10px] text-zinc-400 font-mono-code mt-1.5 flex items-center justify-between">
+                              <span className="inline-flex items-center gap-1.5">
+                                {(userSortedIncidents[1].seniorOfficerAssigned || '').toLowerCase().includes('balchandra') && (
+                                  <img
+                                    src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_8.28.47_PM_76cc2fa2.jpeg"
+                                    alt="Balchandra"
+                                    className="w-4 h-4 rounded-full object-cover object-top border border-purple-400"
+                                  />
+                                )}
+                                {(userSortedIncidents[1].seniorOfficerAssigned || '').toLowerCase().includes('krishi') && (
+                                  <img
+                                    src="/assets/aistudio/image_526c1ede.png"
+                                    alt="Krishi"
+                                    className="w-4 h-4 rounded-full object-cover object-top border border-purple-400"
+                                  />
+                                )}
+                                {(userSortedIncidents[1].seniorOfficerAssigned || '').toLowerCase().includes('zohara') && (
+                                  <img
+                                    src="/assets/aistudio/image_acc490cb.png"
+                                    alt="Bibi Zohara"
+                                    className="w-4 h-4 rounded-full object-cover object-top border border-purple-400"
+                                  />
+                                )}
+                                {(userSortedIncidents[1].seniorOfficerAssigned || '').toLowerCase().includes('afsheen') && (
+                                  <img
+                                    src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg"
+                                    alt="Afsheen S"
+                                    className="w-4 h-4 rounded-full object-cover object-top border border-purple-400"
+                                  />
+                                )}
+                                <span>{(userSortedIncidents[1].seniorOfficerAssigned || 'Officer').split('(')[0]}</span>
+                              </span>
+                              <span className="font-bold text-zinc-200">{userSortedIncidents[1].investigationProgress || 70}%</span>
                             </div>
 
                             {/* Live Investigation Progress Bar */}
-                            <div className="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
+                            <div className="w-full bg-[#18181E] rounded-full h-1.5 mt-2 overflow-hidden">
                               <div 
-                                className="bg-purple-600 h-1.5 rounded-full transition-all duration-500" 
+                                className="bg-purple-500 h-1.5 rounded-full transition-all duration-500" 
                                 style={{ width: `${userSortedIncidents[1].investigationProgress || 70}%` }}
                               />
                             </div>
 
                             {/* Investigator Study Notes Preview */}
                             {(userSortedIncidents[1].investigatorStudyNotes || userSortedIncidents[1].officerNotes) && (
-                              <div className="mt-2.5 p-2 rounded-xl bg-purple-50/70 border border-purple-100/80 text-[10px] text-slate-700 line-clamp-2">
-                                <span className="font-bold text-purple-700">Study Note: </span>
+                              <div className="mt-2.5 p-2 rounded-xl bg-[#18181E] border border-purple-500/30 text-[10px] text-zinc-300 line-clamp-2">
+                                <span className="font-bold text-purple-300">Study Note: </span>
                                 <span>{userSortedIncidents[1].investigatorStudyNotes || userSortedIncidents[1].officerNotes}</span>
                               </div>
                             )}
                           </div>
 
-                          <div className="mt-4 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
-                            <span className="font-mono-code text-slate-400">{userSortedIncidents[1].trackingCode.substring(0, 10)}...</span>
-                            <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center">
-                              <Bell className="w-3 h-3" />
+                          <div className="mt-4 pt-2 border-t border-white/10 flex items-center justify-between text-[10px]">
+                            <span className="font-mono-code text-zinc-400">{(userSortedIncidents[1].trackingCode || '').substring(0, 10)}...</span>
+                            <div className="w-6 h-6 rounded-full bg-[#18181E] border border-white/10 text-white flex items-center justify-center">
+                              <Bell className="w-3 h-3 text-purple-300" />
                             </div>
                           </div>
                         </div>
@@ -1869,15 +2045,15 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                       {/* Card 3: Dashed "+ Add Task / Case" Card */}
                       <div
                         onClick={onOpenReportModal}
-                        className="p-6 rounded-[28px] border-2 border-dashed border-slate-300 hover:border-slate-400 bg-white/50 hover:bg-white text-center flex flex-col items-center justify-center cursor-pointer transition-all min-h-[170px] group"
+                        className="p-6 rounded-[28px] border-2 border-dashed border-white/20 hover:border-[#FF4D15] bg-[#070709]/60 hover:bg-[#18181E] text-center flex flex-col items-center justify-center cursor-pointer transition-all min-h-[170px] group"
                       >
-                        <div className="w-10 h-10 rounded-full bg-slate-100 group-hover:bg-[#FF5A1F] group-hover:text-white text-slate-700 flex items-center justify-center mb-2 transition-colors">
+                        <div className="w-10 h-10 rounded-full bg-[#18181E] group-hover:bg-[#FF4D15] group-hover:text-white text-zinc-300 flex items-center justify-center mb-2 transition-colors border border-white/10">
                           <Plus className="w-5 h-5" />
                         </div>
-                        <span className="text-xs font-bold text-slate-800 group-hover:text-[#FF5A1F] transition-colors">
+                        <span className="text-xs font-bold text-white group-hover:text-[#FF4D15] transition-colors">
                           + Add Incident / Report
                         </span>
-                        <span className="text-[10px] text-slate-400 mt-1">
+                        <span className="text-[10px] text-zinc-400 mt-1">
                           Share problem & lock WORM
                         </span>
                       </div>
@@ -1891,53 +2067,57 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 {/* ROW 3: RECENT EVIDENCE PROJECTS */}
                 <div className="space-y-3 pt-2">
                   <div className="flex items-center justify-between px-2">
-                    <h3 className="text-xs font-bold text-slate-900">
+                    <h3 className="text-xs font-bold text-white">
                       Recent Forensic Evidence Streams
                     </h3>
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium">
+                    <div className="flex items-center gap-2 text-[11px] text-zinc-400 font-medium">
                       <span>Examiners: 1. BIBI ZOHARA · 2. BALCHANDRA · 3. AFSHEEN S · 4. KRISHI</span>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="bg-slate-950 text-white p-5 rounded-[26px] flex flex-col justify-between shadow-md">
+                    <div className="bg-[#070709] border border-white/10 text-white p-5 rounded-[26px] flex flex-col justify-between shadow-md">
                       <div className="flex items-center justify-between">
                         <h5 className="font-bold text-xs text-white">UPI Mule Node Tracking</h5>
-                        <div className="text-[9px] font-mono-code font-bold text-slate-400">3/4</div>
+                        <div className="text-[9px] font-mono-code font-bold text-zinc-400">3/4</div>
                       </div>
-                      <div className="my-2 text-[11px] text-slate-400 flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                      <div className="my-2 text-[11px] text-zinc-400 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D15]" />
                         <span>In progress · Lead: 2. BALCHANDRA</span>
                       </div>
-                      <div className="text-[10px] text-slate-400 font-mono-code truncate">
+                      <div className="text-[10px] text-zinc-500 font-mono-code truncate">
                         HDFC Mule 0492 frozen via 1930
                       </div>
                     </div>
 
-                    <div className="bg-slate-950 text-white p-5 rounded-[26px] flex flex-col justify-between shadow-md">
+                    <div className="bg-[#070709] border border-white/10 text-white p-5 rounded-[26px] flex flex-col justify-between shadow-md">
                       <div className="flex items-center justify-between">
                         <h5 className="font-bold text-xs text-white">Audio Spectrogram Analysis</h5>
                         <div className="text-[9px] font-mono-code font-bold text-emerald-400">1/1</div>
                       </div>
-                      <div className="my-2 text-[11px] text-slate-400 flex items-center gap-1.5">
+                      <div className="my-2 text-[11px] text-zinc-400 flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                         <span>Completed · Lead: 4. KRISHI</span>
                       </div>
-                      <div className="text-[10px] text-slate-400 font-mono-code truncate">
+                      <div className="text-[10px] text-zinc-500 font-mono-code truncate">
                         Deepfake voice biometric synthesis match
                       </div>
                     </div>
 
-                    <div className="bg-slate-950 text-white p-5 rounded-[26px] flex flex-col justify-between shadow-md">
+                    <div className="bg-[#070709] border border-white/10 text-white p-5 rounded-[26px] flex flex-col justify-between shadow-md">
                       <div className="flex items-center justify-between">
                         <h5 className="font-bold text-xs text-white">Telegram Task Escrow Chain</h5>
-                        <div className="text-[9px] font-mono-code font-bold text-slate-400">2/3</div>
+                        <div className="text-[9px] font-mono-code font-bold text-zinc-400">2/3</div>
                       </div>
-                      <div className="my-2 text-[11px] text-slate-400 flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                      <div className="my-2 text-[11px] text-zinc-400 flex items-center gap-1.5">
+                        <img
+                          src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg"
+                          alt="Afsheen S"
+                          className="w-4 h-4 rounded-full object-cover object-top border border-purple-400 shrink-0"
+                        />
                         <span>Under Analysis · Lead: 3. AFSHEEN S</span>
                       </div>
-                      <div className="text-[10px] text-slate-400 font-mono-code truncate">
+                      <div className="text-[10px] text-zinc-500 font-mono-code truncate">
                         Cross-border cryptocurrency hash link
                       </div>
                     </div>
@@ -1945,7 +2125,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 </div>
 
                 {/* DEDICATED F.I.P DONTPAD INTEGRATION BANNER */}
-                <div className="p-6 rounded-[32px] bg-gradient-to-r from-slate-950 via-slate-900 to-emerald-950 text-white border border-emerald-500/30 shadow-xl space-y-4 relative overflow-hidden">
+                <div className="p-6 rounded-[32px] bg-gradient-to-r from-[#070709] via-[#111115] to-[#18181E] text-white border border-emerald-500/30 shadow-xl space-y-4 relative overflow-hidden">
                   <div className="absolute right-0 top-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
@@ -1954,15 +2134,15 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono-code font-bold border border-emerald-500/30">
                           ⚡ 24-HOUR DONTPAD SYSTEM
                         </span>
-                        <span className="text-[11px] text-slate-400 font-mono-code">
+                        <span className="text-[11px] text-zinc-400 font-mono-code">
                           Live Dedicated to F.I.P
                         </span>
                       </div>
                       <h4 className="text-base sm:text-lg font-black text-white">
                         Dontpad Real-Time Collaborative Notepad & Temporary Links
                       </h4>
-                      <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
-                        Create or open a notepad simply by changing the URL (e.g. <code className="bg-slate-800 text-emerald-400 px-1 py-0.5 rounded font-mono">#pad/case-notes</code>). Type anywhere, auto-saves continuously, share 24-hour links instantly, and download physical copies as compressed <code className="font-mono text-emerald-400">.zip</code> or <code className="font-mono text-emerald-400">.txt</code> archives!
+                      <p className="text-xs text-zinc-300 max-w-2xl leading-relaxed">
+                        Create or open a notepad simply by changing the URL (e.g. <code className="bg-[#070709] border border-white/10 text-emerald-400 px-1 py-0.5 rounded font-mono">#pad/case-notes</code>). Type anywhere, auto-saves continuously, share 24-hour links instantly, and download physical copies as compressed <code className="font-mono text-emerald-400">.zip</code> or <code className="font-mono text-emerald-400">.txt</code> archives!
                       </p>
                     </div>
 
@@ -1972,7 +2152,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           setActiveNav('dontpad');
                           window.location.hash = `pad/${activePadSlug}`;
                         }}
-                        className="px-5 py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all transform hover:scale-105 flex items-center gap-2"
+                        className="px-5 py-2.5 rounded-2xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white font-black text-xs uppercase tracking-wider shadow-[0_0_24px_rgba(255,77,21,0.35)] transition-all transform hover:scale-105 flex items-center gap-2"
                       >
                         <Edit3 className="w-4 h-4 fill-current" />
                         <span>Open Dontpad System</span>
@@ -1984,7 +2164,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           navigator.clipboard?.writeText?.(url);
                           setDashboardToast(`24-Hour Temporary Pad Link copied: ${url}`);
                         }}
-                        className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition-colors flex items-center gap-2"
+                        className="px-4 py-2.5 rounded-2xl bg-[#18181E] hover:bg-white/10 text-white font-bold text-xs border border-white/15 transition-colors flex items-center gap-2"
                       >
                         <Share2 className="w-4 h-4 text-emerald-400" />
                         <span>Copy 24h Link</span>
@@ -1995,27 +2175,27 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
                 {/* DEDICATED CITIZEN EVIDENCE FOLDER UPLOAD & VAULT */}
                 {selectedCase && (
-                  <div className="bg-white p-6 sm:p-7 rounded-[32px] border border-slate-200/90 shadow-sm space-y-5">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                  <div className="bg-[#070709] p-6 sm:p-7 rounded-[32px] border border-white/10 shadow-sm space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-800 text-[10px] font-mono-code font-bold">
+                          <span className="px-2.5 py-0.5 rounded-full bg-[#FF4D15]/15 text-[#FF4D15] border border-[#FF4D15]/30 text-[10px] font-mono-code font-bold">
                             YOUR DEDICATED FOLDER
                           </span>
-                          <span className="text-xs text-slate-400 font-mono-code">
+                          <span className="text-xs text-zinc-400 font-mono-code">
                             Docket #{selectedCase.trackingCode}
                           </span>
                         </div>
-                        <h3 className="text-lg font-black text-slate-950 mt-1">
+                        <h3 className="text-lg font-black text-white mt-1">
                           Upload Evidence to Your Folder ({selectedCase.citizenName})
                         </h3>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <p className="text-xs text-zinc-400 mt-0.5">
                           Whatever evidence you upload is stored directly in your dedicated folder in the Senior Investigator's Workstation.
                         </p>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <label className="cursor-pointer px-4 py-2 rounded-xl bg-[#FF5A1F] hover:bg-[#E04B14] text-white text-xs font-bold transition-all flex items-center gap-2 shadow-xs">
+                        <label className="cursor-pointer px-4 py-2 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-bold transition-all flex items-center gap-2 shadow-xs">
                           <Upload className="w-3.5 h-3.5" />
                           <span>+ Upload Evidence File</span>
                           <input
@@ -2034,8 +2214,8 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
                     {/* Success banner */}
                     {uploadSuccessMessage && (
-                      <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-fade-in">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 animate-fade-in">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                         <span className="font-medium">{uploadSuccessMessage}</span>
                       </div>
                     )}
@@ -2049,7 +2229,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           handleUploadEvidence(e.dataTransfer.files);
                         }
                       }}
-                      className="border-2 border-dashed border-slate-200 hover:border-[#FF5A1F] rounded-2xl p-6 text-center bg-slate-50/60 hover:bg-orange-50/20 transition-all cursor-pointer group"
+                      className="border-2 border-dashed border-white/15 hover:border-[#FF4D15] rounded-2xl p-6 text-center bg-[#111115] hover:bg-[#18181E] transition-all cursor-pointer group"
                       onClick={() => {
                         const input = document.createElement('input');
                         input.type = 'file';
@@ -2060,47 +2240,47 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         input.click();
                       }}
                     >
-                      <div className="w-10 h-10 rounded-2xl bg-white shadow-2xs border border-slate-200 flex items-center justify-center mx-auto mb-2 text-slate-500 group-hover:text-[#FF5A1F] group-hover:scale-105 transition-all">
+                      <div className="w-10 h-10 rounded-2xl bg-[#18181E] shadow-2xs border border-white/10 flex items-center justify-center mx-auto mb-2 text-zinc-400 group-hover:text-[#FF4D15] group-hover:scale-105 transition-all">
                         <Upload className="w-5 h-5" />
                       </div>
-                      <p className="text-xs font-bold text-slate-800">
-                        Drop evidence files here, or <span className="text-[#FF5A1F] underline">browse</span>
+                      <p className="text-xs font-bold text-white">
+                        Drop evidence files here, or <span className="text-[#FF4D15] underline">browse</span>
                       </p>
-                      <p className="text-[11px] text-slate-400 mt-1">
+                      <p className="text-[11px] text-zinc-400 mt-1">
                         Bank transaction statements (PDF), scam APKs, WhatsApp/Telegram screenshots (PNG/JPG), call recordings (MP3/MP4)
                       </p>
                     </div>
 
                     {/* Security Notice: Senior Investigator Rights */}
-                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-start gap-3">
-                      <Lock className="w-4 h-4 text-[#FF5A1F] shrink-0 mt-0.5" />
+                    <div className="p-3.5 rounded-2xl bg-[#111115] border border-white/10 text-xs text-zinc-300 flex items-start gap-3">
+                      <Lock className="w-4 h-4 text-[#FF4D15] shrink-0 mt-0.5" />
                       <div className="leading-relaxed">
-                        <strong className="text-slate-900">Cryptographic Integrity Guarantee: </strong>
+                        <strong className="text-white">Cryptographic Integrity Guarantee: </strong>
                         All files uploaded to your dedicated folder are sealed with bit-level SHA-256 and RFC-3161 timestamps. 
-                        <strong> The senior investigator has rights only to view your folder, operate the investigation, examine the case, and study the data — and CANNOT alter, tamper with, or overwrite your evidence.</strong>
+                        <strong className="text-white"> The senior investigator has rights only to view your folder, operate the investigation, examine the case, and study the data — and CANNOT alter, tamper with, or overwrite your evidence.</strong>
                       </div>
                     </div>
 
                     {/* Currently Uploaded Files List */}
                     <div className="space-y-2 pt-2">
-                      <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+                      <div className="flex items-center justify-between text-xs font-bold text-white">
                         <span>Evidence Files in Your Dedicated Folder ({selectedCase.evidenceFiles?.length || 0})</span>
-                        <span className="text-[10px] font-mono-code text-slate-400">All Files WORM Immutable</span>
+                        <span className="text-[10px] font-mono-code text-zinc-400">All Files WORM Immutable</span>
                       </div>
 
                       <div className="space-y-2">
                         {(selectedCase.evidenceFiles || []).map((file, idx) => (
                           <div 
                             key={file.id || idx}
-                            className="p-3 rounded-xl bg-slate-50 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                            className="p-3 rounded-xl bg-[#18181E] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 shrink-0">
-                                <FileText className="w-4 h-4 text-[#FF5A1F]" />
+                              <div className="w-8 h-8 rounded-lg bg-[#070709] border border-white/10 flex items-center justify-center text-zinc-300 shrink-0">
+                                <FileText className="w-4 h-4 text-[#FF4D15]" />
                               </div>
                               <div className="min-w-0">
-                                <div className="font-bold text-slate-900 truncate">{file.name}</div>
-                                <div className="text-[10px] font-mono-code text-slate-500 flex items-center gap-2 truncate">
+                                <div className="font-bold text-white truncate">{file.name}</div>
+                                <div className="text-[10px] font-mono-code text-zinc-400 flex items-center gap-2 truncate">
                                   <span>{file.size ? `${(file.size / 1024).toFixed(1)} KB` : 'Payload'}</span>
                                   <span>•</span>
                                   <span>{file.wormTimestamp || 'WORM Locked'}</span>
@@ -2109,10 +2289,10 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                             </div>
 
                             <div className="flex items-center gap-2 shrink-0">
-                              <code className="text-[10px] font-mono-code text-slate-600 bg-white px-2 py-1 rounded border border-slate-200 truncate max-w-[200px]" title={file.sha256}>
-                                SHA: {file.sha256.substring(0, 16)}...
+                              <code className="text-[10px] font-mono-code text-emerald-300 bg-[#070709] px-2 py-1 rounded border border-white/10 truncate max-w-[200px]" title={file.sha256}>
+                                SHA: {(file.sha256 || '').substring(0, 16)}...
                               </code>
-                              <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[9px] font-bold border border-emerald-200">
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-[9px] font-bold border border-emerald-500/30">
                                 Locked ✓
                               </span>
                             </div>
@@ -2127,30 +2307,30 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
                 {/* ROW 4: DUAL STORAGE FORMAT INSPECTOR (ORIGINAL RAW FORMAT vs CRYPTOGRAPHIC HASH FORMAT) */}
                 {selectedCase && (
-                  <div className="bg-white p-6 rounded-[32px] border border-slate-200 shadow-sm mt-6 space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                  <div className="bg-[#070709] p-6 rounded-[32px] border border-white/10 shadow-sm mt-6 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono-code font-bold text-[#FF5A1F] uppercase tracking-wider">
+                          <span className="text-[10px] font-mono-code font-bold text-[#FF4D15] uppercase tracking-wider">
                             ACTIVE DOCKET INSPECTOR · {selectedCase.trackingCode}
                           </span>
-                          <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[9px] font-bold">
+                          <span className="px-2 py-0.5 rounded-full bg-[#18181E] border border-white/10 text-zinc-300 text-[9px] font-bold">
                             {selectedCase.status}
                           </span>
                         </div>
-                        <h4 className="text-base font-black text-slate-950 mt-0.5">
+                        <h4 className="text-base font-black text-white mt-0.5">
                           {selectedCase.title}
                         </h4>
                       </div>
 
                       {/* Format Selector: Original Raw Format vs Cryptographic Hash Format */}
-                      <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200">
+                      <div className="flex items-center bg-[#18181E] p-1 rounded-2xl border border-white/10">
                         <button
                           onClick={() => setDataInspectionTab('raw')}
                           className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                             dataInspectionTab === 'raw'
-                              ? 'bg-white text-slate-950 shadow-xs'
-                              : 'text-slate-600 hover:text-slate-950'
+                              ? 'bg-[#FF4D15] text-white shadow-xs'
+                              : 'text-zinc-400 hover:text-white'
                           }`}
                         >
                           <FileText className="w-3.5 h-3.5" />
@@ -2160,11 +2340,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           onClick={() => setDataInspectionTab('hash')}
                           className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                             dataInspectionTab === 'hash'
-                              ? 'bg-white text-slate-950 shadow-xs'
-                              : 'text-slate-600 hover:text-slate-950'
+                              ? 'bg-[#FF4D15] text-white shadow-xs'
+                              : 'text-zinc-400 hover:text-white'
                           }`}
                         >
-                          <Hash className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                          <Hash className="w-3.5 h-3.5" />
                           <span>Cryptographic Hash Format</span>
                         </button>
                       </div>
@@ -2172,28 +2352,28 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
                     {/* Format Content */}
                     {dataInspectionTab === 'raw' ? (
-                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
-                        <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                          <span className="flex items-center gap-1.5 text-slate-600">
-                            <FileCode className="w-3.5 h-3.5 text-slate-500" />
+                      <div className="bg-[#111115] p-4 rounded-2xl border border-white/10 space-y-3">
+                        <div className="flex items-center justify-between text-xs font-bold text-white">
+                          <span className="flex items-center gap-1.5 text-zinc-300">
+                            <FileCode className="w-3.5 h-3.5 text-[#FF4D15]" />
                             Raw Evidentiary Payload (Untouched Citizen Statement)
                           </span>
-                          <span className="text-[10px] font-mono-code text-slate-400">
+                          <span className="text-[10px] font-mono-code text-zinc-400">
                             Bytes: {(selectedCase.rawOriginalContent || selectedCase.description).length} chars
                           </span>
                         </div>
-                        <div className="p-3 bg-white rounded-xl border border-slate-200 text-xs font-mono-code text-slate-800 leading-relaxed whitespace-pre-wrap select-all">
+                        <div className="p-3 bg-[#070709] rounded-xl border border-white/10 text-xs font-mono-code text-zinc-200 leading-relaxed whitespace-pre-wrap select-all">
                           {selectedCase.rawOriginalContent || selectedCase.description}
                         </div>
-                        <div className="text-[11px] text-slate-500 flex flex-wrap items-center gap-4 pt-1">
-                          <span>Reported by: <strong>{selectedCase.citizenName}</strong> ({selectedCase.citizenEmail})</span>
-                          <span>Timestamp: <strong>{selectedCase.dateReported}</strong></span>
+                        <div className="text-[11px] text-zinc-400 flex flex-wrap items-center gap-4 pt-1">
+                          <span>Reported by: <strong className="text-white">{selectedCase.citizenName}</strong> ({selectedCase.citizenEmail})</span>
+                          <span>Timestamp: <strong className="text-white">{selectedCase.dateReported}</strong></span>
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-slate-950 text-white p-4 rounded-2xl border border-slate-800 space-y-3">
-                        <div className="flex items-center justify-between text-xs font-bold text-slate-300">
-                          <span className="flex items-center gap-1.5 text-[#FF5A1F]">
+                      <div className="bg-[#111115] text-white p-4 rounded-2xl border border-white/10 space-y-3">
+                        <div className="flex items-center justify-between text-xs font-bold text-zinc-300">
+                          <span className="flex items-center gap-1.5 text-[#FF4D15]">
                             <Hash className="w-3.5 h-3.5" />
                             SHA-256 Digest & WORM Ledger Lock
                           </span>
@@ -2202,13 +2382,13 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           </span>
                         </div>
                         
-                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono-code text-emerald-400 break-all select-all">
+                        <div className="p-3 bg-[#070709] rounded-xl border border-white/10 text-xs font-mono-code text-emerald-400 break-all select-all">
                           {selectedCase.hashFormat?.sha256 || selectedCase.primaryHash}
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px] font-mono-code text-slate-400 pt-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px] font-mono-code text-zinc-400 pt-1">
                           <div>Algorithm: <span className="text-white">SHA-256 (FIPS 180-4)</span></div>
-                          <div>Merkle Root: <span className="text-white">{(selectedCase.hashFormat?.merkleRoot || selectedCase.primaryHash).substring(0, 16)}...</span></div>
+                          <div>Merkle Root: <span className="text-white">{((selectedCase.hashFormat?.merkleRoot || selectedCase.primaryHash) || '').substring(0, 16)}...</span></div>
                           <div>WORM Block: <span className="text-white">{selectedCase.hashFormat?.wormDigest || 'WORM-LEDGER-BLK-849102'}</span></div>
                         </div>
                       </div>
@@ -2223,14 +2403,14 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                             selectedCase.hashFormat?.sha256 || selectedCase.primaryHash
                           )}
                           disabled={isVerifyingHash}
-                          className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
+                          className="px-4 py-2 rounded-xl bg-[#18181E] hover:bg-white/10 border border-white/10 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
                         >
                           <RefreshCw className={`w-3.5 h-3.5 ${isVerifyingHash ? 'animate-spin' : ''}`} />
                           <span>{isVerifyingHash ? 'Calculating SHA-256...' : 'Verify Hash Equality'}</span>
                         </button>
                         {hashVerificationResult === 'MATCH_CONFIRMED' && (
-                          <span className="px-3 py-1 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="px-3 py-1 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                             <span>100% Cryptographic Match</span>
                           </span>
                         )}
@@ -2238,7 +2418,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
                       <button
                         onClick={() => onViewCertificate(selectedCase)}
-                        className="px-5 py-2 rounded-xl bg-[#FF5A1F] hover:bg-[#e04a12] text-white text-xs font-bold shadow-sm transition-all"
+                        className="px-5 py-2 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-bold shadow-sm transition-all"
                       >
                         Open Section 65B Certificate
                       </button>
@@ -2254,11 +2434,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 TAB 2: CASE TIMELINE VIEW
             ========================================================================= */}
             {activeNav === 'timeline' && (
-              <div className="bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+              <div className="bg-[#070709] rounded-[32px] p-6 sm:p-8 border border-white/10 shadow-sm space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
                   <div>
-                    <h2 className="text-xl font-black text-slate-950">WORM Case Timeline & Chain of Custody</h2>
-                    <p className="text-xs text-slate-500">
+                    <h2 className="text-xl font-black text-white">WORM Case Timeline & Chain of Custody</h2>
+                    <p className="text-xs text-zinc-400">
                       Sequential cryptographic audit trail for Docket #{selectedCase?.trackingCode || 'ACTIVE'}.
                     </p>
                   </div>
@@ -2271,11 +2451,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         const found = userSortedIncidents.find(i => i.id === e.target.value);
                         if (found) setSelectedCase(found);
                       }}
-                      className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold bg-white text-slate-800 focus:outline-none"
+                      className="px-4 py-2 rounded-xl border border-white/15 text-xs font-bold bg-[#18181E] text-white focus:outline-none focus:border-[#FF4D15]"
                     >
                       {userSortedIncidents.map((inc, idx) => (
                         <option key={inc.id || (inc as any)._id || inc.trackingCode || `timeline-opt-${idx}`} value={inc.id || (inc as any)._id || inc.trackingCode}>
-                          {inc.trackingCode} - {inc.title.substring(0, 30)}...
+                          {inc.trackingCode} - {(inc.title || '').substring(0, 30)}...
                         </option>
                       ))}
                     </select>
@@ -2283,15 +2463,15 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 </div>
 
                 {userSortedIncidents.length === 0 ? (
-                  <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-200 p-6 space-y-3">
-                    <Clock className="w-10 h-10 text-slate-400 mx-auto" />
-                    <h3 className="text-sm font-bold text-slate-900">No Case Timeline Available</h3>
-                    <p className="text-xs text-slate-500 max-w-md mx-auto">
+                  <div className="text-center py-12 bg-[#111115] rounded-2xl border border-white/10 p-6 space-y-3">
+                    <Clock className="w-10 h-10 text-zinc-500 mx-auto" />
+                    <h3 className="text-sm font-bold text-white">No Case Timeline Available</h3>
+                    <p className="text-xs text-zinc-400 max-w-md mx-auto">
                       You currently have no active forensic dockets filed under this account. Lodge a new case or complaint to establish an immutable RFC-3161 WORM chain-of-custody audit trail.
                     </p>
                     <button
                       onClick={onOpenReportModal}
-                      className="px-5 py-2.5 rounded-xl bg-[#FF5A1F] hover:bg-[#e04a12] text-white text-xs font-bold shadow-sm transition-all"
+                      className="px-5 py-2.5 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-bold shadow-sm transition-all"
                     >
                       + File Evidence Complaint
                     </button>
@@ -2299,19 +2479,19 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 ) : (
                   <>
                     {/* Timeline Events List */}
-                    <div className="space-y-6 relative before:absolute before:left-4 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
+                    <div className="space-y-6 relative before:absolute before:left-4 before:top-2 before:bottom-2 before:w-0.5 before:bg-white/15">
                       {(selectedCase?.custodyEvents || []).map((event, idx) => (
                         <div key={event.id || idx} className="relative pl-10">
-                          <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-slate-950 border-4 border-white shadow-xs" />
-                          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+                          <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-[#FF4D15] border-4 border-[#070709] shadow-xs" />
+                          <div className="bg-[#18181E] p-4 rounded-2xl border border-white/10 space-y-2">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
-                              <span className="font-bold text-slate-900">{event.actor} ({event.role})</span>
-                              <span className="text-[10px] font-mono-code text-slate-500">{event.timestamp}</span>
+                              <span className="font-bold text-white">{event.actor} ({event.role})</span>
+                              <span className="text-[10px] font-mono-code text-zinc-400">{event.timestamp}</span>
                             </div>
-                            <p className="text-xs text-slate-700 leading-relaxed">{event.action}</p>
-                            <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px] font-mono-code text-slate-500">
-                              <span>Merkle Seal: <strong className="text-slate-800">{event.merkleHash}</strong></span>
-                              <span className="text-emerald-700 font-bold">WORM RFC-3161 Certified ✓</span>
+                            <p className="text-xs text-zinc-300 leading-relaxed">{event.action}</p>
+                            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-mono-code text-zinc-400">
+                              <span>Merkle Seal: <strong className="text-white">{event.merkleHash}</strong></span>
+                              <span className="text-emerald-400 font-bold">WORM RFC-3161 Certified ✓</span>
                             </div>
                           </div>
                         </div>
@@ -2319,20 +2499,20 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
                       {/* Additional Milestone: Judicial Admissibility */}
                       <div className="relative pl-10">
-                        <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-emerald-600 border-4 border-white shadow-xs" />
-                        <div className="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-200 space-y-2">
+                        <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-4 border-[#070709] shadow-xs" />
+                        <div className="bg-emerald-500/10 p-4 rounded-2xl border border-emerald-500/30 space-y-2">
                           <div className="flex items-center justify-between text-xs">
-                            <span className="font-bold text-emerald-950">Indian Evidence Act Section 65B Issued</span>
-                            <span className="text-[10px] font-mono-code text-emerald-700">{selectedCase?.legalAdmissibilityCertId}</span>
+                            <span className="font-bold text-emerald-300">Indian Evidence Act Section 65B Issued</span>
+                            <span className="text-[10px] font-mono-code text-emerald-400">{selectedCase?.legalAdmissibilityCertId}</span>
                           </div>
-                          <p className="text-xs text-emerald-900">
+                          <p className="text-xs text-emerald-200/90">
                             Electronic record certificate generated with digital hash manifest. Admissible before Special Cyber Magistrate and Sessions Court.
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <div className="pt-4 border-t border-white/10 flex items-center justify-between">
                       <button
                         onClick={async () => {
                           if (!selectedCase) return;
@@ -2365,14 +2545,14 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           }
                           showToast('New verification checkpoint stamped into WORM ledger & backend.');
                         }}
-                        className="px-5 py-2.5 rounded-xl bg-slate-950 text-white font-bold text-xs hover:bg-slate-800 transition-colors"
+                        className="px-5 py-2.5 rounded-xl bg-[#18181E] hover:bg-white/10 border border-white/15 text-white font-bold text-xs transition-colors"
                       >
                         + Append WORM Checkpoint
                       </button>
 
                       <button
                         onClick={() => selectedCase && onViewCertificate(selectedCase)}
-                        className="px-5 py-2.5 rounded-xl bg-[#FF5A1F] text-white font-bold text-xs hover:bg-[#e04a12] transition-colors"
+                        className="px-5 py-2.5 rounded-xl bg-[#FF4D15] text-white font-bold text-xs hover:bg-[#E03E0B] transition-colors"
                       >
                         View Section 65B Document
                       </button>
@@ -2387,26 +2567,26 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 TAB 3: MY CASE & EVIDENTIARY DOCKETS (3D CLOUD STORAGE GEN-Z STYLE)
             ========================================================================= */}
             {activeNav === 'cases' && (
-              <div className="bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200/90 shadow-xl space-y-6 animate-fade-in">
+              <div className="bg-[#070709] rounded-[32px] p-6 sm:p-8 border border-white/10 shadow-xl space-y-6 animate-fade-in">
                 
                 {/* Header & Quick Action */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-mono-code font-bold uppercase tracking-wider">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#FF4D15]/15 text-[#FF4D15] border border-[#FF4D15]/30 text-[10px] font-mono-code font-bold uppercase tracking-wider">
                         ☁️ Cloud Evidence Vault
                       </span>
-                      <span className="text-xs text-slate-400 font-mono-code">AES-256 Bitstream Encrypted</span>
+                      <span className="text-xs text-zinc-400 font-mono-code">AES-256 Bitstream Encrypted</span>
                     </div>
-                    <h2 className="text-2xl font-black text-slate-950 mt-1">My Cases & Evidentiary Dockets</h2>
-                    <p className="text-xs text-slate-500">
+                    <h2 className="text-2xl font-black text-white mt-1">My Cases & Evidentiary Dockets</h2>
+                    <p className="text-xs text-zinc-400">
                       Home / My Cases & Evidentiary Dockets — Live WORM immutable vault synchronization.
                     </p>
                   </div>
                   
                   <button
                     onClick={onOpenReportModal}
-                    className="px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-lg shadow-blue-500/25 transition-all transform hover:scale-105 flex items-center gap-2 self-start sm:self-auto"
+                    className="px-6 py-3 rounded-2xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-bold shadow-[0_0_24px_rgba(255,77,21,0.35)] transition-all transform hover:scale-105 flex items-center gap-2 self-start sm:self-auto"
                   >
                     <Plus className="w-4 h-4" />
                     <span>+ Report New Case</span>
@@ -2414,49 +2594,49 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 </div>
 
                 {/* Storage Overview Bar matching Reference Image */}
-                <div className="bg-slate-900 text-white p-5 rounded-[28px] shadow-lg space-y-3 relative overflow-hidden">
+                <div className="bg-[#111115] border border-white/10 text-white p-5 rounded-[28px] shadow-lg space-y-3 relative overflow-hidden">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#FF5A1F] animate-pulse" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#FF4D15] animate-pulse" />
                       <span className="text-xs font-bold text-white uppercase tracking-wider">Storage Overview (WORM Vault)</span>
                     </div>
-                    <span className="text-xs font-mono-code text-slate-400">
+                    <span className="text-xs font-mono-code text-zinc-400">
                       Used <strong className="text-white">{storageBreakdown.totalUsedGB} GB</strong> of <strong className="text-white">1 TB (1000 GB)</strong>
                     </span>
                   </div>
 
                   {/* Multi-color segment bar */}
-                  <div className="h-3 w-full bg-slate-800 rounded-full overflow-hidden flex gap-0.5 p-0.5">
-                    <div className="bg-blue-500 h-full rounded-l-full transition-all duration-1000" style={{ width: `${storageBreakdown.videoPct}%` }} title={`Videos: ${storageBreakdown.videoGB} GB`} />
+                  <div className="h-3 w-full bg-[#18181E] rounded-full overflow-hidden flex gap-0.5 p-0.5">
+                    <div className="bg-[#FF4D15] h-full rounded-l-full transition-all duration-1000" style={{ width: `${storageBreakdown.videoPct}%` }} title={`Videos: ${storageBreakdown.videoGB} GB`} />
                     <div className="bg-purple-500 h-full transition-all duration-1000" style={{ width: `${storageBreakdown.docPct}%` }} title={`Documents: ${storageBreakdown.docGB} GB`} />
-                    <div className="bg-pink-500 h-full transition-all duration-1000" style={{ width: `${storageBreakdown.imgPct}%` }} title={`Images: ${storageBreakdown.imgGB} GB`} />
+                    <div className="bg-sky-500 h-full transition-all duration-1000" style={{ width: `${storageBreakdown.imgPct}%` }} title={`Images: ${storageBreakdown.imgGB} GB`} />
                     <div className="bg-emerald-500 h-full transition-all duration-1000" style={{ width: `${storageBreakdown.otherPct}%` }} title={`Other / Hashes: ${storageBreakdown.otherGB} GB`} />
-                    <div className="bg-slate-700 h-full rounded-r-full transition-all duration-1000" style={{ width: `${storageBreakdown.freePct}%` }} title={`Free Space: ${storageBreakdown.freeGB} GB`} />
+                    <div className="bg-zinc-700 h-full rounded-r-full transition-all duration-1000" style={{ width: `${storageBreakdown.freePct}%` }} title={`Free Space: ${storageBreakdown.freeGB} GB`} />
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1 text-[11px] font-mono-code text-slate-300">
-                    <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500" /><span>Videos {storageBreakdown.videoGB} GB</span></div>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1 text-[11px] font-mono-code text-zinc-300">
+                    <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#FF4D15]" /><span>Videos {storageBreakdown.videoGB} GB</span></div>
                     <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-purple-500" /><span>Documents {storageBreakdown.docGB} GB</span></div>
-                    <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-pink-500" /><span>Images {storageBreakdown.imgGB} GB</span></div>
+                    <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-sky-500" /><span>Images {storageBreakdown.imgGB} GB</span></div>
                     <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500" /><span>Other {storageBreakdown.otherGB} GB</span></div>
-                    <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-600" /><span>Free {storageBreakdown.freeGB} GB</span></div>
+                    <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-zinc-600" /><span>Free {storageBreakdown.freeGB} GB</span></div>
                   </div>
                 </div>
 
                 {/* Dedicated Container: Secure Evidence Report & Dedicated Vault */}
-                <div className="bg-gradient-to-r from-slate-950 via-blue-950 to-indigo-950 text-white p-6 sm:p-8 rounded-[32px] shadow-2xl border border-blue-500/40 space-y-6 relative overflow-hidden">
-                  <div className="absolute right-0 top-0 translate-x-8 -translate-y-8 w-72 h-72 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+                <div className="bg-gradient-to-r from-[#111115] via-[#18181E] to-[#111115] text-white p-6 sm:p-8 rounded-[32px] shadow-2xl border border-[#FF4D15]/30 space-y-6 relative overflow-hidden">
+                  <div className="absolute right-0 top-0 translate-x-8 -translate-y-8 w-72 h-72 bg-[#FF4D15]/15 rounded-full blur-3xl pointer-events-none" />
                   
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
-                        <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-mono-code font-bold uppercase tracking-wider border border-blue-400/30">
+                        <span className="px-3 py-1 rounded-full bg-[#FF4D15]/20 text-[#FF4D15] text-[10px] font-mono-code font-bold uppercase tracking-wider border border-[#FF4D15]/40">
                           🛡️ Secure Evidence Report & Dedicated Vault
                         </span>
                         <span className="text-xs text-emerald-400 font-mono-code font-bold">● Tamper-Proof WORM Vault</span>
                       </div>
                       <h3 className="text-xl sm:text-2xl font-black text-white">Drive Secure System & Evidence Repository</h3>
-                      <p className="text-xs sm:text-sm text-blue-200/80 max-w-2xl leading-relaxed">
+                      <p className="text-xs sm:text-sm text-zinc-300 max-w-2xl leading-relaxed">
                         Dedicated container for police complaints, supplementary forensic reports, and custom evidence folders. Generate secure access links for authorized officials or connect collaborators via Gmail.
                       </p>
                     </div>
@@ -2465,7 +2645,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                     <div className="flex flex-wrap items-center gap-3 shrink-0">
                       <button
                         onClick={handleCopyShareLink}
-                        className="px-4 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2"
+                        className="px-4 py-3 rounded-2xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white font-bold text-xs shadow-lg shadow-[#FF4D15]/25 transition-all flex items-center gap-2"
                       >
                         <Share2 className="w-4 h-4" />
                         <span>{shareLinkCopied ? 'Secure Access Link Copied!' : 'Share Secure Access Link'}</span>
@@ -2473,27 +2653,27 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
                       <button
                         onClick={() => setShowReadOnlyVaultModal(true)}
-                        className="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition-all flex items-center gap-2"
+                        className="px-4 py-3 rounded-2xl bg-[#070709] hover:bg-white/10 text-white font-bold text-xs border border-white/15 transition-all flex items-center gap-2"
                       >
-                        <Eye className="w-4 h-4 text-blue-300" />
+                        <Eye className="w-4 h-4 text-[#FF4D15]" />
                         <span>Preview Read-Only Link</span>
                       </button>
                     </div>
                   </div>
 
                   {/* Active Shareable Link Box */}
-                  <div className="bg-slate-900/80 p-4 rounded-2xl border border-blue-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 font-mono-code text-xs">
+                  <div className="bg-[#070709] p-4 rounded-2xl border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 font-mono-code text-xs">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-300 font-bold shrink-0">🔗 Active Link</span>
-                      <span className="text-slate-300 truncate select-all">{activeShareUrl}</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-[#FF4D15]/20 text-[#FF4D15] font-bold shrink-0">🔗 Active Link</span>
+                      <span className="text-zinc-300 truncate select-all">{activeShareUrl}</span>
                     </div>
                     <button
                       onClick={() => {
                         setShowReadOnlyVaultModal(true);
                       }}
-                      className="px-3.5 py-2 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 font-bold text-xs border border-blue-400/30 transition-all shrink-0 flex items-center gap-1.5"
+                      className="px-3.5 py-2 rounded-xl bg-[#18181E] hover:bg-white/10 text-white font-bold text-xs border border-white/15 transition-all shrink-0 flex items-center gap-1.5"
                     >
-                      <Eye className="w-3.5 h-3.5" />
+                      <Eye className="w-3.5 h-3.5 text-[#FF4D15]" />
                       <span>Test Review View</span>
                     </button>
                   </div>
@@ -2502,12 +2682,12 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     
                     {/* Upload Extra Files & Folders */}
-                    <form onSubmit={handleUploadSecureFile} className="bg-slate-900/90 p-5 rounded-2xl border border-slate-700/60 space-y-3">
+                    <form onSubmit={handleUploadSecureFile} className="bg-[#070709] p-5 rounded-2xl border border-white/10 space-y-3">
                       <div className="flex items-center gap-2">
-                        <Upload className="w-4 h-4 text-blue-400" />
+                        <Upload className="w-4 h-4 text-[#FF4D15]" />
                         <h4 className="text-xs font-bold text-white uppercase tracking-wider">Upload Files, Reports or Folders</h4>
                       </div>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-zinc-400">
                         Add supplementary evidence documents, police complaints, or investigation reports into your secure vault.
                       </p>
                       <div className="flex items-center gap-2 pt-1">
@@ -2516,12 +2696,12 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           value={newFileName}
                           onChange={(e) => setNewFileName(e.target.value)}
                           placeholder="e.g. Additional_Bank_Statement_2026.pdf"
-                          className="flex-1 bg-slate-950 text-white text-xs rounded-xl px-3.5 py-2.5 border border-slate-700 focus:outline-none focus:border-blue-500 font-mono-code"
+                          className="flex-1 bg-[#18181E] text-white placeholder-zinc-500 text-xs rounded-xl px-3.5 py-2.5 border border-white/10 focus:outline-none focus:border-[#FF4D15] font-mono-code"
                         />
                         <button
                           type="submit"
                           disabled={isUploadingSecure}
-                          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 shrink-0"
+                          className="px-5 py-2.5 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 shrink-0"
                         >
                           {isUploadingSecure ? (
                             <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -2534,12 +2714,12 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                     </form>
 
                     {/* Connect People via Gmail */}
-                    <form onSubmit={handleInviteGmail} className="bg-slate-900/90 p-5 rounded-2xl border border-slate-700/60 space-y-3">
+                    <form onSubmit={handleInviteGmail} className="bg-[#070709] p-5 rounded-2xl border border-white/10 space-y-3">
                       <div className="flex items-center gap-2">
                         <UserCheck className="w-4 h-4 text-emerald-400" />
                         <h4 className="text-xs font-bold text-white uppercase tracking-wider">Connect People via Gmail</h4>
                       </div>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-zinc-400">
                         Enter collaborator Gmail address to grant secure upload permissions to this vault.
                       </p>
                       <div className="flex items-center gap-2 pt-1">
@@ -2548,11 +2728,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           value={inviteEmail}
                           onChange={(e) => setInviteEmail(e.target.value)}
                           placeholder="colleague@gmail.com or officer@delhipolice..."
-                          className="flex-1 bg-slate-950 text-white text-xs rounded-xl px-3.5 py-2.5 border border-slate-700 focus:outline-none focus:border-emerald-500 font-mono-code"
+                          className="flex-1 bg-[#18181E] text-white placeholder-zinc-500 text-xs rounded-xl px-3.5 py-2.5 border border-white/10 focus:outline-none focus:border-emerald-500 font-mono-code"
                         />
                         <button
                           type="submit"
-                          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 shrink-0"
+                          className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 shrink-0"
                         >
                           <Share2 className="w-3.5 h-3.5" />
                           <span>Connect Gmail</span>
@@ -2573,27 +2753,27 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   {/* Vault Uploaded Files & Connected Collaborators List */}
                   <div className="pt-4 border-t border-white/10 space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-blue-200 uppercase tracking-wider">📁 Drive Secure System Vault Assets ({secureFiles.length})</span>
-                      <span className="text-[11px] text-slate-400 font-mono-code">Connected Collaborators: {collaborators.length} active</span>
+                      <span className="text-xs font-bold text-white uppercase tracking-wider">📁 Drive Secure System Vault Assets ({secureFiles.length})</span>
+                      <span className="text-[11px] text-zinc-400 font-mono-code">Connected Collaborators: {collaborators.length} active</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {secureFiles.map((sf) => (
-                        <div key={sf.id} className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 hover:border-blue-500/40 transition-all">
+                        <div key={sf.id} className="bg-[#070709] p-3.5 rounded-2xl border border-white/10 flex items-center justify-between gap-3 hover:border-[#FF4D15]/40 transition-all">
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center text-blue-400 shrink-0 font-bold text-xs">
+                            <div className="w-10 h-10 rounded-xl bg-[#FF4D15]/15 flex items-center justify-center text-[#FF4D15] shrink-0 font-bold text-xs">
                               <FileText className="w-5 h-5" />
                             </div>
                             <div className="min-w-0">
                               <h5 className="text-xs font-bold text-white truncate">{sf.name}</h5>
-                              <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono-code mt-0.5">
+                              <div className="flex items-center gap-2 text-[10px] text-zinc-400 font-mono-code mt-0.5">
                                 <span>{sf.size}</span>
                                 <span>•</span>
                                 <span className="text-emerald-400">SHA: {sf.hash}</span>
                               </div>
                             </div>
                           </div>
-                          <span className="px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-300 text-[10px] font-mono-code shrink-0">
+                          <span className="px-2.5 py-1 rounded-lg bg-[#18181E] border border-white/10 text-zinc-300 text-[10px] font-mono-code shrink-0">
                             {sf.timestamp}
                           </span>
                         </div>
@@ -2606,13 +2786,13 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 {/* Search & Filter Bar */}
                 <div className="flex flex-col sm:flex-row items-center gap-3">
                   <div className="relative flex-1 w-full">
-                    <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                    <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-3.5" />
                     <input
                       type="text"
                       value={caseSearchTerm}
                       onChange={(e) => setCaseSearchTerm(e.target.value)}
                       placeholder="Search folders by title, tracking code, or suspect handle..."
-                      className="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 text-xs text-slate-900 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-500 transition-all"
+                      className="w-full pl-10 pr-4 py-3 rounded-2xl border border-white/10 text-xs text-white placeholder-zinc-500 bg-[#111115] focus:outline-none focus:border-[#FF4D15] transition-all"
                     />
                   </div>
 
@@ -2623,8 +2803,8 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         onClick={() => setCaseStatusFilter(status)}
                         className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                           caseStatusFilter === status
-                            ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            ? 'bg-[#FF4D15] text-white shadow-md'
+                            : 'bg-[#18181E] text-zinc-300 border border-white/10 hover:bg-white/10'
                         }`}
                       >
                         {status === 'ALL' ? '🔥 All Folders' : status.replace('_', ' ')}
@@ -2636,13 +2816,13 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 {/* 3D Gen-Z Folders Grid matching Reference Image */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
                       <span>📁 Folders & Dedicated Case Vaults</span>
-                      <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-mono-code">
+                      <span className="px-2 py-0.5 rounded-full bg-[#FF4D15]/15 text-[#FF4D15] border border-[#FF4D15]/30 text-[10px] font-mono-code">
                         {filteredCases.length} active
                       </span>
                     </h3>
-                    <span className="text-[10px] font-mono-code text-slate-400">Click any folder to inspect original evidence 3D</span>
+                    <span className="text-[10px] font-mono-code text-zinc-500">Click any folder to inspect original evidence 3D</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
@@ -2655,27 +2835,27 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           onClick={() => setSelectedCase(inc)}
                           className={`p-5 rounded-[32px] border transition-all duration-300 cursor-pointer flex flex-col justify-between group relative overflow-hidden transform hover:-translate-y-1.5 ${
                             isSelected
-                              ? 'bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 text-white border-blue-500 shadow-2xl ring-4 ring-blue-500/30 scale-105'
-                              : 'bg-gradient-to-b from-blue-50/80 to-indigo-50/40 hover:from-blue-100/90 hover:to-indigo-100/60 border-blue-200 shadow-md hover:shadow-xl'
+                              ? 'bg-[#18181E] text-white border-[#FF4D15] shadow-2xl ring-2 ring-[#FF4D15]/40 scale-105'
+                              : 'bg-[#111115] hover:bg-[#18181E] border-white/10 hover:border-white/25 shadow-md hover:shadow-xl'
                           }`}
                         >
                           {/* 3D Stacked Folder Icon Graphic */}
                           <div className="flex items-center justify-between mb-4">
                             <div className="relative">
                               {/* Background paper shadow */}
-                              <div className="absolute -top-1.5 left-1 w-10 h-3 bg-blue-300/80 rounded-t-lg transform -skew-x-12" />
+                              <div className="absolute -top-1.5 left-1 w-10 h-3 bg-[#FF4D15]/40 rounded-t-lg transform -skew-x-12" />
                               {/* Main 3D Glossy Folder */}
                               <div className={`w-14 h-12 rounded-2xl flex items-center justify-center font-bold text-xl shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${
                                 isSelected 
-                                  ? 'bg-gradient-to-tr from-blue-600 to-indigo-500 text-white shadow-blue-500/50' 
-                                  : 'bg-gradient-to-tr from-blue-500 to-indigo-600 text-white shadow-blue-400/40'
+                                  ? 'bg-[#FF4D15] text-white shadow-[#FF4D15]/40' 
+                                  : 'bg-[#18181E] border border-white/15 text-white'
                               }`}>
                                 📁
                               </div>
                             </div>
 
                             <span className={`text-[10px] font-mono-code font-bold px-2.5 py-1 rounded-full shadow-2xs ${
-                              isSelected ? 'bg-blue-500/30 text-blue-300 border border-blue-400/30' : 'bg-white text-blue-700 border border-blue-100'
+                              isSelected ? 'bg-[#FF4D15]/20 text-[#FF4D15] border border-[#FF4D15]/40' : 'bg-[#070709] text-zinc-300 border border-white/10'
                             }`}>
                               {fileCount} {fileCount === 1 ? 'File' : 'Files'}
                             </span>
@@ -2684,18 +2864,18 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           {/* Folder Details */}
                           <div className="space-y-1.5 my-2">
                             <h4 className={`font-black text-xs line-clamp-2 leading-snug tracking-tight ${
-                              isSelected ? 'text-white' : 'text-slate-900 group-hover:text-blue-600'
+                              isSelected ? 'text-white' : 'text-white group-hover:text-[#FF4D15]'
                             } transition-colors`}>
                               {inc.folderName || inc.title}
                             </h4>
-                            <p className={`text-[10px] font-mono-code ${isSelected ? 'text-blue-300' : 'text-slate-500'}`}>
+                            <p className={`text-[10px] font-mono-code ${isSelected ? 'text-[#FF4D15]' : 'text-zinc-400'}`}>
                               {inc.trackingCode}
                             </p>
                           </div>
 
                           {/* Bottom Gen-Z status tag */}
                           <div className={`pt-3 mt-2 border-t flex items-center justify-between text-[10px] font-mono-code ${
-                            isSelected ? 'border-white/10 text-emerald-400' : 'border-blue-200/60 text-slate-600'
+                            isSelected ? 'border-white/15 text-emerald-400' : 'border-white/10 text-zinc-400'
                           }`}>
                             <span className="font-bold flex items-center gap-1">
                               <span>⚡ WORM Sealed</span>
@@ -2709,12 +2889,12 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 </div>
 
                 {/* Recent Files Quick Preview */}
-                <div className="space-y-3 pt-3 border-t border-slate-100">
+                <div className="space-y-3 pt-3 border-t border-white/10">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">
                       ⚡ Recent Evidence Files & Dockets
                     </h3>
-                    <span className="text-[10px] font-mono-code text-slate-400">Quick access to latest uploaded evidentiary payloads</span>
+                    <span className="text-[10px] font-mono-code text-zinc-400">Quick access to latest uploaded evidentiary payloads</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
@@ -2724,13 +2904,13 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                       { name: 'Scam_APK_Payload.apk', size: '18.9 MB', type: 'BINARY', date: '2 days ago' },
                       { name: 'Threat_Audio_Call.mp3', size: '1.8 MB', type: 'AUDIO', date: '3 days ago' },
                     ].map((f, i) => (
-                      <div key={i} className="p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 transition-all flex items-center gap-3 group cursor-pointer">
-                        <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-blue-600 font-black text-xs shadow-2xs group-hover:scale-105 transition-transform">
+                      <div key={i} className="p-3.5 rounded-2xl bg-[#111115] hover:bg-[#18181E] border border-white/10 transition-all flex items-center gap-3 group cursor-pointer">
+                        <div className="w-10 h-10 rounded-xl bg-[#070709] border border-white/10 flex items-center justify-center text-[#FF4D15] font-black text-xs shadow-2xs group-hover:scale-105 transition-transform">
                           {f.type === 'PDF' ? '📄' : f.type === 'ARCHIVE' ? '🗂️' : f.type === 'BINARY' ? '⚡' : '🎵'}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="font-bold text-xs text-slate-900 truncate group-hover:text-blue-600 transition-colors">{f.name}</div>
-                          <div className="text-[10px] font-mono-code text-slate-500 flex items-center gap-2">
+                          <div className="font-bold text-xs text-white truncate group-hover:text-[#FF4D15] transition-colors">{f.name}</div>
+                          <div className="text-[10px] font-mono-code text-zinc-400 flex items-center gap-2">
                             <span>{f.size}</span>
                             <span>•</span>
                             <span>{f.date}</span>
@@ -2743,31 +2923,59 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
                 {/* Full Selected Case Details with Dual Storage Formats */}
                 {selectedCase && (
-                  <div className="mt-6 pt-6 border-t border-slate-200 space-y-4 bg-slate-50/60 p-6 rounded-3xl border">
+                  <div className="mt-6 pt-6 space-y-4 bg-[#111115] p-6 rounded-3xl border border-white/10">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono-code font-bold text-slate-500">INSPECTION DETAIL</span>
-                          <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-mono-code font-bold">
+                          <span className="text-[10px] font-mono-code font-bold text-zinc-400">INSPECTION DETAIL</span>
+                          <span className="px-2 py-0.5 rounded-full bg-[#FF4D15]/15 text-[#FF4D15] border border-[#FF4D15]/30 text-[10px] font-mono-code font-bold">
                             Progress: {selectedCase.investigationProgress || 50}%
                           </span>
                         </div>
-                        <h3 className="text-lg font-black text-slate-900">{selectedCase.title}</h3>
-                        <p className="text-xs text-slate-500">
-                          Assigned Examiner: {selectedCase.seniorOfficerAssigned} · Badge: {selectedCase.officerBadge}
+                        <h3 className="text-lg font-black text-white mt-0.5">{selectedCase.title}</h3>
+                        <p className="text-xs text-zinc-400 flex items-center gap-2 mt-0.5">
+                          {(selectedCase.seniorOfficerAssigned || '').toLowerCase().includes('balchandra') && (
+                            <img
+                              src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_8.28.47_PM_76cc2fa2.jpeg"
+                              alt="Balchandra"
+                              className="w-5 h-5 rounded-full object-cover object-top border border-[#FF4D15]"
+                            />
+                          )}
+                          {(selectedCase.seniorOfficerAssigned || '').toLowerCase().includes('krishi') && (
+                            <img
+                              src="/assets/aistudio/image_526c1ede.png"
+                              alt="Krishi"
+                              className="w-5 h-5 rounded-full object-cover object-top border border-[#FF4D15]"
+                            />
+                          )}
+                          {(selectedCase.seniorOfficerAssigned || '').toLowerCase().includes('zohara') && (
+                            <img
+                              src="/assets/aistudio/image_acc490cb.png"
+                              alt="Bibi Zohara"
+                              className="w-5 h-5 rounded-full object-cover object-top border border-[#FF4D15]"
+                            />
+                          )}
+                          {(selectedCase.seniorOfficerAssigned || '').toLowerCase().includes('afsheen') && (
+                            <img
+                              src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg"
+                              alt="Afsheen S"
+                              className="w-5 h-5 rounded-full object-cover object-top border border-[#FF4D15]"
+                            />
+                          )}
+                          <span>Assigned Examiner: {selectedCase.seniorOfficerAssigned} · Badge: {selectedCase.officerBadge}</span>
                         </p>
                         
                         {/* Senior Investigator Study Notes & Progress Bar */}
                         <div className="mt-2.5 max-w-xl space-y-1.5">
-                          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                          <div className="w-full bg-[#18181E] rounded-full h-2 overflow-hidden">
                             <div 
-                              className="bg-gradient-to-r from-blue-600 to-[#FF5A1F] h-2 rounded-full transition-all duration-500" 
+                              className="bg-[#FF4D15] h-2 rounded-full transition-all duration-500" 
                               style={{ width: `${selectedCase.investigationProgress || 50}%` }}
                             />
                           </div>
                           {(selectedCase.investigatorStudyNotes || selectedCase.officerNotes) && (
-                            <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-950">
-                              <span className="font-bold text-[#FF5A1F]">Examiner Case Study Note: </span>
+                            <div className="p-2.5 rounded-xl bg-[#18181E] border border-[#FF4D15]/30 text-[11px] text-zinc-200">
+                              <span className="font-bold text-[#FF4D15]">Examiner Case Study Note: </span>
                               <span>{selectedCase.investigatorStudyNotes || selectedCase.officerNotes}</span>
                             </div>
                           )}
@@ -2775,11 +2983,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                       </div>
 
                       {/* Format toggle tabs */}
-                      <div className="flex items-center bg-white p-1 rounded-2xl border border-slate-200 shadow-2xs">
+                      <div className="flex items-center bg-[#070709] p-1 rounded-2xl border border-white/10 shadow-2xs">
                         <button
                           onClick={() => setDataInspectionTab('raw')}
                           className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                            dataInspectionTab === 'raw' ? 'bg-slate-950 text-white' : 'text-slate-600'
+                            dataInspectionTab === 'raw' ? 'bg-[#FF4D15] text-white' : 'text-zinc-400 hover:text-white'
                           }`}
                         >
                           Original Raw Format
@@ -2787,7 +2995,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         <button
                           onClick={() => setDataInspectionTab('hash')}
                           className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                            dataInspectionTab === 'hash' ? 'bg-slate-950 text-white' : 'text-slate-600'
+                            dataInspectionTab === 'hash' ? 'bg-[#FF4D15] text-white' : 'text-zinc-400 hover:text-white'
                           }`}
                         >
                           Cryptographic Hash Format
@@ -2797,36 +3005,36 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
                     {dataInspectionTab === 'raw' ? (
                       <div className="space-y-4">
-                        <div className="p-4 bg-white rounded-2xl border border-slate-200 text-xs font-mono-code text-slate-800 leading-relaxed whitespace-pre-wrap select-all">
+                        <div className="p-4 bg-[#070709] rounded-2xl border border-white/10 text-xs font-mono-code text-zinc-200 leading-relaxed whitespace-pre-wrap select-all">
                           {selectedCase.rawOriginalContent || selectedCase.description}
                         </div>
 
                         {/* Original Evidence Photos / Files / Videos uploaded by user */}
                         <div className="space-y-2">
-                          <div className="text-xs font-bold text-slate-900 flex items-center justify-between">
+                          <div className="text-xs font-bold text-white flex items-center justify-between">
                             <span>Original Evidence Files (Photos / Documents / Videos)</span>
-                            <span className="text-[10px] font-mono-code text-emerald-700 font-bold">WORM Immutable ✓</span>
+                            <span className="text-[10px] font-mono-code text-emerald-400 font-bold">WORM Immutable ✓</span>
                           </div>
 
                           {(selectedCase.evidenceFiles && selectedCase.evidenceFiles.length > 0) ? (
                             <div className="space-y-2">
                               {selectedCase.evidenceFiles.map((file, idx) => (
-                                <div key={file.id || idx} className="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between gap-3 text-xs">
+                                <div key={file.id || idx} className="p-3 bg-[#18181E] rounded-xl border border-white/10 flex items-center justify-between gap-3 text-xs">
                                   <div className="flex items-center gap-2.5 min-w-0">
-                                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 font-bold">
+                                    <div className="w-8 h-8 rounded-lg bg-[#070709] border border-white/10 text-[#FF4D15] flex items-center justify-center shrink-0 font-bold">
                                       📁
                                     </div>
                                     <div className="min-w-0">
-                                      <div className="font-bold text-slate-900 truncate">{file.name}</div>
-                                      <div className="text-[10px] font-mono-code text-slate-500">
+                                      <div className="font-bold text-white truncate">{file.name}</div>
+                                      <div className="text-[10px] font-mono-code text-zinc-400">
                                         {file.size ? `${(file.size / 1024).toFixed(1)} KB` : 'Payload'} • {file.wormTimestamp || 'WORM Locked'}
                                       </div>
                                     </div>
                                   </div>
 
                                   <div className="flex items-center gap-2 shrink-0">
-                                    <code className="text-[10px] font-mono-code text-slate-600 bg-slate-50 px-2 py-1 rounded border border-slate-200 truncate max-w-[160px]">
-                                      SHA: {file.sha256.substring(0, 12)}...
+                                    <code className="text-[10px] font-mono-code text-emerald-300 bg-[#070709] px-2 py-1 rounded border border-white/10 truncate max-w-[160px]">
+                                      SHA: {(file.sha256 || '').substring(0, 12)}...
                                     </code>
                                     <button
                                       onClick={() => {
@@ -2837,7 +3045,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                                         a.download = file.name;
                                         a.click();
                                       }}
-                                      className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-[11px] transition-colors"
+                                      className="px-3 py-1.5 rounded-lg bg-[#FF4D15] hover:bg-[#E03E0B] text-white font-bold text-[11px] transition-colors"
                                     >
                                       Download File ↓
                                     </button>
@@ -2846,36 +3054,36 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                               ))}
                             </div>
                           ) : (
-                            <div className="p-4 bg-white rounded-xl border border-slate-200 text-center text-xs text-slate-400">
+                            <div className="p-4 bg-[#070709] rounded-xl border border-white/10 text-center text-xs text-zinc-400">
                               No separate attachment files. Main complaint statement recorded as primary evidence payload.
                             </div>
                           )}
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-slate-600 pt-2 border-t border-slate-200">
-                          <div>Citizen Name: <strong>{selectedCase.citizenName}</strong></div>
-                          <div>Citizen Email: <strong>{selectedCase.citizenEmail}</strong></div>
-                          <div>Loss Amount: <strong>{selectedCase.lossAmount || 'Protected'}</strong></div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-zinc-400 pt-2 border-t border-white/10">
+                          <div>Citizen Name: <strong className="text-white">{selectedCase.citizenName}</strong></div>
+                          <div>Citizen Email: <strong className="text-white">{selectedCase.citizenEmail}</strong></div>
+                          <div>Loss Amount: <strong className="text-white">{selectedCase.lossAmount || 'Protected'}</strong></div>
                         </div>
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        <div className="p-4 bg-slate-950 text-emerald-400 rounded-2xl border border-slate-800 text-xs font-mono-code break-all select-all">
+                        <div className="p-4 bg-[#070709] text-emerald-400 rounded-2xl border border-white/10 text-xs font-mono-code break-all select-all">
                           {selectedCase.hashFormat?.sha256 || selectedCase.primaryHash}
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] font-mono-code text-slate-600">
-                          <div>Merkle Root: <strong>{(selectedCase.hashFormat?.merkleRoot || selectedCase.primaryHash).substring(0, 16)}...</strong></div>
-                          <div>Algorithm: <strong>SHA-256 / RFC-3161</strong></div>
-                          <div>Cert ID: <strong>{selectedCase.legalAdmissibilityCertId}</strong></div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] font-mono-code text-zinc-400">
+                          <div>Merkle Root: <strong className="text-white">{((selectedCase.hashFormat?.merkleRoot || selectedCase.primaryHash) || '').substring(0, 16)}...</strong></div>
+                          <div>Algorithm: <strong className="text-white">SHA-256 / RFC-3161</strong></div>
+                          <div>Cert ID: <strong className="text-white">{selectedCase.legalAdmissibilityCertId}</strong></div>
                         </div>
                       </div>
                     )}
 
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                      {onNavigateToInvestigator && (
+                      {currentUser.role === 'senior_investigator' && onNavigateToInvestigator && (
                         <button
                           onClick={onNavigateToInvestigator}
-                          className="px-4 py-2.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-[#FF5A1F] border border-orange-200 font-bold text-xs transition-colors flex items-center gap-1.5"
+                          className="px-4 py-2.5 rounded-xl bg-[#18181E] hover:bg-white/10 text-[#FF4D15] border border-[#FF4D15]/40 font-bold text-xs transition-colors flex items-center gap-1.5"
                         >
                           <ShieldCheck className="w-4 h-4" />
                           <span>Preview in Senior Investigator Workstation →</span>
@@ -2885,7 +3093,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                       <div className="flex items-center gap-3 ml-auto">
                         <button
                           onClick={() => onViewCertificate(selectedCase)}
-                          className="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800"
+                          className="px-5 py-2.5 rounded-xl bg-[#FF4D15] text-white font-bold text-xs hover:bg-[#E03E0B]"
                         >
                           View Section 65B Certificate
                         </button>
@@ -2901,53 +3109,53 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 TAB 4: FORENSIC STATS
             ========================================================================= */}
             {activeNav === 'stats' && (
-              <div className="bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+              <div className="bg-[#070709] rounded-[32px] p-6 sm:p-8 border border-white/10 shadow-sm space-y-6">
                 <div>
-                  <h2 className="text-xl font-black text-slate-950">Forensic Cryptographic Statistics</h2>
-                  <p className="text-xs text-slate-500">
+                  <h2 className="text-xl font-black text-white">Forensic Cryptographic Statistics</h2>
+                  <p className="text-xs text-zinc-400">
                     Platform-wide evidence verification metrics, weekly throughput, and examiner allocations.
                   </p>
                 </div>
 
                 {/* 4 Big Metrics */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                    <div className="text-[10px] font-mono-code text-slate-400 uppercase font-bold">Total Hashes Locked</div>
-                    <div className="text-3xl font-black font-mono-code text-slate-900 mt-1">
+                  <div className="bg-[#18181E] p-5 rounded-2xl border border-white/10">
+                    <div className="text-[10px] font-mono-code text-zinc-400 uppercase font-bold">Total Hashes Locked</div>
+                    <div className="text-3xl font-black font-mono-code text-white mt-1">
                       {allUserEvidenceFiles.length + userSortedIncidents.length}
                     </div>
-                    <div className="text-[10px] text-emerald-600 font-bold mt-1">100% WORM Immutable</div>
+                    <div className="text-[10px] text-emerald-400 font-bold mt-1">100% WORM Immutable</div>
                   </div>
 
-                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                    <div className="text-[10px] font-mono-code text-slate-400 uppercase font-bold">Tamper Alerts</div>
-                    <div className="text-3xl font-black font-mono-code text-emerald-600 mt-1">0</div>
-                    <div className="text-[10px] text-slate-500 font-bold mt-1">Zero mutations detected</div>
+                  <div className="bg-[#18181E] p-5 rounded-2xl border border-white/10">
+                    <div className="text-[10px] font-mono-code text-zinc-400 uppercase font-bold">Tamper Alerts</div>
+                    <div className="text-3xl font-black font-mono-code text-emerald-400 mt-1">0</div>
+                    <div className="text-[10px] text-zinc-400 font-bold mt-1">Zero mutations detected</div>
                   </div>
 
-                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                    <div className="text-[10px] font-mono-code text-slate-400 uppercase font-bold">Golden Hour Speed</div>
-                    <div className="text-3xl font-black font-mono-code text-slate-900 mt-1">18.4m</div>
-                    <div className="text-[10px] text-[#FF5A1F] font-bold mt-1">Avg 1930 interdiction</div>
+                  <div className="bg-[#18181E] p-5 rounded-2xl border border-white/10">
+                    <div className="text-[10px] font-mono-code text-zinc-400 uppercase font-bold">Golden Hour Speed</div>
+                    <div className="text-3xl font-black font-mono-code text-white mt-1">18.4m</div>
+                    <div className="text-[10px] text-[#FF4D15] font-bold mt-1">Avg 1930 interdiction</div>
                   </div>
 
-                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-                    <div className="text-[10px] font-mono-code text-slate-400 uppercase font-bold">Sec 65B Compliance</div>
-                    <div className="text-3xl font-black font-mono-code text-slate-900 mt-1">100%</div>
-                    <div className="text-[10px] text-emerald-600 font-bold mt-1">Judicially Admissible</div>
+                  <div className="bg-[#18181E] p-5 rounded-2xl border border-white/10">
+                    <div className="text-[10px] font-mono-code text-zinc-400 uppercase font-bold">Sec 65B Compliance</div>
+                    <div className="text-3xl font-black font-mono-code text-white mt-1">100%</div>
+                    <div className="text-[10px] text-emerald-400 font-bold mt-1">Judicially Admissible</div>
                   </div>
                 </div>
 
                 {/* Weekly Evidence System Deep Dive */}
-                <div className="p-6 rounded-3xl bg-slate-950 text-white space-y-4">
+                <div className="p-6 rounded-3xl bg-[#111115] border border-white/10 text-white space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                       <h3 className="text-sm font-bold text-white">Weekly Evidence System Tracker</h3>
-                      <p className="text-xs text-slate-400">Detailed packet verification count Monday through Sunday</p>
+                      <p className="text-xs text-zinc-400">Detailed packet verification count Monday through Sunday</p>
                     </div>
                     <button
                       onClick={handleTrackEvidenceToday}
-                      className="px-4 py-2 rounded-xl bg-[#FF5A1F] hover:bg-[#e04a12] text-white text-xs font-bold transition-colors self-start sm:self-auto"
+                      className="px-4 py-2 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-bold transition-colors self-start sm:self-auto"
                     >
                       + Track Evidence Entry Today
                     </button>
@@ -2960,47 +3168,75 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         onClick={() => setSelectedDayIndex(idx)}
                         className={`p-3 rounded-2xl border text-center cursor-pointer transition-all ${
                           selectedDayIndex === idx
-                            ? 'bg-white text-slate-950 border-white shadow-md'
-                            : 'bg-slate-900 text-white border-slate-800 hover:border-slate-700'
+                            ? 'bg-[#FF4D15] text-white border-[#FF4D15] shadow-md'
+                            : 'bg-[#18181E] text-white border-white/10 hover:border-white/25'
                         }`}
                       >
                         <div className="text-[11px] font-bold font-mono-code">{item.day}</div>
                         <div className="text-lg font-black font-mono-code mt-1">{item.ingested}</div>
-                        <div className="text-[9px] opacity-75">{item.verified} ver</div>
+                        <div className="text-[9px] opacity-80">{item.verified} ver</div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="p-3 bg-slate-900 rounded-xl text-xs font-mono-code text-slate-300">
-                    <strong>{weeklyDayData[selectedDayIndex].name}:</strong> {weeklyDayData[selectedDayIndex].notes}
+                  <div className="p-3 bg-[#070709] border border-white/10 rounded-xl text-xs font-mono-code text-zinc-300">
+                    <strong className="text-white">{weeklyDayData[selectedDayIndex].name}:</strong> {weeklyDayData[selectedDayIndex].notes}
                   </div>
                 </div>
 
                 {/* Examiner Distribution */}
                 <div className="space-y-3 pt-2">
-                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">
                     Senior Examiner Docket Allocation
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                    <div className="p-4 rounded-2xl border border-slate-200">
-                      <div className="text-xs font-bold text-slate-900">Bibi Zohara</div>
-                      <div className="text-[10px] text-slate-400">Lead IFSO Examiner</div>
-                      <div className="text-xl font-black font-mono-code mt-2">18 Dockets</div>
+                    <div className="p-4 rounded-2xl bg-[#18181E] border border-[#FF4D15]/30 flex items-center justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-bold text-white">Bibi Zohara</div>
+                        <div className="text-[10px] text-zinc-400">Lead IFSO Examiner</div>
+                        <div className="text-xl font-black font-mono-code text-[#FF4D15] mt-2">18 Dockets</div>
+                      </div>
+                      <img
+                        src="/assets/aistudio/image_acc490cb.png"
+                        alt="Bibi Zohara"
+                        className="w-12 h-14 rounded-xl object-cover object-top border border-[#FF4D15] shrink-0"
+                      />
                     </div>
-                    <div className="p-4 rounded-2xl border border-slate-200">
-                      <div className="text-xs font-bold text-slate-900">Balchandra K</div>
-                      <div className="text-[10px] text-slate-400">SP Cyber Forensics</div>
-                      <div className="text-xl font-black font-mono-code mt-2">14 Dockets</div>
+                    <div className="p-4 rounded-2xl bg-[#18181E] border border-[#FF4D15]/30 flex items-center justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-bold text-white">Balchandra K</div>
+                        <div className="text-[10px] text-zinc-400">SP Cyber Forensics</div>
+                        <div className="text-xl font-black font-mono-code text-[#FF4D15] mt-2">14 Dockets</div>
+                      </div>
+                      <img
+                        src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_8.28.47_PM_76cc2fa2.jpeg"
+                        alt="Balchandra K"
+                        className="w-12 h-14 rounded-xl object-cover object-top border border-[#FF4D15] shrink-0"
+                      />
                     </div>
-                    <div className="p-4 rounded-2xl border border-slate-200">
-                      <div className="text-xs font-bold text-slate-900">Afsheen S</div>
-                      <div className="text-[10px] text-slate-400">Escrow & Chain Analyst</div>
-                      <div className="text-xl font-black font-mono-code mt-2">7 Dockets</div>
+                    <div className="p-4 rounded-2xl bg-[#18181E] border border-[#FF4D15]/30 flex items-center justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-bold text-white">Afsheen S</div>
+                        <div className="text-[10px] text-zinc-400">Escrow & Chain Analyst</div>
+                        <div className="text-xl font-black font-mono-code text-[#FF4D15] mt-2">7 Dockets</div>
+                      </div>
+                      <img
+                        src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg"
+                        alt="Afsheen S"
+                        className="w-12 h-14 rounded-xl object-cover object-top border border-[#FF4D15] shrink-0"
+                      />
                     </div>
-                    <div className="p-4 rounded-2xl border border-slate-200">
-                      <div className="text-xs font-bold text-slate-900">Krishi N</div>
-                      <div className="text-[10px] text-slate-400">I4C Nodal Supervisor</div>
-                      <div className="text-xl font-black font-mono-code mt-2">4 Dockets</div>
+                    <div className="p-4 rounded-2xl bg-[#18181E] border border-[#FF4D15]/30 flex items-center justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-bold text-white">Krishi N</div>
+                        <div className="text-[10px] text-zinc-400">I4C Nodal Supervisor</div>
+                        <div className="text-xl font-black font-mono-code text-[#FF4D15] mt-2">4 Dockets</div>
+                      </div>
+                      <img
+                        src="/assets/aistudio/image_526c1ede.png"
+                        alt="Krishi N"
+                        className="w-12 h-14 rounded-xl object-cover object-top border border-[#FF4D15] shrink-0"
+                      />
                     </div>
                   </div>
                 </div>
@@ -3012,24 +3248,24 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 TAB 5: SECTION 65B DOCUMENTS
             ========================================================================= */}
             {activeNav === 'documents' && (
-              <div className="bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+              <div className="bg-[#070709] rounded-[32px] p-6 sm:p-8 border border-white/10 shadow-sm space-y-6">
                 <div>
-                  <h2 className="text-xl font-black text-slate-950">Section 65B Court Certificates</h2>
-                  <p className="text-xs text-slate-500">
+                  <h2 className="text-xl font-black text-white">Section 65B Court Certificates</h2>
+                  <p className="text-xs text-zinc-400">
                     Indian Evidence Act (Sec 65B) & Bharatiya Sakshya Adhiniyam (Sec 63) admissibility certificates for electronic records.
                   </p>
                 </div>
 
                 {userSortedIncidents.length === 0 ? (
-                  <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-200 p-6 space-y-3">
-                    <Scale className="w-10 h-10 text-slate-400 mx-auto" />
-                    <h3 className="text-sm font-bold text-slate-900">No Section 65B Certificates Generated Yet</h3>
-                    <p className="text-xs text-slate-500 max-w-md mx-auto">
+                  <div className="text-center py-12 bg-[#111115] rounded-2xl border border-white/10 p-6 space-y-3">
+                    <Scale className="w-10 h-10 text-zinc-400 mx-auto" />
+                    <h3 className="text-sm font-bold text-white">No Section 65B Certificates Generated Yet</h3>
+                    <p className="text-xs text-zinc-400 max-w-md mx-auto">
                       Electronic record certificates under Section 65B Indian Evidence Act & Section 63 BSA will automatically be generated and signed once you report an incident or upload evidence.
                     </p>
                     <button
                       onClick={onOpenReportModal}
-                      className="px-5 py-2.5 rounded-xl bg-[#FF5A1F] hover:bg-[#e04a12] text-white text-xs font-bold shadow-sm transition-all"
+                      className="px-5 py-2.5 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-bold shadow-sm transition-all"
                     >
                       + File Evidence Complaint
                     </button>
@@ -3039,27 +3275,55 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                     {userSortedIncidents.map((inc) => (
                       <div
                         key={inc.id}
-                        className="p-5 rounded-2xl border border-slate-200 hover:border-slate-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                        className="p-5 rounded-2xl bg-[#18181E] border border-white/10 hover:border-[#FF4D15]/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                       >
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-mono-code font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                            <span className="text-[10px] font-mono-code font-bold text-emerald-300 bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
                               {inc.legalAdmissibilityCertId}
                             </span>
-                            <span className="text-[10px] font-mono-code text-slate-400">
+                            <span className="text-[10px] font-mono-code text-zinc-400">
                               Court Ready ✓
                             </span>
                           </div>
-                          <h4 className="text-sm font-bold text-slate-900">{inc.title}</h4>
-                          <p className="text-xs text-slate-500">
-                            Preserving Officer: {inc.seniorOfficerAssigned} · SHA-256 Digest: {inc.primaryHash.substring(0, 16)}...
+                          <h4 className="text-sm font-bold text-white">{inc.title}</h4>
+                          <p className="text-xs text-zinc-400 flex items-center gap-2">
+                            {(inc.seniorOfficerAssigned || '').toLowerCase().includes('balchandra') && (
+                              <img
+                                src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_8.28.47_PM_76cc2fa2.jpeg"
+                                alt="Balchandra"
+                                className="w-5 h-5 rounded-full object-cover object-top border border-[#FF4D15]"
+                              />
+                            )}
+                            {(inc.seniorOfficerAssigned || '').toLowerCase().includes('krishi') && (
+                              <img
+                                src="/assets/aistudio/image_526c1ede.png"
+                                alt="Krishi"
+                                className="w-5 h-5 rounded-full object-cover object-top border border-[#FF4D15]"
+                              />
+                            )}
+                            {(inc.seniorOfficerAssigned || '').toLowerCase().includes('zohara') && (
+                              <img
+                                src="/assets/aistudio/image_acc490cb.png"
+                                alt="Bibi Zohara"
+                                className="w-5 h-5 rounded-full object-cover object-top border border-[#FF4D15]"
+                              />
+                            )}
+                            {(inc.seniorOfficerAssigned || '').toLowerCase().includes('afsheen') && (
+                              <img
+                                src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg"
+                                alt="Afsheen S"
+                                className="w-5 h-5 rounded-full object-cover object-top border border-[#FF4D15]"
+                              />
+                            )}
+                            <span>Preserving Officer: {inc.seniorOfficerAssigned} · SHA-256 Digest: {(inc.primaryHash || '').substring(0, 16)}...</span>
                           </p>
                         </div>
 
                         <div className="flex items-center gap-2 shrink-0">
                           <button
                             onClick={() => onViewCertificate(inc)}
-                            className="px-4 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition-colors"
+                            className="px-4 py-2 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white font-bold text-xs shadow-xs transition-colors"
                           >
                             View Certificate
                           </button>
@@ -3069,8 +3333,8 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   </div>
                 )}
 
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed">
-                  <strong>Statutory Guarantee:</strong> Electronic records sealed through the Forensic Investigation Platform comply with Supreme Court of India precedents (Arjun Panditrao Khotkar v. Kailash Kushanrao Gorantyal). The SHA-256 hash digests and WORM RFC-3161 timestamps establish complete chain of custody integrity without needing physical device surrender.
+                <div className="p-4 rounded-2xl bg-[#111115] border border-white/10 text-xs text-zinc-300 leading-relaxed">
+                  <strong className="text-white">Statutory Guarantee:</strong> Electronic records sealed through the Forensic Investigation Platform comply with Supreme Court of India precedents (Arjun Panditrao Khotkar v. Kailash Kushanrao Gorantyal). The SHA-256 hash digests and WORM RFC-3161 timestamps establish complete chain of custody integrity without needing physical device surrender.
                 </div>
               </div>
             )}
@@ -3082,20 +3346,20 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
               <div className="space-y-6">
                 
                 {/* Repository Header Strip */}
-                <div className="bg-slate-950 text-white rounded-[32px] p-6 sm:p-8 border border-slate-800 shadow-xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="bg-[#070709] text-white rounded-[32px] p-6 sm:p-8 border border-white/10 shadow-xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-96 h-96 bg-[#FF4D15]/10 rounded-full blur-3xl pointer-events-none" />
 
                   <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2.5">
-                        <span className="px-3 py-1 rounded-full bg-orange-500/20 text-[#FF5A1F] text-[10px] font-mono-code font-bold uppercase tracking-wider border border-orange-500/30">
+                        <span className="px-3 py-1 rounded-full bg-[#FF4D15]/15 text-[#FF4D15] text-[10px] font-mono-code font-bold uppercase tracking-wider border border-[#FF4D15]/30">
                           📁 DEDICATED USER FOLDER & REPOSITORY
                         </span>
                         <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-mono-code font-bold flex items-center gap-1.5 border border-emerald-500/30">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                           Live Connected to Senior Investigator Workstation
                         </span>
-                        <span className="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[10px] font-mono-code">
+                        <span className="px-2 py-0.5 rounded-full bg-[#18181E] border border-white/10 text-zinc-300 text-[10px] font-mono-code">
                           100% Native Byte Quality
                         </span>
                       </div>
@@ -3104,22 +3368,22 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         Original Format Evidence Repository
                       </h2>
 
-                      <p className="text-xs sm:text-sm text-slate-400 max-w-3xl leading-relaxed">
-                        Every evidence file uploaded by the user is stored in its <strong>exact original format (raw bytes, photos, videos, and PDFs)</strong> inside your dedicated user folder and gallery, while simultaneously being converted into an immutable <strong>NIST FIPS 180-4 SHA-256 hash key</strong> anchored under <strong>RFC-3161 WORM rules</strong>. Senior investigators have read-only clearance to inspect raw data and verify hashes.
+                      <p className="text-xs sm:text-sm text-zinc-400 max-w-3xl leading-relaxed">
+                        Every evidence file uploaded by the user is stored in its <strong className="text-white">exact original format (raw bytes, photos, videos, and PDFs)</strong> inside your dedicated user folder and gallery, while simultaneously being converted into an immutable <strong className="text-white">NIST FIPS 180-4 SHA-256 hash key</strong> anchored under <strong className="text-white">RFC-3161 WORM rules</strong>. Senior investigators have read-only clearance to inspect raw data and verify hashes.
                       </p>
                     </div>
 
                     {/* Quick Stats Pill */}
-                    <div className="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 flex items-center gap-5 text-xs font-mono-code shrink-0">
+                    <div className="bg-[#18181E] p-4 rounded-2xl border border-white/10 flex items-center gap-5 text-xs font-mono-code shrink-0">
                       <div>
-                        <div className="text-[10px] text-slate-400 uppercase font-sans font-bold">Active User Folder</div>
-                        <div className="text-[#FF5A1F] font-bold mt-0.5 truncate max-w-[200px]" title={selectedCase?.folderName || selectedCase?.title || 'User Docket'}>
+                        <div className="text-[10px] text-zinc-400 uppercase font-sans font-bold">Active User Folder</div>
+                        <div className="text-[#FF4D15] font-bold mt-0.5 truncate max-w-[200px]" title={selectedCase?.folderName || selectedCase?.title || 'User Docket'}>
                           📁 {currentUser.email ? `/citizens/${currentUser.email.split('@')[0]}/` : '/citizens/docket/'}
                         </div>
                       </div>
-                      <div className="h-8 w-px bg-slate-800" />
+                      <div className="h-8 w-px bg-white/10" />
                       <div>
-                        <div className="text-[10px] text-slate-400 uppercase font-sans font-bold">Native Payload</div>
+                        <div className="text-[10px] text-zinc-400 uppercase font-sans font-bold">Native Payload</div>
                         <div className="text-emerald-400 font-bold mt-0.5">
                           {(selectedCase?.evidenceFiles || []).length} Files Preserved
                         </div>
@@ -3128,14 +3392,14 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   </div>
 
                   {/* View Mode Toggle: Dedicated User Folder (Raw Data + Hashes) vs Media Gallery */}
-                  <div className="mt-6 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div className="flex items-center bg-slate-900 p-1.5 rounded-2xl border border-slate-800">
+                  <div className="mt-6 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center bg-[#18181E] p-1.5 rounded-2xl border border-white/10">
                       <button
                         onClick={() => setRepoViewMode('folder')}
                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                           repoViewMode === 'folder'
-                            ? 'bg-[#FF5A1F] text-white shadow-md'
-                            : 'text-slate-400 hover:text-white'
+                            ? 'bg-[#FF4D15] text-white shadow-md'
+                            : 'text-zinc-400 hover:text-white'
                         }`}
                       >
                         <Folder className="w-3.5 h-3.5" />
@@ -3146,8 +3410,8 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         onClick={() => setRepoViewMode('gallery')}
                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                           repoViewMode === 'gallery'
-                            ? 'bg-[#FF5A1F] text-white shadow-md'
-                            : 'text-slate-400 hover:text-white'
+                            ? 'bg-[#FF4D15] text-white shadow-md'
+                            : 'text-zinc-400 hover:text-white'
                         }`}
                       >
                         <ImageIcon className="w-3.5 h-3.5" />
@@ -3156,8 +3420,8 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <label className="cursor-pointer px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-950 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm">
-                        <Upload className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                      <label className="cursor-pointer px-4 py-2 rounded-xl bg-white hover:bg-zinc-200 text-[#070709] text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm">
+                        <Upload className="w-3.5 h-3.5 text-[#FF4D15]" />
                         <span>+ Upload File to Folder</span>
                         <input
                           type="file"
@@ -3176,37 +3440,37 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
                 {/* Upload Success Alert */}
                 {uploadSuccessMessage && (
-                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2.5 animate-in fade-in">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2.5 animate-in fade-in">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                     <span className="font-bold">{uploadSuccessMessage}</span>
                   </div>
                 )}
 
                 {/* SUB-VIEW 1: DEDICATED USER FOLDER (RAW DATA & HASH KEYS) */}
                 {repoViewMode === 'folder' && (
-                  <div className="bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+                  <div className="bg-[#070709] rounded-[32px] p-6 sm:p-8 border border-white/10 shadow-sm space-y-6">
                     
                     {/* User Folder Directory Path & Upload Zone */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-mono-code font-bold text-slate-500 uppercase">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-mono-code font-bold text-zinc-400 uppercase">
                             USER REPOSITORY PATH:
                           </span>
-                          <code className="text-xs font-mono-code text-[#FF5A1F] bg-orange-50 px-2 py-0.5 rounded border border-orange-200">
+                          <code className="text-xs font-mono-code text-[#FF4D15] bg-[#18181E] px-2 py-0.5 rounded border border-[#FF4D15]/30">
                             /citizens/{currentUser.email ? currentUser.email.split('@')[0] : 'public'}/vault/{selectedCase?.trackingCode || 'REC-2026'}/
                           </code>
                         </div>
-                        <h3 className="text-lg font-black text-slate-900 mt-1">
+                        <h3 className="text-lg font-black text-white mt-1">
                           Folder Evidence Payload: {selectedCase?.citizenName || 'Citizen Evidentiary Docket'}
                         </h3>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <p className="text-xs text-zinc-400 mt-0.5">
                           Below are the raw data files stored as-is in your dedicated folder. Click "Inspect Raw Data" on any file to preview native content, hex bytes, and check the cryptographic hash key.
                         </p>
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs font-mono-code font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1.5">
+                        <span className="text-xs font-mono-code font-bold text-emerald-300 bg-emerald-500/15 px-3 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1.5">
                           <Lock className="w-3.5 h-3.5" />
                           <span>WORM Invariant Locked</span>
                         </span>
@@ -3231,27 +3495,27 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         };
                         input.click();
                       }}
-                      className="border-2 border-dashed border-slate-300 hover:border-[#FF5A1F] rounded-2xl p-6 text-center bg-slate-50 hover:bg-orange-50/20 transition-all cursor-pointer group"
+                      className="border-2 border-dashed border-white/15 hover:border-[#FF4D15] rounded-2xl p-6 text-center bg-[#111115] hover:bg-[#18181E] transition-all cursor-pointer group"
                     >
-                      <div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center mx-auto mb-2 text-slate-600 group-hover:text-[#FF5A1F] group-hover:scale-105 transition-all">
+                      <div className="w-12 h-12 rounded-2xl bg-[#18181E] shadow-sm border border-white/10 flex items-center justify-center mx-auto mb-2 text-zinc-400 group-hover:text-[#FF4D15] group-hover:scale-105 transition-all">
                         <Upload className="w-6 h-6" />
                       </div>
-                      <h4 className="text-xs font-black text-slate-900">
-                        Drag & drop raw evidence files here, or <span className="text-[#FF5A1F] underline">browse your device</span>
+                      <h4 className="text-xs font-black text-white">
+                        Drag & drop raw evidence files here, or <span className="text-[#FF4D15] underline">browse your device</span>
                       </h4>
-                      <p className="text-[11px] text-slate-500 mt-1 max-w-xl mx-auto">
+                      <p className="text-[11px] text-zinc-400 mt-1 max-w-xl mx-auto">
                         Accepts any file format: PNG/JPG screenshots, MP4/MOV video recordings, PDF bank slips, MP3/WAV audio calls, APK binaries, and TXT logs. Raw data is stored as-is in your folder and converted to SHA-256 hash keys.
                       </p>
                     </div>
 
                     {/* Itemized File Cards in User Folder */}
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between text-xs font-bold text-slate-900">
+                      <div className="flex items-center justify-between text-xs font-bold text-white">
                         <span className="flex items-center gap-2">
-                          <Folder className="w-4 h-4 text-[#FF5A1F]" />
+                          <Folder className="w-4 h-4 text-[#FF4D15]" />
                           <span>Files Stored in Dedicated User Folder ({(selectedCase?.evidenceFiles || []).length})</span>
                         </span>
-                        <span className="text-[10px] font-mono-code text-slate-400">
+                        <span className="text-[10px] font-mono-code text-zinc-400">
                           Senior Investigator clearance active: Read & audit only
                         </span>
                       </div>
@@ -3270,30 +3534,30 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                             return (
                               <div
                                 key={file.id || idx}
-                                className="p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-slate-300 transition-all flex flex-col justify-between space-y-3 shadow-2xs"
+                                className="p-4 rounded-2xl bg-[#18181E] border border-white/10 hover:border-[#FF4D15]/40 transition-all flex flex-col justify-between space-y-3 shadow-2xs"
                               >
                                 <div className="flex items-start justify-between gap-3">
                                   <div className="flex items-center gap-3 min-w-0">
-                                    <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
+                                    <div className="w-12 h-12 rounded-xl bg-[#070709] border border-white/10 flex items-center justify-center shrink-0 shadow-2xs">
                                       {isImage ? (
-                                        <ImageIcon className="w-6 h-6 text-sky-600" />
+                                        <ImageIcon className="w-6 h-6 text-sky-400" />
                                       ) : isVideo ? (
-                                        <Video className="w-6 h-6 text-indigo-600" />
+                                        <Video className="w-6 h-6 text-indigo-400" />
                                       ) : isPdf ? (
-                                        <FileText className="w-6 h-6 text-purple-600" />
+                                        <FileText className="w-6 h-6 text-purple-400" />
                                       ) : isAudio ? (
-                                        <Music className="w-6 h-6 text-emerald-600" />
+                                        <Music className="w-6 h-6 text-emerald-400" />
                                       ) : isApk ? (
-                                        <Cpu className="w-6 h-6 text-rose-600" />
+                                        <Cpu className="w-6 h-6 text-rose-400" />
                                       ) : (
-                                        <FileCode className="w-6 h-6 text-slate-600" />
+                                        <FileCode className="w-6 h-6 text-zinc-400" />
                                       )}
                                     </div>
                                     <div className="min-w-0">
-                                      <div className="font-black text-xs text-slate-900 truncate" title={file.name}>
+                                      <div className="font-black text-xs text-white truncate" title={file.name}>
                                         {file.name}
                                       </div>
-                                      <div className="text-[10px] text-slate-500 font-mono-code flex items-center gap-2 mt-0.5">
+                                      <div className="text-[10px] text-zinc-400 font-mono-code flex items-center gap-2 mt-0.5">
                                         <span>{file.size ? `${(file.size / 1024).toFixed(1)} KB` : 'Native Size'}</span>
                                         <span>•</span>
                                         <span>{file.wormTimestamp || 'WORM Sealed'}</span>
@@ -3301,16 +3565,16 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                                     </div>
                                   </div>
 
-                                  <span className="px-2 py-0.5 rounded-full bg-slate-200 text-slate-800 text-[9px] font-mono-code font-bold uppercase shrink-0">
+                                  <span className="px-2 py-0.5 rounded-full bg-[#070709] border border-white/10 text-zinc-300 text-[9px] font-mono-code font-bold uppercase shrink-0">
                                     {formatLabel}
                                   </span>
                                 </div>
 
                                 {/* Generated SHA-256 Hash Key badge */}
-                                <div className="p-2.5 rounded-xl bg-white border border-slate-200 space-y-1">
-                                  <div className="flex items-center justify-between text-[10px] text-slate-500">
-                                    <span className="font-bold flex items-center gap-1 text-[#FF5A1F]">
-                                      <Hash className="w-3 h-3 text-[#FF5A1F]" />
+                                <div className="p-2.5 rounded-xl bg-[#070709] border border-white/10 space-y-1">
+                                  <div className="flex items-center justify-between text-[10px] text-zinc-400">
+                                    <span className="font-bold flex items-center gap-1 text-[#FF4D15]">
+                                      <Hash className="w-3 h-3 text-[#FF4D15]" />
                                       <span>Generated SHA-256 Hash Key:</span>
                                     </span>
                                     <button
@@ -3320,10 +3584,10 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                                         setCopiedFileHashId(file.id);
                                         setTimeout(() => setCopiedFileHashId(null), 2000);
                                       }}
-                                      className="text-[10px] font-bold text-slate-600 hover:text-slate-950 flex items-center gap-1"
+                                      className="text-[10px] font-bold text-zinc-400 hover:text-white flex items-center gap-1"
                                     >
                                       {copiedFileHashId === file.id ? (
-                                        <span className="text-emerald-600 flex items-center gap-1">
+                                        <span className="text-emerald-400 flex items-center gap-1">
                                           <Check className="w-3 h-3" /> Copied!
                                         </span>
                                       ) : (
@@ -3334,7 +3598,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                                     </button>
                                   </div>
 
-                                  <code className="block text-[10px] font-mono-code text-slate-800 truncate select-all bg-slate-50 px-2 py-1 rounded" title={file.sha256}>
+                                  <code className="block text-[10px] font-mono-code text-emerald-300 truncate select-all bg-[#111115] px-2 py-1 rounded border border-white/5" title={file.sha256}>
                                     {file.sha256}
                                   </code>
                                 </div>
@@ -3343,15 +3607,15 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                                 <div className="flex items-center justify-between gap-2 pt-1">
                                   <button
                                     onClick={() => setInspectingRawFile(file)}
-                                    className="flex-1 px-3 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                                    className="flex-1 px-3 py-2 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-xs"
                                   >
-                                    <Eye className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                                    <Eye className="w-3.5 h-3.5 text-white" />
                                     <span>Inspect Raw Data</span>
                                   </button>
 
                                   <button
                                     onClick={() => handleDownloadEvidenceFile(file)}
-                                    className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors flex items-center gap-1"
+                                    className="px-3.5 py-2 rounded-xl bg-[#070709] hover:bg-white/10 border border-white/10 text-zinc-200 text-xs font-bold transition-colors flex items-center gap-1"
                                     title="Download file in original format"
                                   >
                                     <Download className="w-3.5 h-3.5" />
@@ -3363,13 +3627,13 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           })}
                         </div>
                       ) : (
-                        <div className="p-8 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-3">
-                          <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto text-slate-400">
+                        <div className="p-8 bg-[#111115] rounded-2xl border border-white/10 text-center space-y-3">
+                          <div className="w-12 h-12 rounded-2xl bg-[#18181E] border border-white/10 flex items-center justify-center mx-auto text-zinc-400">
                             <Folder className="w-6 h-6" />
                           </div>
                           <div>
-                            <h4 className="text-sm font-bold text-slate-800">Your User Folder is Initialized</h4>
-                            <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+                            <h4 className="text-sm font-bold text-white">Your User Folder is Initialized</h4>
+                            <p className="text-xs text-zinc-400 mt-1 max-w-md mx-auto">
                               No files uploaded yet in this docket folder. Use the upload station above to preserve photos, videos, or documents in their original raw format.
                             </p>
                           </div>
@@ -3378,10 +3642,10 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                     </div>
 
                     {/* Preserving Guarantee Footnote */}
-                    <div className="p-4 rounded-2xl bg-orange-50/70 border border-orange-200/80 text-xs text-slate-700 flex items-start gap-3">
-                      <Lock className="w-4 h-4 text-[#FF5A1F] shrink-0 mt-0.5" />
+                    <div className="p-4 rounded-2xl bg-[#18181E] border border-[#FF4D15]/30 text-xs text-zinc-300 flex items-start gap-3">
+                      <Lock className="w-4 h-4 text-[#FF4D15] shrink-0 mt-0.5" />
                       <div className="leading-relaxed">
-                        <strong className="text-slate-900">Original Format Evidence Guarantee: </strong>
+                        <strong className="text-white">Original Format Evidence Guarantee: </strong>
                         The platform guarantees that files stored in your dedicated folder and gallery retain 100% of their raw byte content, metadata headers, and timestamps. Defense counsel and opposing experts cannot argue compression artifacts or alterations occurred.
                       </div>
                     </div>
@@ -3427,23 +3691,23 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 TAB 7: WEEKLY EVIDENCE SYSTEM DEEP DIVE
             ========================================================================= */}
             {activeNav === 'weekly' && (
-              <div className="bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+              <div className="bg-[#070709] rounded-[32px] p-6 sm:p-8 border border-white/10 shadow-sm space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
                   <div>
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono-code font-bold uppercase">
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono-code font-bold uppercase">
                       TELEMETRY ENGINE
                     </span>
-                    <h2 className="text-2xl font-black text-slate-950 mt-1">
+                    <h2 className="text-2xl font-black text-white mt-1">
                       Weekly Evidence System
                     </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-zinc-400 mt-0.5">
                       Tracks and visualizes digital evidence ingested versus verified across the current weekly cycle.
                     </p>
                   </div>
 
                   <button
                     onClick={handleTrackEvidenceToday}
-                    className="px-5 py-2.5 rounded-xl bg-[#FF5A1F] hover:bg-[#E04B14] text-white text-xs font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-2"
+                    className="px-5 py-2.5 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-black uppercase tracking-wider shadow-md transition-all flex items-center gap-2"
                   >
                     <span>+ Track Evidence Entry Today</span>
                   </button>
@@ -3451,34 +3715,34 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
                 {/* Ingested vs Verified Key Figures */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="p-5 rounded-2xl bg-slate-950 text-white flex flex-col justify-between">
-                    <span className="text-[10px] font-mono-code text-slate-400 uppercase font-bold">Total Ingested (7 Days)</span>
+                  <div className="p-5 rounded-2xl bg-[#18181E] border border-[#FF4D15]/30 text-white flex flex-col justify-between">
+                    <span className="text-[10px] font-mono-code text-zinc-400 uppercase font-bold">Total Ingested (7 Days)</span>
                     <div className="text-4xl font-black font-mono-code text-white my-2">
                       {weeklyDayData.reduce((acc, d) => acc + d.ingested, 0)} Packets
                     </div>
                     <span className="text-[10px] text-emerald-400 font-bold">All 100% WORM Sealed</span>
                   </div>
 
-                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
-                    <span className="text-[10px] font-mono-code text-slate-500 uppercase font-bold">Total Verified by Examiners</span>
-                    <div className="text-4xl font-black font-mono-code text-[#FF5A1F] my-2">
+                  <div className="p-5 rounded-2xl bg-[#18181E] border border-white/10 flex flex-col justify-between">
+                    <span className="text-[10px] font-mono-code text-zinc-400 uppercase font-bold">Total Verified by Examiners</span>
+                    <div className="text-4xl font-black font-mono-code text-[#FF4D15] my-2">
                       {weeklyDayData.reduce((acc, d) => acc + d.verified, 0)} Verified
                     </div>
-                    <span className="text-[10px] text-slate-500 font-bold">Senior Examiner Audited</span>
+                    <span className="text-[10px] text-zinc-400 font-bold">Senior Examiner Audited</span>
                   </div>
 
-                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
-                    <span className="text-[10px] font-mono-code text-slate-500 uppercase font-bold">Average Verification Speed</span>
-                    <div className="text-4xl font-black font-mono-code text-slate-900 my-2">
+                  <div className="p-5 rounded-2xl bg-[#18181E] border border-white/10 flex flex-col justify-between">
+                    <span className="text-[10px] font-mono-code text-zinc-400 uppercase font-bold">Average Verification Speed</span>
+                    <div className="text-4xl font-black font-mono-code text-white my-2">
                       0.04s
                     </div>
-                    <span className="text-[10px] text-emerald-600 font-bold">NIST FIPS 180-4 Engine</span>
+                    <span className="text-[10px] text-emerald-400 font-bold">NIST FIPS 180-4 Engine</span>
                   </div>
                 </div>
 
                 {/* Day Buttons M T W T F S S */}
                 <div className="space-y-3 pt-2">
-                  <div className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                  <div className="text-xs font-bold text-white uppercase tracking-wider">
                     Select Day for Deep Forensic Activity Logs:
                   </div>
 
@@ -3489,23 +3753,23 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         onClick={() => setSelectedDayIndex(idx)}
                         className={`p-4 rounded-2xl border text-center transition-all flex flex-col items-center justify-between ${
                           selectedDayIndex === idx
-                            ? 'bg-slate-950 text-white border-slate-950 shadow-md scale-105'
-                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-white'
+                            ? 'bg-[#FF4D15] text-white border-[#FF4D15] shadow-md scale-105'
+                            : 'bg-[#18181E] text-zinc-300 border-white/10 hover:bg-white/10'
                         }`}
                       >
                         <span className="text-xs font-mono-code font-bold">{item.day}</span>
                         <span className="text-lg font-black font-mono-code my-1">{item.ingested}</span>
-                        <span className="text-[9px] opacity-75">{item.verified} ver</span>
+                        <span className="text-[9px] opacity-80">{item.verified} ver</span>
                       </button>
                     ))}
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 font-mono-code text-xs text-slate-800 space-y-1">
-                    <div className="font-bold text-slate-900 flex items-center justify-between">
+                  <div className="p-4 rounded-2xl bg-[#111115] border border-white/10 font-mono-code text-xs text-zinc-200 space-y-1">
+                    <div className="font-bold text-white flex items-center justify-between">
                       <span>{weeklyDayData[selectedDayIndex].name} Forensic Summary:</span>
-                      <span className="text-emerald-700 font-bold">WORM RFC-3161 Timestamped ✓</span>
+                      <span className="text-emerald-400 font-bold">WORM RFC-3161 Timestamped ✓</span>
                     </div>
-                    <p className="text-slate-600 text-xs">
+                    <p className="text-zinc-400 text-xs">
                       {weeklyDayData[selectedDayIndex].notes}
                     </p>
                   </div>
@@ -3518,16 +3782,16 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 TAB 8: CUSTODY COMPLIANCE
             ========================================================================= */}
             {activeNav === 'compliance' && (
-              <div className="bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+              <div className="bg-[#070709] rounded-[32px] p-6 sm:p-8 border border-white/10 shadow-sm space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
                   <div>
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono-code font-bold uppercase">
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono-code font-bold uppercase">
                       JUDICIAL STANDARDS
                     </span>
-                    <h2 className="text-2xl font-black text-slate-950 mt-1">
+                    <h2 className="text-2xl font-black text-white mt-1">
                       Custody Compliance & Checklist
                     </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-zinc-400 mt-0.5">
                       Statutory adherence for electronic records under Section 65B Indian Evidence Act & RFC-3161 WORM invariants.
                     </p>
                   </div>
@@ -3538,63 +3802,63 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                       else if (userSortedIncidents.length > 0) onViewCertificate(userSortedIncidents[0]);
                       else onOpenReportModal();
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-xs font-bold transition-colors flex items-center gap-2"
+                    className="px-5 py-2.5 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-bold transition-colors flex items-center gap-2"
                   >
-                    <Scale className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                    <Scale className="w-3.5 h-3.5 text-white" />
                     <span>View Section 65B Certificate</span>
                   </button>
                 </div>
 
                 {/* Donut & Stats Breakdown */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                  <div className="md:col-span-5 flex flex-col items-center justify-center p-6 bg-slate-50 rounded-2xl border border-slate-200">
-                    <div className="relative w-36 h-36 rounded-full border-8 border-slate-200 flex items-center justify-center">
-                      <div className="absolute inset-0 rounded-full border-8 border-slate-950 border-t-[#FF5A1F] border-r-emerald-500" />
+                  <div className="md:col-span-5 flex flex-col items-center justify-center p-6 bg-[#18181E] rounded-2xl border border-white/10">
+                    <div className="relative w-36 h-36 rounded-full border-8 border-[#070709] flex items-center justify-center">
+                      <div className="absolute inset-0 rounded-full border-8 border-white border-t-[#FF4D15] border-r-emerald-400" />
                       <div className="text-center">
-                        <div className="text-2xl font-black font-mono-code text-slate-900">100%</div>
-                        <div className="text-[10px] font-bold uppercase text-slate-500">Admissible</div>
+                        <div className="text-2xl font-black font-mono-code text-white">100%</div>
+                        <div className="text-[10px] font-bold uppercase text-zinc-400">Admissible</div>
                       </div>
                     </div>
-                    <div className="mt-4 text-xs font-bold text-slate-800 text-center">
+                    <div className="mt-4 text-xs font-bold text-white text-center">
                       High Court Arjun Panditrao Khotkar (2020) Compliant
                     </div>
                   </div>
 
                   <div className="md:col-span-7 space-y-3">
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-900">RFC 3161 Time-Stamp Authority</span>
-                      <span className="text-xs font-mono-code text-emerald-700 font-bold">Compliant ✓</span>
+                    <div className="p-4 rounded-xl bg-[#18181E] border border-white/10 flex items-center justify-between">
+                      <span className="text-xs font-bold text-white">RFC 3161 Time-Stamp Authority</span>
+                      <span className="text-xs font-mono-code text-emerald-400 font-bold">Compliant ✓</span>
                     </div>
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-900">NIST FIPS 180-4 SHA-256 Digest Standard</span>
-                      <span className="text-xs font-mono-code text-emerald-700 font-bold">Compliant ✓</span>
+                    <div className="p-4 rounded-xl bg-[#18181E] border border-white/10 flex items-center justify-between">
+                      <span className="text-xs font-bold text-white">NIST FIPS 180-4 SHA-256 Digest Standard</span>
+                      <span className="text-xs font-mono-code text-emerald-400 font-bold">Compliant ✓</span>
                     </div>
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-900">ISO/IEC 27037 Digital Evidence Handling</span>
-                      <span className="text-xs font-mono-code text-emerald-700 font-bold">Compliant ✓</span>
+                    <div className="p-4 rounded-xl bg-[#18181E] border border-white/10 flex items-center justify-between">
+                      <span className="text-xs font-bold text-white">ISO/IEC 27037 Digital Evidence Handling</span>
+                      <span className="text-xs font-mono-code text-emerald-400 font-bold">Compliant ✓</span>
                     </div>
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-900">Section 65B(4) Examiner Affidavit</span>
-                      <span className="text-xs font-mono-code text-emerald-700 font-bold">Compliant ✓</span>
+                    <div className="p-4 rounded-xl bg-[#18181E] border border-white/10 flex items-center justify-between">
+                      <span className="text-xs font-bold text-white">Section 65B(4) Examiner Affidavit</span>
+                      <span className="text-xs font-mono-code text-emerald-400 font-bold">Compliant ✓</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Interactive Checklist Manager */}
-                <div className="pt-4 border-t border-slate-100 space-y-4">
+                <div className="pt-4 border-t border-white/10 space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                      <h3 className="text-xs font-bold text-white uppercase tracking-wider">
                         Live Evidentiary Custody Checklist
                       </h3>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-[11px] text-zinc-400">
                         {completedGoals} of {checklist.length} verified tasks complete
                       </p>
                     </div>
 
                     <button
                       onClick={() => setIsAddingChecklist(!isAddingChecklist)}
-                      className="px-3 py-1.5 rounded-xl bg-slate-950 text-white text-xs font-bold hover:bg-slate-800 flex items-center gap-1.5"
+                      className="px-3 py-1.5 rounded-xl bg-[#FF4D15] text-white text-xs font-bold hover:bg-[#E03E0B] flex items-center gap-1.5"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Add Task</span>
@@ -3602,18 +3866,18 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   </div>
 
                   {isAddingChecklist && (
-                    <form onSubmit={handleAddChecklistItem} className="flex items-center gap-2 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                    <form onSubmit={handleAddChecklistItem} className="flex items-center gap-2 p-3 bg-[#18181E] rounded-2xl border border-white/10">
                       <input
                         type="text"
                         value={newChecklistInput}
                         onChange={(e) => setNewChecklistInput(e.target.value)}
                         placeholder="Add new custody verification task..."
-                        className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#FF5A1F]"
+                        className="flex-1 px-3 py-2 text-xs rounded-xl border border-white/15 bg-[#070709] text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
                       />
-                      <button type="submit" className="px-4 py-2 rounded-xl bg-[#FF5A1F] text-white text-xs font-bold hover:bg-[#E04B14]">
+                      <button type="submit" className="px-4 py-2 rounded-xl bg-[#FF4D15] text-white text-xs font-bold hover:bg-[#E03E0B]">
                         Save Task
                       </button>
-                      <button type="button" onClick={() => setIsAddingChecklist(false)} className="p-2 text-slate-400 hover:text-slate-700">
+                      <button type="button" onClick={() => setIsAddingChecklist(false)} className="p-2 text-zinc-400 hover:text-white">
                         <X className="w-4 h-4" />
                       </button>
                     </form>
@@ -3623,22 +3887,22 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                     {checklist.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 transition-colors"
+                        className="flex items-center justify-between p-3 rounded-xl bg-[#18181E] border border-white/10 hover:border-white/20 transition-colors"
                       >
                         <div onClick={() => toggleCheck(item.id)} className="flex items-center gap-3 cursor-pointer flex-1 select-none">
                           <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all ${
-                            item.done ? 'bg-slate-950 border-slate-950 text-white' : 'border-slate-300 bg-white'
+                            item.done ? 'bg-[#FF4D15] border-[#FF4D15] text-white' : 'border-white/25 bg-[#070709]'
                           }`}>
                             {item.done && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                           </div>
-                          <span className={`text-xs font-medium ${item.done ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                          <span className={`text-xs font-medium ${item.done ? 'line-through text-zinc-500' : 'text-zinc-200'}`}>
                             {item.text}
                           </span>
                         </div>
 
                         <button
                           onClick={(e) => handleDeleteChecklistItem(item.id, e)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors ml-2"
+                          className="p-1.5 text-zinc-500 hover:text-rose-400 transition-colors ml-2"
                           title="Delete task"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -3649,41 +3913,41 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 </div>
 
                 {/* Interactive Chain of Custody Complaint / Escalation System */}
-                <div className="pt-6 border-t border-slate-100 space-y-4">
+                <div className="pt-6 border-t border-white/10 space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-mono-code font-bold uppercase">
+                        <span className="px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 text-[10px] font-mono-code font-bold uppercase">
                           GRIEVANCE ESCALATION
                         </span>
-                        <span className="text-[10px] font-mono-code text-slate-400">Direct Senior Investigator Channel</span>
+                        <span className="text-[10px] font-mono-code text-zinc-400">Direct Senior Investigator Channel</span>
                       </div>
-                      <h3 className="text-base font-black text-slate-950 mt-1">
+                      <h3 className="text-base font-black text-white mt-1">
                         Lodge Chain-of-Custody Complaint & Audit Demand
                       </h3>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-zinc-400">
                         Suspect unauthorized access, officer delay, or hash mismatch? Submit an official evidentiary custody complaint. Dispatched in real-time to the Senior Investigator.
                       </p>
                     </div>
                   </div>
 
                   {custodyComplaintFeedback && (
-                    <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2.5 animate-fade-in">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-2.5 animate-fade-in">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                       <span>{custodyComplaintFeedback}</span>
                     </div>
                   )}
 
-                  <form onSubmit={handleSubmitCustodyComplaint} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+                  <form onSubmit={handleSubmitCustodyComplaint} className="p-5 rounded-2xl bg-[#18181E] border border-white/10 space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                        <label className="block text-[11px] font-bold text-zinc-300 uppercase mb-1">
                           Nature of Custody Grievance
                         </label>
                         <select
                           value={custodyComplaintType}
                           onChange={(e) => setCustodyComplaintType(e.target.value)}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium bg-white text-slate-900 focus:outline-none focus:border-[#FF5A1F]"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 text-xs font-medium bg-[#070709] text-white focus:outline-none focus:border-[#FF4D15]"
                         >
                           <option value="Delay in Hash Verification">Delay in Hash Verification & Examiner Review</option>
                           <option value="Chain of Custody Discrepancy">Chain of Custody Discrepancy / Missing Milestone</option>
@@ -3694,20 +3958,20 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                        <label className="block text-[11px] font-bold text-zinc-300 uppercase mb-1">
                           Target Case Docket
                         </label>
                         <input
                           type="text"
                           readOnly
                           value={selectedCase ? `${selectedCase.trackingCode} - ${selectedCase.title}` : (userSortedIncidents[0]?.trackingCode || 'General Evidentiary Account')}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono-code bg-slate-100 text-slate-700 cursor-not-allowed"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 text-xs font-mono-code bg-[#070709]/60 text-zinc-400 cursor-not-allowed"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                      <label className="block text-[11px] font-bold text-zinc-300 uppercase mb-1">
                         Detailed Custody Complaint Statement
                       </label>
                       <textarea
@@ -3715,20 +3979,20 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         value={custodyComplaintText}
                         onChange={(e) => setCustodyComplaintText(e.target.value)}
                         placeholder="Detail the custody grievance, timestamps, expected hash digests, or required examiner intervention..."
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 bg-white focus:outline-none focus:border-[#FF5A1F]"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 text-xs text-white placeholder-zinc-500 bg-[#070709] focus:outline-none focus:border-[#FF4D15]"
                       />
                     </div>
 
                     <div className="flex items-center justify-between pt-1">
-                      <span className="text-[10px] text-slate-400 font-mono-code">
+                      <span className="text-[10px] text-zinc-400 font-mono-code">
                         Immutable RFC-3161 audit trail enforced · Direct alert to IFSO Special Cell
                       </span>
                       <button
                         type="submit"
                         disabled={isSubmittingCustodyComplaint || !custodyComplaintText.trim()}
-                        className="px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 disabled:opacity-50 text-white text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
+                        className="px-5 py-2.5 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] disabled:opacity-50 text-white text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
                       >
-                        <ShieldAlert className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                        <ShieldAlert className="w-3.5 h-3.5 text-white" />
                         <span>{isSubmittingCustodyComplaint ? 'Transmitting Grievance...' : 'Submit Official Custody Complaint'}</span>
                       </button>
                     </div>
@@ -3742,16 +4006,16 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 TAB 9: NOTIFICATIONS FEED (REAL-TIME INVESTIGATOR WORKSTATION SYNC)
             ========================================================================= */}
             {activeNav === 'notifications' && (
-              <div className="bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+              <div className="bg-[#070709] rounded-[32px] p-6 sm:p-8 border border-white/10 shadow-sm space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
                   <div>
-                    <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 text-[10px] font-mono-code font-bold uppercase">
+                    <span className="px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[10px] font-mono-code font-bold uppercase">
                       REAL-TIME DISPATCH FEED
                     </span>
-                    <h2 className="text-2xl font-black text-slate-950 mt-1">
+                    <h2 className="text-2xl font-black text-white mt-1">
                       Custody Notifications & Investigator Dispatches
                     </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-zinc-400 mt-0.5">
                       Connected directly to the Senior Investigator Workstation for live notices, case study updates, and certificate ready alerts.
                     </p>
                   </div>
@@ -3759,13 +4023,13 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   <div className="flex items-center gap-2">
                     <button
                       onClick={markAllNotificationsAsRead}
-                      className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors"
+                      className="px-4 py-2 rounded-xl bg-[#18181E] hover:bg-white/10 border border-white/10 text-zinc-200 text-xs font-bold transition-colors"
                     >
                       Mark all as read
                     </button>
                     <button
                       onClick={clearAllNotifications}
-                      className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 text-xs font-bold transition-colors"
+                      className="px-4 py-2 rounded-xl bg-[#18181E] hover:bg-white/10 border border-white/10 text-zinc-400 hover:text-white text-xs font-bold transition-colors"
                     >
                       Clear all
                     </button>
@@ -3774,10 +4038,10 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
                 <div className="space-y-3">
                   {combinedNotifications.length === 0 ? (
-                    <div className="p-12 text-center text-slate-400 bg-slate-50 rounded-2xl border border-slate-200">
+                    <div className="p-12 text-center text-zinc-400 bg-[#111115] rounded-2xl border border-white/10">
                       <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-xs font-bold">No active notifications</p>
-                      <p className="text-[11px] text-slate-400 mt-1">All evidence custody events are currently synchronized.</p>
+                      <p className="text-xs font-bold text-white">No active notifications</p>
+                      <p className="text-[11px] text-zinc-400 mt-1">All evidence custody events are currently synchronized.</p>
                     </div>
                   ) : (
                     combinedNotifications.map((n) => (
@@ -3785,24 +4049,24 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         key={n.id}
                         className={`p-4 rounded-2xl border transition-all ${
                           n.unread
-                            ? 'bg-orange-50/70 border-orange-200 text-slate-900 shadow-xs'
-                            : 'bg-slate-50 border-slate-200 text-slate-700'
+                            ? 'bg-[#FF4D15]/10 border-[#FF4D15]/40 text-white shadow-xs'
+                            : 'bg-[#18181E] border-white/10 text-zinc-300'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1.5">
                           <div className="flex items-center gap-2">
-                            {n.unread && <span className="w-2 h-2 rounded-full bg-[#FF5A1F] animate-pulse" />}
-                            <span className="font-black text-xs text-slate-950">{n.title}</span>
+                            {n.unread && <span className="w-2 h-2 rounded-full bg-[#FF4D15] animate-pulse" />}
+                            <span className="font-black text-xs text-white">{n.title}</span>
                           </div>
-                          <span className="text-[10px] text-slate-400 font-mono-code">{n.timestamp}</span>
+                          <span className="text-[10px] text-zinc-400 font-mono-code">{n.timestamp}</span>
                         </div>
-                        <p className="text-xs leading-relaxed text-slate-600">{n.message}</p>
+                        <p className="text-xs leading-relaxed text-zinc-300">{n.message}</p>
 
                         {/* Actionable Response & Direct Two-Way Citizen Reply Channel */}
                         {n.isInvestigatorDispatch && n.dispatchType !== 'CITIZEN_REPLY' && (
-                          <div className="mt-3 pt-2.5 border-t border-slate-200/60 flex flex-wrap items-center justify-between gap-2">
-                            <div className="flex items-center gap-1.5 text-[11px] font-mono-code text-slate-500">
-                              <span className="font-bold text-slate-700">Case: #{n.trackingCode || 'DOCKET'}</span>
+                          <div className="mt-3 pt-2.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 text-[11px] font-mono-code text-zinc-400">
+                              <span className="font-bold text-zinc-200">Case: #{n.trackingCode || 'DOCKET'}</span>
                               <span>•</span>
                               <span>Senior Officer: {n.senderName || 'Assigned Officer'}</span>
                             </div>
@@ -3819,7 +4083,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                                       isEvidenceRequest: true
                                     });
                                   }}
-                                  className="px-3.5 py-1.5 rounded-xl bg-[#FF5A1F] hover:bg-[#E04B14] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
+                                  className="px-3.5 py-1.5 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5"
                                 >
                                   <Upload className="w-3.5 h-3.5" />
                                   <span>Fulfill Evidence Request ⚡</span>
@@ -3835,7 +4099,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                                       isEvidenceRequest: false
                                     });
                                   }}
-                                  className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all flex items-center gap-1.5"
+                                  className="px-3 py-1.5 rounded-xl bg-[#070709] hover:bg-white/10 border border-white/15 text-white text-xs font-bold transition-all flex items-center gap-1.5"
                                 >
                                   <MessageSquare className="w-3.5 h-3.5" />
                                   <span>Direct Reply to Officer</span>
@@ -3847,12 +4111,12 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
                         {/* Display if user previously replied with fulfilled evidence */}
                         {n.attachedEvidenceName && (
-                          <div className="mt-2.5 p-2 rounded-xl bg-white border border-emerald-200 text-[11px] font-mono-code text-emerald-800 flex items-center justify-between">
+                          <div className="mt-2.5 p-2 rounded-xl bg-[#070709] border border-emerald-500/30 text-[11px] font-mono-code text-emerald-300 flex items-center justify-between">
                             <span className="flex items-center gap-1.5 font-bold">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                               <span>Fulfilled File: {n.attachedEvidenceName}</span>
                             </span>
-                            <span className="text-[10px] text-slate-500">Locked in WORM</span>
+                            <span className="text-[10px] text-zinc-400">Locked in WORM</span>
                           </div>
                         )}
                       </div>
@@ -3867,48 +4131,48 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 TWO-WAY DIRECT CITIZEN REPLY & EVIDENCE FULFILLMENT MODAL
             ========================================================================= */}
             {replyingToMessage && (
-              <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-                <div className="bg-white rounded-[32px] border border-slate-200 shadow-2xl w-full max-w-xl overflow-hidden p-6 sm:p-8 space-y-5">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+                <div className="bg-[#111115] rounded-[32px] border border-white/15 shadow-2xl w-full max-w-xl overflow-hidden p-6 sm:p-8 space-y-5 text-white">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
                     <div className="space-y-1">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono-code font-bold uppercase ${
                         replyingToMessage.isEvidenceRequest
-                          ? 'bg-orange-100 text-[#FF5A1F] border border-orange-200'
-                          : 'bg-blue-100 text-blue-700 border border-blue-200'
+                          ? 'bg-[#FF4D15]/15 text-[#FF4D15] border border-[#FF4D15]/30'
+                          : 'bg-sky-500/15 text-sky-300 border border-sky-500/30'
                       }`}>
                         {replyingToMessage.isEvidenceRequest ? 'ACTIONABLE EVIDENCE FULFILLMENT' : 'TWO-WAY DIRECT INVESTIGATOR CHANNEL'}
                       </span>
-                      <h3 className="text-lg font-black text-slate-950">
+                      <h3 className="text-lg font-black text-white">
                         {replyingToMessage.isEvidenceRequest ? 'Fulfill Evidence Request Notice' : 'Reply to Senior Investigator'}
                       </h3>
-                      <p className="text-xs text-slate-500">
-                        Recipient: <strong>{replyingToMessage.officerName}</strong> · Subject: <em>{replyingToMessage.subject}</em>
+                      <p className="text-xs text-zinc-400">
+                        Recipient: <strong className="text-white">{replyingToMessage.officerName}</strong> · Subject: <em className="text-zinc-200">{replyingToMessage.subject}</em>
                       </p>
                     </div>
 
                     <button
                       onClick={() => setReplyingToMessage(null)}
-                      className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors"
+                      className="w-8 h-8 rounded-full bg-[#18181E] hover:bg-white/15 border border-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-colors"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
                   {replyFeedbackMessage && (
-                    <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                       <span>{replyFeedbackMessage}</span>
                     </div>
                   )}
 
                   <form onSubmit={handleSendCitizenReply} className="space-y-4">
                     {replyingToMessage.isEvidenceRequest && (
-                      <div className="p-4 rounded-2xl bg-orange-50/70 border border-orange-200 space-y-2.5">
-                        <div className="flex items-center gap-2 text-xs font-bold text-orange-950">
-                          <Upload className="w-4 h-4 text-[#FF5A1F]" />
+                      <div className="p-4 rounded-2xl bg-[#18181E] border border-[#FF4D15]/30 space-y-2.5">
+                        <div className="flex items-center gap-2 text-xs font-bold text-white">
+                          <Upload className="w-4 h-4 text-[#FF4D15]" />
                           <span>Attach Requested Raw Evidence File (Photo / Document / Video):</span>
                         </div>
-                        <p className="text-[11px] text-orange-900 leading-relaxed">
+                        <p className="text-[11px] text-zinc-300 leading-relaxed">
                           Your file will be instantly ingested into your dedicated WORM dossier, converted into a SHA-256 hash key, and sent directly to {replyingToMessage.officerName}.
                         </p>
                         <input
@@ -3918,19 +4182,19 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                               setCitizenReplyAttachment(e.target.files[0]);
                             }
                           }}
-                          className="w-full text-xs text-slate-700 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#FF5A1F] file:text-white hover:file:bg-[#E04B14] file:cursor-pointer"
+                          className="w-full text-xs text-zinc-300 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#FF4D15] file:text-white hover:file:bg-[#E03E0B] file:cursor-pointer"
                         />
                         {citizenReplyAttachment && (
-                          <div className="text-[11px] font-mono-code text-slate-700 bg-white p-2 rounded-xl border border-orange-200 flex items-center justify-between">
-                            <span className="truncate">Selected: <strong>{citizenReplyAttachment.name}</strong> ({(citizenReplyAttachment.size / 1024).toFixed(1)} KB)</span>
-                            <span className="text-[#FF5A1F] font-bold">SHA-256 Auto-Hashing Ready</span>
+                          <div className="text-[11px] font-mono-code text-zinc-300 bg-[#070709] p-2 rounded-xl border border-[#FF4D15]/30 flex items-center justify-between">
+                            <span className="truncate">Selected: <strong className="text-white">{citizenReplyAttachment.name}</strong> ({(citizenReplyAttachment.size / 1024).toFixed(1)} KB)</span>
+                            <span className="text-[#FF4D15] font-bold">SHA-256 Auto-Hashing Ready</span>
                           </div>
                         )}
                       </div>
                     )}
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      <label className="block text-xs font-bold text-zinc-300 mb-1.5">
                         {replyingToMessage.isEvidenceRequest ? 'Response Clarification & Evidence Notes:' : 'Your Direct Message / Reply:'}
                       </label>
                       <textarea
@@ -3939,7 +4203,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         value={citizenReplyText}
                         onChange={(e) => setCitizenReplyText(e.target.value)}
                         placeholder={replyingToMessage.isEvidenceRequest ? 'Explain the attached evidence, source, date and any context requested by the senior investigator...' : 'Type your statement or reply to the investigator...'}
-                        className="w-full p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-[#FF5A1F] leading-relaxed transition-all"
+                        className="w-full p-3.5 rounded-2xl bg-[#070709] border border-white/15 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15] leading-relaxed transition-all"
                       />
                     </div>
 
@@ -3947,14 +4211,14 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                       <button
                         type="button"
                         onClick={() => setReplyingToMessage(null)}
-                        className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
+                        className="px-4 py-2.5 rounded-xl bg-[#18181E] hover:bg-white/10 border border-white/10 text-zinc-300 font-bold text-xs transition-colors"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={isSubmittingReply || (replyingToMessage.isEvidenceRequest && !citizenReplyAttachment && !citizenReplyText.trim())}
-                        className="px-5 py-2.5 rounded-xl bg-[#FF5A1F] hover:bg-[#E04B14] text-white font-bold text-xs transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
+                        className="px-5 py-2.5 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white font-bold text-xs transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
                       >
                         {isSubmittingReply ? (
                           <RefreshCw className="w-4 h-4 animate-spin" />
@@ -3973,22 +4237,22 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                 RAW DATA INSPECTOR MODAL (FOR INSPECTING RAW FORMAT AS-IS)
             ========================================================================= */}
             {inspectingRawFile && (
-              <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-                <div className="bg-slate-900 border border-slate-700 w-full max-w-3xl rounded-[32px] shadow-2xl p-6 sm:p-8 text-white space-y-6 relative overflow-hidden max-h-[90vh] overflow-y-auto">
-                  <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+              <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+                <div className="bg-[#111115] border border-white/15 w-full max-w-3xl rounded-[32px] shadow-2xl p-6 sm:p-8 text-white space-y-6 relative overflow-hidden max-h-[90vh] overflow-y-auto">
+                  <div className="flex items-center justify-between pb-4 border-b border-white/10">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono-code font-bold uppercase tracking-wider border border-emerald-400/30">
                           RAW DATA INSPECTOR · 100% ORIGINAL FIDELITY
                         </span>
-                        <span className="text-[10px] font-mono-code text-slate-400">
+                        <span className="text-[10px] font-mono-code text-zinc-400">
                           {inspectingRawFile.size ? `${(inspectingRawFile.size / 1024).toFixed(1)} KB` : 'Payload'}
                         </span>
                       </div>
                       <h3 className="text-xl font-black text-white truncate max-w-lg">
                         {inspectingRawFile.name}
                       </h3>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-zinc-400">
                         Format: {inspectingRawFile.type || 'Raw Stream'} • Preserved in user folder & gallery as uploaded.
                       </p>
                     </div>
@@ -3998,16 +4262,16 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                         setInspectingRawFile(null);
                         setRawFileHashVerificationConfirmed(false);
                       }}
-                      className="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 transition-colors shrink-0"
+                      className="w-10 h-10 rounded-full bg-[#18181E] hover:bg-white/15 border border-white/10 flex items-center justify-center text-zinc-300 transition-colors shrink-0"
                     >
                       <X className="w-5 h-5" />
                     </button>
                   </div>
 
                   {/* Cryptographic SHA-256 Hash Key Display */}
-                  <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+                  <div className="p-4 rounded-2xl bg-[#070709] border border-white/10 space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-[#FF5A1F] flex items-center gap-1.5 font-mono-code">
+                      <span className="font-bold text-[#FF4D15] flex items-center gap-1.5 font-mono-code">
                         <Hash className="w-4 h-4" />
                         <span>NIST FIPS 180-4 Cryptographic SHA-256 Hash Key:</span>
                       </span>
@@ -4017,7 +4281,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           setCopiedFileHashId(inspectingRawFile.id);
                           setTimeout(() => setCopiedFileHashId(null), 2000);
                         }}
-                        className="text-[10px] font-bold text-slate-400 hover:text-white flex items-center gap-1"
+                        className="text-[10px] font-bold text-zinc-400 hover:text-white flex items-center gap-1"
                       >
                         {copiedFileHashId === inspectingRawFile.id ? (
                           <span className="text-emerald-400 flex items-center gap-1"><Check className="w-3 h-3" /> Copied!</span>
@@ -4027,19 +4291,19 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                       </button>
                     </div>
 
-                    <code className="block p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono-code text-emerald-400 break-all select-all">
+                    <code className="block p-3 rounded-xl bg-[#18181E] border border-white/10 text-xs font-mono-code text-emerald-400 break-all select-all">
                       {inspectingRawFile.sha256}
                     </code>
                   </div>
 
                   {/* Native Preview Section (Image, Video, Audio, or Document) */}
                   <div className="space-y-2">
-                    <div className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center justify-between">
+                    <div className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center justify-between">
                       <span>Native Format Render:</span>
-                      <span className="text-[10px] font-mono-code text-slate-400">Zero Transcoding Applied</span>
+                      <span className="text-[10px] font-mono-code text-zinc-400">Zero Transcoding Applied</span>
                     </div>
 
-                    <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 flex items-center justify-center min-h-[200px] max-h-[360px] overflow-hidden">
+                    <div className="p-4 bg-[#070709] rounded-2xl border border-white/10 flex items-center justify-center min-h-[200px] max-h-[360px] overflow-hidden">
                       {inspectingRawFile.type?.includes('image') || inspectingRawFile.name.endsWith('.png') || inspectingRawFile.name.endsWith('.jpg') || inspectingRawFile.name.endsWith('.jpeg') ? (
                         <img
                           src={inspectingRawFile.previewUrl || inspectingRawFile.rawContent}
@@ -4060,7 +4324,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           <audio controls src={inspectingRawFile.previewUrl || inspectingRawFile.rawContent} className="w-full mx-auto" />
                         </div>
                       ) : (
-                        <div className="w-full text-left p-4 bg-slate-900 rounded-xl font-mono-code text-xs text-slate-300 leading-relaxed overflow-x-auto max-h-[300px]">
+                        <div className="w-full text-left p-4 bg-[#18181E] rounded-xl font-mono-code text-xs text-zinc-300 leading-relaxed overflow-x-auto max-h-[300px]">
                           {inspectingRawFile.rawContent || inspectingRawFile.previewUrl || 'RAW_PAYLOAD_BINARY_PRESERVED'}
                         </div>
                       )}
@@ -4068,7 +4332,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                   </div>
 
                   {/* Live Hash Verification Check */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-800">
+                  <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-white/10">
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => {
@@ -4080,9 +4344,9 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                           }, 400);
                         }}
                         disabled={isVerifyingRawFileHash}
-                        className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-colors flex items-center gap-2"
+                        className="px-4 py-2 rounded-xl bg-[#18181E] hover:bg-white/10 border border-white/10 text-white text-xs font-bold transition-colors flex items-center gap-2"
                       >
-                        <RefreshCw className={`w-3.5 h-3.5 text-[#FF5A1F] ${isVerifyingRawFileHash ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`w-3.5 h-3.5 text-[#FF4D15] ${isVerifyingRawFileHash ? 'animate-spin' : ''}`} />
                         <span>{isVerifyingRawFileHash ? 'Recomputing SHA-256...' : 'Verify Hash Equality'}</span>
                       </button>
 
@@ -4097,7 +4361,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleDownloadEvidenceFile(inspectingRawFile)}
-                        className="px-5 py-2.5 rounded-xl bg-[#FF5A1F] hover:bg-[#E04B14] text-white font-bold text-xs transition-colors flex items-center gap-2 shadow-md"
+                        className="px-5 py-2.5 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white font-bold text-xs transition-colors flex items-center gap-2 shadow-md"
                       >
                         <Download className="w-4 h-4" />
                         <span>Download in Original Format</span>
@@ -4111,45 +4375,45 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
             {/* Read-Only Secure Vault Modal */}
             {showReadOnlyVaultModal && (
-              <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
-                <div className="bg-slate-900 border border-blue-500/40 w-full max-w-3xl rounded-[32px] shadow-2xl p-6 sm:p-8 text-white space-y-6 relative overflow-hidden">
-                  <div className="absolute right-0 top-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+                <div className="bg-[#111115] border border-[#FF4D15]/40 w-full max-w-3xl rounded-[32px] shadow-2xl p-6 sm:p-8 text-white space-y-6 relative overflow-hidden">
+                  <div className="absolute right-0 top-0 w-64 h-64 bg-[#FF4D15]/10 rounded-full blur-3xl pointer-events-none" />
 
-                  <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                  <div className="flex items-center justify-between pb-4 border-b border-white/10">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-mono-code font-bold uppercase tracking-wider border border-blue-400/30">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#FF4D15]/20 text-[#FF4D15] text-[10px] font-mono-code font-bold uppercase tracking-wider border border-[#FF4D15]/40">
                           🔒 Read-Only Secure Access View
                         </span>
                         <span className="text-xs text-emerald-400 font-mono-code font-bold">● WORM Immutable</span>
                       </div>
                       <h3 className="text-xl font-black text-white">Drive Secure System — Shared Vault Link</h3>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-zinc-400">
                         External viewer mode. Files and reports are cryptographically sealed. Contents can be inspected and downloaded, but cannot be altered or changed.
                       </p>
                     </div>
 
                     <button
                       onClick={() => setShowReadOnlyVaultModal(false)}
-                      className="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 transition-colors"
+                      className="w-10 h-10 rounded-full bg-[#18181E] hover:bg-white/15 border border-white/10 flex items-center justify-center text-zinc-300 transition-colors"
                     >
                       <X className="w-5 h-5" />
                     </button>
                   </div>
 
                   <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
-                    <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    <div className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
                       Vault Files ({secureFiles.length})
                     </div>
                     {secureFiles.map((sf) => (
-                      <div key={sf.id} className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-4">
+                      <div key={sf.id} className="p-4 rounded-2xl bg-[#070709] border border-white/10 flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center text-blue-400 shrink-0 font-bold text-xs">
+                          <div className="w-10 h-10 rounded-xl bg-[#FF4D15]/15 flex items-center justify-center text-[#FF4D15] shrink-0 font-bold text-xs">
                             📁
                           </div>
                           <div className="min-w-0">
                             <h5 className="text-xs font-bold text-white truncate">{sf.name}</h5>
-                            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono-code mt-0.5">
+                            <div className="flex items-center gap-2 text-[10px] text-zinc-400 font-mono-code mt-0.5">
                               <span>{sf.size}</span>
                               <span>•</span>
                               <span className="text-emerald-400">SHA-256: {sf.hash}</span>
@@ -4165,7 +4429,7 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                             a.download = sf.name;
                             a.click();
                           }}
-                          className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-colors shrink-0"
+                          className="px-4 py-2 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white font-bold text-xs transition-colors shrink-0"
                         >
                           Download ↓
                         </button>
@@ -4173,11 +4437,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                     ))}
                   </div>
 
-                  <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 font-mono-code">
+                  <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-zinc-400 font-mono-code">
                     <span>Access Mode: Read-Only (Non-Alterable)</span>
                     <button
                       onClick={() => setShowReadOnlyVaultModal(false)}
-                      className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-colors"
+                      className="px-6 py-2.5 rounded-xl bg-[#18181E] hover:bg-white/15 border border-white/10 text-white font-bold text-xs transition-colors"
                     >
                       Close Viewer
                     </button>
@@ -4190,7 +4454,8 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
         </div>
 
-      </div>
+        </ScrollExpandBlock>
+      </section>
 
     </div>
   );

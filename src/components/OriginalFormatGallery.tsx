@@ -168,13 +168,13 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Top Banner Header */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -z-0 pointer-events-none" />
+      <div className="bg-[#111115] border border-white/10 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#FF4D15]/10 rounded-full blur-3xl -z-0 pointer-events-none" />
         
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400">
+              <div className="p-3 bg-[#FF4D15]/15 border border-[#FF4D15]/30 rounded-xl text-[#FF4D15]">
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
@@ -186,7 +186,7 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
                     Native Quality Preserved
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-zinc-400 mt-1">
                   {incidentTitle} {trackingCode ? `• Docket: ${trackingCode}` : ''}
                 </p>
               </div>
@@ -194,19 +194,19 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
           </div>
 
           {/* Citizen Dashboard Master Fingerprint Summary */}
-          <div className="p-4 bg-slate-950/80 rounded-xl border border-slate-800 flex items-center gap-4 text-xs font-mono">
+          <div className="p-4 bg-[#070709] rounded-xl border border-white/10 flex items-center gap-4 text-xs font-mono">
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-sans font-semibold">
+              <div className="text-[10px] uppercase tracking-wider text-zinc-400 font-sans font-semibold">
                 Citizen Works Dashboard Hash
               </div>
-              <div className="text-emerald-400 font-bold mt-0.5 flex items-center gap-1.5">
-                <Hash className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <div className="text-[#FF4D15] font-bold mt-0.5 flex items-center gap-1.5">
+                <Hash className="w-3.5 h-3.5 text-[#FF4D15] shrink-0" />
                 <span>{dashboardHash.substring(0, 16)}...</span>
               </div>
             </div>
-            <div className="h-8 w-px bg-slate-800" />
+            <div className="h-8 w-px bg-white/10" />
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-sans font-semibold">
+              <div className="text-[10px] uppercase tracking-wider text-zinc-400 font-sans font-semibold">
                 Total Native Payload
               </div>
               <div className="text-white font-bold mt-0.5">
@@ -218,23 +218,23 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
 
         {/* Lock Banner for Senior Investigator if Not Verified */}
         {showLockedOverlay && (
-          <div className="mt-6 p-5 bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 border border-amber-500/40 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="mt-6 p-5 bg-gradient-to-r from-[#FF4D15]/15 via-[#111115] to-[#FF4D15]/10 border border-[#FF4D15]/40 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div className="p-2.5 bg-amber-500/20 text-amber-400 rounded-xl border border-amber-500/30 shrink-0">
+              <div className="p-2.5 bg-[#FF4D15]/20 text-[#FF4D15] rounded-xl border border-[#FF4D15]/30 shrink-0">
                 <Lock className="w-6 h-6 animate-pulse" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-amber-200">
+                <h4 className="text-sm font-bold text-white">
                   Cryptographic Verification Gate Active
                 </h4>
-                <p className="text-xs text-amber-300/80 mt-0.5 leading-relaxed">
+                <p className="text-xs text-zinc-300 mt-0.5 leading-relaxed">
                   Raw uncompressed original files (photos, videos, bank PDFs) are locked for investigator access until you perform the SHA-256 Dual-Hash comparison with the Citizen Works Dashboard.
                 </p>
               </div>
             </div>
             <button
               onClick={onOpenHashVerification}
-              className="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap shadow-lg shadow-amber-900/30 transition-all hover:scale-105 shrink-0"
+              className="px-5 py-2.5 bg-[#FF4D15] hover:bg-[#E03E0B] text-white rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap shadow-[0_0_24px_rgba(255,77,21,0.35)] transition-all hover:scale-105 shrink-0"
             >
               <Zap className="w-4 h-4 fill-current" />
               Compare Dashboard Hash Value & Unlock
@@ -243,7 +243,7 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
         )}
 
         {isSeniorInvestigatorView && isHashVerified && (
-          <div className="mt-6 p-4 bg-emerald-950/60 border border-emerald-500/40 rounded-xl flex items-center justify-between gap-4 text-xs text-emerald-200">
+          <div className="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center justify-between gap-4 text-xs text-emerald-200">
             <div className="flex items-center gap-2 font-medium">
               <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
               <span>CRYPTOGRAPHIC MATCH VERIFIED — Senior Investigator Clearance Unlocked (0 Bit Flips)</span>
@@ -256,14 +256,14 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
       </div>
 
       {/* Filter Tabs & Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-900/50 p-3 rounded-xl border border-slate-800">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#111115] p-3 rounded-xl border border-white/10">
         <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
           <button
             onClick={() => setFilterCategory('all')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
               filterCategory === 'all'
-                ? 'bg-emerald-600 text-white font-semibold shadow-md'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#FF4D15] text-white font-semibold shadow-md'
+                : 'text-zinc-400 hover:text-white hover:bg-[#18181E]'
             }`}
           >
             All Formats ({stats.count})
@@ -272,8 +272,8 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
             onClick={() => setFilterCategory('image')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
               filterCategory === 'image'
-                ? 'bg-sky-600 text-white font-semibold shadow-md'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#FF4D15] text-white font-semibold shadow-md'
+                : 'text-zinc-400 hover:text-white hover:bg-[#18181E]'
             }`}
           >
             <ImageIcon className="w-3.5 h-3.5" />
@@ -283,8 +283,8 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
             onClick={() => setFilterCategory('video')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
               filterCategory === 'video'
-                ? 'bg-indigo-600 text-white font-semibold shadow-md'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#FF4D15] text-white font-semibold shadow-md'
+                : 'text-zinc-400 hover:text-white hover:bg-[#18181E]'
             }`}
           >
             <Video className="w-3.5 h-3.5" />
@@ -294,8 +294,8 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
             onClick={() => setFilterCategory('pdf')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
               filterCategory === 'pdf'
-                ? 'bg-purple-600 text-white font-semibold shadow-md'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#FF4D15] text-white font-semibold shadow-md'
+                : 'text-zinc-400 hover:text-white hover:bg-[#18181E]'
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
@@ -305,8 +305,8 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
             onClick={() => setFilterCategory('audio')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
               filterCategory === 'audio'
-                ? 'bg-pink-600 text-white font-semibold shadow-md'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-[#FF4D15] text-white font-semibold shadow-md'
+                : 'text-zinc-400 hover:text-white hover:bg-[#18181E]'
             }`}
           >
             <Music className="w-3.5 h-3.5" />
@@ -316,18 +316,18 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
 
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-64">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
+            <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
             <input
               type="text"
               placeholder="Search file name, hash, ext..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+              className="w-full bg-[#070709] border border-white/10 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
             />
           </div>
 
           {onFileUpload && !isSeniorInvestigatorView && (
-            <label className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-2 cursor-pointer shadow-md transition-all shrink-0">
+            <label className="px-4 py-2 bg-[#FF4D15] hover:bg-[#E03E0B] text-white rounded-xl text-xs font-semibold flex items-center gap-2 cursor-pointer shadow-md transition-all shrink-0">
               <Upload className="w-3.5 h-3.5" />
               <span>Upload Original Format</span>
               <input
@@ -343,10 +343,10 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
 
       {/* Files Grid */}
       {filteredFiles.length === 0 ? (
-        <div className="p-12 text-center bg-slate-900/30 border border-slate-800/80 rounded-2xl space-y-3">
-          <FileCode className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-sm font-bold text-slate-300">No original format files match your search</h3>
-          <p className="text-xs text-slate-500">Try adjusting your filters or upload additional files above.</p>
+        <div className="p-12 text-center bg-[#111115] border border-white/10 rounded-2xl space-y-3">
+          <FileCode className="w-10 h-10 text-zinc-600 mx-auto" />
+          <h3 className="text-sm font-bold text-zinc-300">No original format files match your search</h3>
+          <p className="text-xs text-zinc-500">Try adjusting your filters or upload additional files above.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -357,11 +357,11 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
             return (
               <div
                 key={file.id}
-                className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl overflow-hidden shadow-lg transition-all hover:shadow-2xl flex flex-col group relative"
+                className="bg-[#111115] border border-white/10 hover:border-[#FF4D15]/50 rounded-2xl overflow-hidden shadow-lg transition-all hover:shadow-2xl flex flex-col group relative"
               >
                 {/* Media Preview Header Box */}
                 <div 
-                  className="h-48 bg-slate-950 relative overflow-hidden flex items-center justify-center cursor-pointer group-hover:opacity-95"
+                  className="h-48 bg-[#070709] relative overflow-hidden flex items-center justify-center cursor-pointer group-hover:opacity-95"
                   onClick={() => {
                     if (showLockedOverlay) {
                       if (onOpenHashVerification) onOpenHashVerification();
@@ -371,10 +371,10 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
                   }}
                 >
                   {showLockedOverlay ? (
-                    <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center z-20">
-                      <Lock className="w-8 h-8 text-amber-400 mb-2 animate-bounce" />
-                      <span className="text-xs font-bold text-amber-200">Raw Format Locked</span>
-                      <span className="text-[10px] text-slate-400 mt-1">Hash Verification Required</span>
+                    <div className="absolute inset-0 bg-[#070709]/90 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center z-20">
+                      <Lock className="w-8 h-8 text-[#FF4D15] mb-2 animate-bounce" />
+                      <span className="text-xs font-bold text-white">Raw Format Locked</span>
+                      <span className="text-[10px] text-zinc-400 mt-1">Hash Verification Required</span>
                     </div>
                   ) : null}
 
@@ -386,10 +386,10 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
                   />
 
                   {/* Badge top right: category icon */}
-                  <div className="absolute top-3 right-3 px-2.5 py-1 bg-slate-950/80 backdrop-blur-md rounded-lg border border-slate-700 text-[10px] font-mono font-bold text-slate-200 flex items-center gap-1.5 shadow-md">
+                  <div className="absolute top-3 right-3 px-2.5 py-1 bg-[#070709]/85 backdrop-blur-md rounded-lg border border-white/15 text-[10px] font-mono font-bold text-zinc-200 flex items-center gap-1.5 shadow-md">
                     {category === 'image' && <ImageIcon className="w-3 h-3 text-sky-400" />}
                     {category === 'video' && <Video className="w-3 h-3 text-indigo-400" />}
-                    {category === 'pdf' && <FileText className="w-3 h-3 text-purple-400" />}
+                    {category === 'pdf' && <FileText className="w-3 h-3 text-[#FF4D15]" />}
                     {category === 'audio' && <Music className="w-3 h-3 text-pink-400" />}
                     {category === 'other' && <FileCode className="w-3 h-3 text-emerald-400" />}
                     <span>{file.name.split('.').pop()?.toUpperCase() || 'RAW'}</span>
@@ -397,8 +397,8 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
 
                   {/* Hover Overlay Icon */}
                   {!showLockedOverlay && (
-                    <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="p-3 bg-emerald-500 text-slate-950 rounded-full shadow-xl transform group-hover:scale-110 transition-transform">
+                    <div className="absolute inset-0 bg-[#070709]/45 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="p-3 bg-[#FF4D15] text-white rounded-full shadow-xl transform group-hover:scale-110 transition-transform">
                         <Maximize2 className="w-5 h-5" />
                       </div>
                     </div>
@@ -409,7 +409,7 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
                 <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-1">
                     <h4 
-                      className="text-sm font-bold text-white truncate hover:text-emerald-400 transition-colors cursor-pointer"
+                      className="text-sm font-bold text-white truncate hover:text-[#FF4D15] transition-colors cursor-pointer"
                       title={file.name}
                       onClick={() => {
                         if (showLockedOverlay) {
@@ -421,20 +421,20 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
                     >
                       {file.name}
                     </h4>
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                    <div className="flex items-center justify-between text-[11px] text-zinc-400 font-mono">
                       <span>{formatBytes(file.size)}</span>
                       <span className="text-emerald-400">{file.wormTimestamp ? 'WORM Sealed' : 'Verified'}</span>
                     </div>
                   </div>
 
                   {/* Hash Pill */}
-                  <div className="p-2 bg-slate-950 rounded-lg border border-slate-800/80 flex items-center justify-between gap-2 text-[10px] font-mono">
-                    <span className="text-slate-400 truncate">
-                      SHA: <span className="text-slate-200">{file.sha256.substring(0, 14)}...</span>
+                  <div className="p-2 bg-[#070709] rounded-lg border border-white/10 flex items-center justify-between gap-2 text-[10px] font-mono">
+                    <span className="text-zinc-400 truncate">
+                      SHA: <span className="text-zinc-200">{file.sha256.substring(0, 14)}...</span>
                     </span>
                     <button
                       onClick={(e) => handleCopyHash(file.id, file.sha256, e)}
-                      className="text-slate-400 hover:text-emerald-400 p-1 hover:bg-slate-800 rounded transition-colors shrink-0"
+                      className="text-zinc-400 hover:text-[#FF4D15] p-1 hover:bg-[#18181E] rounded transition-colors shrink-0"
                       title="Copy Full SHA-256 Hash"
                     >
                       {copiedHashId === file.id ? (
@@ -446,7 +446,7 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
                   </div>
 
                   {/* Actions Bar */}
-                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2 text-xs">
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-2 text-xs">
                     <button
                       onClick={() => {
                         if (showLockedOverlay) {
@@ -455,9 +455,9 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
                           setSelectedFileForPreview(file);
                         }
                       }}
-                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors flex-1 justify-center"
+                      className="px-3 py-1.5 bg-[#18181E] hover:bg-white/10 text-zinc-200 border border-white/10 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors flex-1 justify-center"
                     >
-                      <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                      <Eye className="w-3.5 h-3.5 text-[#FF4D15]" />
                       <span>Inspect Format</span>
                     </button>
 
@@ -465,8 +465,8 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
                       onClick={(e) => handleDownloadOriginal(file, e)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                         showLockedOverlay
-                          ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                          : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md'
+                          ? 'bg-[#18181E] text-zinc-500 cursor-not-allowed'
+                          : 'bg-[#FF4D15] hover:bg-[#E03E0B] text-white shadow-md'
                       }`}
                       title={showLockedOverlay ? 'Hash verification required to download' : 'Download Original Raw File'}
                     >
@@ -483,19 +483,19 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
 
       {/* Lightbox / Media Preview Modal */}
       {selectedFileForPreview && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col text-slate-100">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-[#070709]/90 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-[#111115] border border-white/15 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col text-zinc-100">
             {/* Header */}
-            <div className="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+            <div className="p-4 bg-[#070709] border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400">
+                <div className="p-2 bg-[#FF4D15]/15 border border-[#FF4D15]/30 rounded-lg text-[#FF4D15]">
                   <FileCheck className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white truncate max-w-md">
                     {selectedFileForPreview.name}
                   </h3>
-                  <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono mt-0.5">
+                  <div className="flex items-center gap-2 text-[10px] text-zinc-400 font-mono mt-0.5">
                     <span>Size: {formatBytes(selectedFileForPreview.size)}</span>
                     <span>•</span>
                     <span className="text-emerald-400">{selectedFileForPreview.type || 'Original Payload'}</span>
@@ -506,14 +506,14 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={(e) => handleDownloadOriginal(selectedFileForPreview, e)}
-                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all"
+                  className="px-3 py-1.5 bg-[#FF4D15] hover:bg-[#E03E0B] text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download Original</span>
                 </button>
                 <button
                   onClick={() => setSelectedFileForPreview(null)}
-                  className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+                  className="p-2 text-zinc-400 hover:text-white rounded-lg hover:bg-[#18181E] transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -521,8 +521,8 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
             </div>
 
             {/* Content Display Body */}
-            <div className="p-6 overflow-y-auto space-y-6 bg-slate-950/60">
-              <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex items-center justify-center min-h-[300px]">
+            <div className="p-6 overflow-y-auto space-y-6 bg-[#111115]">
+              <div className="bg-[#070709] border border-white/10 rounded-xl p-4 flex items-center justify-center min-h-[300px]">
                 {getCategory(selectedFileForPreview) === 'image' && (
                   <img
                     src={getPreviewUrlForFile(selectedFileForPreview)}
@@ -536,14 +536,14 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
                     <img
                       src={getPreviewUrlForFile(selectedFileForPreview)}
                       alt="Video frame preview"
-                      className="w-full h-auto rounded-lg shadow-2xl border border-slate-800"
+                      className="w-full h-auto rounded-lg shadow-2xl border border-white/10"
                     />
-                    <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+                    <div className="p-3 bg-[#18181E] rounded-xl border border-white/10 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-3">
-                        <button className="p-2 bg-emerald-500 text-slate-950 rounded-lg font-bold">
+                        <button className="p-2 bg-[#FF4D15] text-white rounded-lg font-bold">
                           <Play className="w-4 h-4 fill-current" />
                         </button>
-                        <span className="font-mono text-slate-300">00:00 / 02:45</span>
+                        <span className="font-mono text-zinc-300">00:00 / 02:45</span>
                       </div>
                       <span className="text-emerald-400 font-mono text-[11px]">H.264 / 1080p Original Recording</span>
                     </div>
@@ -553,41 +553,41 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
                 {getCategory(selectedFileForPreview) === 'pdf' && (
                   <iframe
                     src={getPreviewUrlForFile(selectedFileForPreview)}
-                    className="w-full h-[50vh] rounded-lg border border-slate-800"
+                    className="w-full h-[50vh] rounded-lg border border-white/10"
                     title={selectedFileForPreview.name}
                   />
                 )}
 
                 {getCategory(selectedFileForPreview) === 'audio' && (
-                  <div className="p-8 bg-slate-900 rounded-2xl border border-slate-800 max-w-md w-full space-y-4 text-center">
+                  <div className="p-8 bg-[#18181E] rounded-2xl border border-white/10 max-w-md w-full space-y-4 text-center">
                     <div className="p-4 bg-pink-500/10 border border-pink-500/30 rounded-full w-16 h-16 mx-auto flex items-center justify-center text-pink-400">
                       <Music className="w-8 h-8" />
                     </div>
                     <div>
                       <h4 className="font-bold text-white text-sm">{selectedFileForPreview.name}</h4>
-                      <p className="text-xs text-slate-400 mt-1 font-mono">Audio Recording • Sample Rate 44.1kHz</p>
+                      <p className="text-xs text-zinc-400 mt-1 font-mono">Audio Recording • Sample Rate 44.1kHz</p>
                     </div>
-                    <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-center gap-3">
+                    <div className="p-3 bg-[#070709] rounded-xl border border-white/10 flex items-center justify-center gap-3">
                       <button 
                         onClick={() => setIsAudioPlaying(!isAudioPlaying)}
-                        className="p-3 bg-pink-500 text-slate-950 rounded-xl font-bold hover:scale-105 transition-transform"
+                        className="p-3 bg-[#FF4D15] text-white rounded-xl font-bold hover:scale-105 transition-transform"
                       >
                         {isAudioPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
                       </button>
-                      <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
-                        <div className={`h-full bg-pink-500 ${isAudioPlaying ? 'w-2/3 animate-pulse' : 'w-0'}`} />
+                      <div className="flex-1 h-2 bg-[#18181E] rounded-full overflow-hidden">
+                        <div className={`h-full bg-[#FF4D15] ${isAudioPlaying ? 'w-2/3 animate-pulse' : 'w-0'}`} />
                       </div>
                     </div>
                   </div>
                 )}
 
                 {getCategory(selectedFileForPreview) === 'other' && (
-                  <div className="p-8 bg-slate-900 rounded-2xl border border-slate-800 max-w-lg w-full space-y-4 text-left font-mono text-xs">
+                  <div className="p-8 bg-[#18181E] rounded-2xl border border-white/10 max-w-lg w-full space-y-4 text-left font-mono text-xs">
                     <div className="flex items-center gap-2 text-emerald-400 font-bold">
                       <FileCode className="w-5 h-5" />
                       <span>Binary Forensic Payload Analysis</span>
                     </div>
-                    <div className="p-3 bg-slate-950 rounded-lg text-slate-300 leading-relaxed overflow-x-auto border border-slate-800 text-[11px]">
+                    <div className="p-3 bg-[#070709] rounded-lg text-zinc-300 leading-relaxed overflow-x-auto border border-white/10 text-[11px]">
                       <div>HEADER: 0x7F 0x45 0x4C 0x46 (ELF Executable / APK Zip Container)</div>
                       <div>SHA-256: {selectedFileForPreview.sha256}</div>
                       <div>WORM ANCHOR: {selectedFileForPreview.wormTimestamp || 'RFC-3161 SECURED'}</div>
@@ -597,19 +597,19 @@ export const OriginalFormatGallery: React.FC<OriginalFormatGalleryProps> = ({
               </div>
 
               {/* Technical Inspection Panel */}
-              <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 space-y-3 font-mono text-xs">
-                <div className="flex items-center justify-between text-slate-400 text-[11px]">
-                  <span className="font-sans font-bold text-slate-200">Forensic Metadata & Integrity Seals</span>
+              <div className="p-4 bg-[#18181E] rounded-xl border border-white/10 space-y-3 font-mono text-xs">
+                <div className="flex items-center justify-between text-zinc-400 text-[11px]">
+                  <span className="font-sans font-bold text-zinc-200">Forensic Metadata & Integrity Seals</span>
                   <span className="text-emerald-400">100% Bitwise Authentic</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
-                  <div className="p-2.5 bg-slate-950 rounded-lg border border-slate-800 space-y-1">
-                    <div className="text-slate-500">SHA-256 Digest:</div>
+                  <div className="p-2.5 bg-[#070709] rounded-lg border border-white/10 space-y-1">
+                    <div className="text-zinc-500">SHA-256 Digest:</div>
                     <div className="text-emerald-400 break-all select-all font-bold">{selectedFileForPreview.sha256}</div>
                   </div>
-                  <div className="p-2.5 bg-slate-950 rounded-lg border border-slate-800 space-y-1">
-                    <div className="text-slate-500">WORM Ledger Timestamp:</div>
-                    <div className="text-slate-200">{selectedFileForPreview.wormTimestamp || '2026-10-09 UTC [RFC-3161]'}</div>
+                  <div className="p-2.5 bg-[#070709] rounded-lg border border-white/10 space-y-1">
+                    <div className="text-zinc-500">WORM Ledger Timestamp:</div>
+                    <div className="text-zinc-200">{selectedFileForPreview.wormTimestamp || '2026-10-09 UTC [RFC-3161]'}</div>
                   </div>
                 </div>
               </div>

@@ -163,43 +163,43 @@ export const DontpadWorkspace: React.FC<DontpadWorkspaceProps> = ({
   };
 
   return (
-    <div className={`flex flex-col ${isModal ? 'bg-slate-900 text-white rounded-3xl p-6 sm:p-8 max-w-5xl w-full max-h-[92vh] overflow-y-auto border border-orange-500/30 shadow-2xl' : 'bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm text-slate-900 space-y-6'}`}>
+    <div className={`flex flex-col ${isModal ? 'bg-[#111115] text-white rounded-3xl p-6 sm:p-8 max-w-5xl w-full max-h-[92vh] overflow-y-auto border border-[#FF4D15]/30 shadow-2xl' : 'bg-[#111115] rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl text-white space-y-6'}`}>
       
       {/* Toast Banner */}
       {toastMsg && (
-        <div className="mb-4 p-3.5 rounded-2xl bg-slate-950 text-white text-xs font-bold flex items-center justify-between shadow-xl animate-fade-in border border-slate-800">
+        <div className="mb-4 p-3.5 rounded-2xl bg-[#070709] text-white text-xs font-bold flex items-center justify-between shadow-xl animate-fade-in border border-white/15">
           <div className="flex items-center gap-2.5">
-            <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
+            <Sparkles className="w-4 h-4 text-[#FF4D15]" />
             <span>{toastMsg}</span>
           </div>
-          <button onClick={() => setToastMsg(null)} className="text-slate-400 hover:text-white">
+          <button onClick={() => setToastMsg(null)} className="text-zinc-400 hover:text-white">
             <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
       {/* Header Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/10">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-orange-100 text-[#FF5A1F] text-[10px] font-mono-code font-bold uppercase tracking-wider">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#FF4D15]/15 text-[#FF4D15] border border-[#FF4D15]/30 text-[10px] font-mono-code font-bold uppercase tracking-wider">
               ⚡ F.I.P DEDICATED DONTPAD
             </span>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-mono-code font-bold flex items-center gap-1">
-              <Clock className="w-3 h-3 text-emerald-600" />
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono-code font-bold flex items-center gap-1">
+              <Clock className="w-3 h-3 text-emerald-400" />
               <span>{getRemainingHours()}</span>
             </span>
             {pad.isWormLocked && (
-              <span className="px-2.5 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-mono-code font-bold flex items-center gap-1">
-                <Lock className="w-3 h-3 text-orange-400" />
+              <span className="px-2.5 py-0.5 rounded-full bg-[#070709] text-white border border-white/15 text-[10px] font-mono-code font-bold flex items-center gap-1">
+                <Lock className="w-3 h-3 text-[#FF4D15]" />
                 <span>WORM Locked</span>
               </span>
             )}
           </div>
-          <h2 className="text-xl sm:text-2xl font-black mt-1">
+          <h2 className="text-xl sm:text-2xl font-black mt-1 text-white">
             Dontpad Live Collaborative Notepad
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5 max-w-2xl">
+          <p className="text-xs text-zinc-400 mt-0.5 max-w-2xl">
             Type anything. No login required. Changes auto-save continuously in real time to the F.I.P cloud server. Open or create any pad directly through the URL bar.
           </p>
         </div>
@@ -208,9 +208,9 @@ export const DontpadWorkspace: React.FC<DontpadWorkspaceProps> = ({
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setShowInstructions(!showInstructions)}
-            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl bg-[#18181E] hover:bg-white/10 text-zinc-200 border border-white/10 text-xs font-bold transition-colors flex items-center gap-1.5"
           >
-            <Info className="w-3.5 h-3.5 text-[#FF5A1F]" />
+            <Info className="w-3.5 h-3.5 text-[#FF4D15]" />
             <span>{showInstructions ? 'Hide Guide' : 'How it Works'}</span>
           </button>
 
@@ -225,7 +225,7 @@ export const DontpadWorkspace: React.FC<DontpadWorkspaceProps> = ({
 
           <button
             onClick={handleCopyShareUrl}
-            className="px-4 py-2 rounded-xl bg-[#FF5A1F] hover:bg-[#E04B14] text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm"
+            className="px-4 py-2 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(255,77,21,0.3)]"
           >
             <Share2 className="w-3.5 h-3.5" />
             <span>{isCopied ? 'Link Copied!' : 'Share 24h Link'}</span>
@@ -234,7 +234,7 @@ export const DontpadWorkspace: React.FC<DontpadWorkspaceProps> = ({
           {isModal && onClose && (
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800"
+              className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10"
             >
               <X className="w-5 h-5" />
             </button>
@@ -244,66 +244,66 @@ export const DontpadWorkspace: React.FC<DontpadWorkspaceProps> = ({
 
       {/* 7-STEP INTERACTIVE INSTRUCTIONS GUIDE */}
       {showInstructions && (
-        <div className="p-5 rounded-2xl bg-orange-50/80 border border-orange-200 text-slate-800 space-y-3 animate-fade-in text-xs">
-          <div className="flex items-center justify-between pb-2 border-b border-orange-200/60">
-            <div className="flex items-center gap-2 font-black text-slate-950 text-sm">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#FF5A1F] animate-ping" />
+        <div className="p-5 rounded-2xl bg-[#18181E] border border-[#FF4D15]/25 text-zinc-200 space-y-3 animate-fade-in text-xs">
+          <div className="flex items-center justify-between pb-2 border-b border-white/10">
+            <div className="flex items-center gap-2 font-black text-white text-sm">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FF4D15] animate-ping" />
               <span>Exact 7-Step Instructions: How Dontpad Works in F.I.P</span>
             </div>
-            <span className="text-[10px] font-mono-code font-bold text-orange-800 bg-orange-200/80 px-2 py-0.5 rounded">
+            <span className="text-[10px] font-mono-code font-bold text-[#FF4D15] bg-[#FF4D15]/15 border border-[#FF4D15]/30 px-2 py-0.5 rounded">
               24-Hour Temporary & Save Protocol
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-1 text-[11px] leading-relaxed">
-            <div className="p-3 bg-white rounded-xl border border-orange-100 space-y-1">
-              <strong className="text-slate-950 block font-bold">1. Create or Open via URL:</strong>
-              <p className="text-slate-600">
-                Instead of a "New Document" button, create a notepad simply by changing the URL address: type <code className="bg-slate-100 text-[#FF5A1F] px-1 py-0.5 rounded font-mono">#pad/my-custom-phrase</code> in the address bar.
+            <div className="p-3 bg-[#070709] rounded-xl border border-white/10 space-y-1">
+              <strong className="text-white block font-bold">1. Create or Open via URL:</strong>
+              <p className="text-zinc-400">
+                Instead of a "New Document" button, create a notepad simply by changing the URL address: type <code className="bg-[#18181E] text-[#FF4D15] px-1 py-0.5 rounded font-mono">#pad/my-custom-phrase</code> in the address bar.
               </p>
             </div>
 
-            <div className="p-3 bg-white rounded-xl border border-orange-100 space-y-1">
-              <strong className="text-slate-950 block font-bold">2. Type Your Text:</strong>
-              <p className="text-slate-600">
+            <div className="p-3 bg-[#070709] rounded-xl border border-white/10 space-y-1">
+              <strong className="text-white block font-bold">2. Type Your Text:</strong>
+              <p className="text-zinc-400">
                 Click inside the large text area below and start typing or pasting content (evidence logs, suspect handles, code, or police statements).
               </p>
             </div>
 
-            <div className="p-3 bg-white rounded-xl border border-orange-100 space-y-1">
-              <strong className="text-slate-950 block font-bold">3. Continuous Auto-Saving:</strong>
-              <p className="text-slate-600">
+            <div className="p-3 bg-[#070709] rounded-xl border border-white/10 space-y-1">
+              <strong className="text-white block font-bold">3. Continuous Auto-Saving:</strong>
+              <p className="text-zinc-400">
                 No "Save" button required. Dontpad auto-saves continuously to the cloud as you type. If you close the tab, nothing is lost.
               </p>
             </div>
 
-            <div className="p-3 bg-white rounded-xl border border-orange-100 space-y-1">
-              <strong className="text-slate-950 block font-bold">4. Share Instantly:</strong>
-              <p className="text-slate-600">
+            <div className="p-3 bg-[#070709] rounded-xl border border-white/10 space-y-1">
+              <strong className="text-white block font-bold">4. Share Instantly:</strong>
+              <p className="text-zinc-400">
                 Click "Share 24h Link". Anyone opening your unique URL instantly sees your text in real time with 0 login required.
               </p>
             </div>
 
-            <div className="p-3 bg-white rounded-xl border border-orange-100 space-y-1">
-              <strong className="text-slate-950 block font-bold">5. Collaborative Real-Time:</strong>
-              <p className="text-slate-600">
+            <div className="p-3 bg-[#070709] rounded-xl border border-white/10 space-y-1">
+              <strong className="text-white block font-bold">5. Collaborative Real-Time:</strong>
+              <p className="text-zinc-400">
                 Multiple users (citizens and investigating officers) can open the same URL simultaneously to read and edit together live.
               </p>
             </div>
 
-            <div className="p-3 bg-white rounded-xl border border-orange-100 space-y-1">
-              <strong className="text-slate-950 block font-bold">6. Organize Using Folders:</strong>
-              <p className="text-slate-600">
-                Create sub-folders directly in the URL: <code className="bg-slate-100 text-blue-600 px-1 py-0.5 rounded font-mono">#pad/cases/2026/cyber-fraud</code> structures notes automatically under nested paths!
+            <div className="p-3 bg-[#070709] rounded-xl border border-white/10 space-y-1">
+              <strong className="text-white block font-bold">6. Organize Using Folders:</strong>
+              <p className="text-zinc-400">
+                Create sub-folders directly in the URL: <code className="bg-[#18181E] text-[#FF4D15] px-1 py-0.5 rounded font-mono">#pad/cases/2026/cyber-fraud</code> structures notes automatically under nested paths!
               </p>
             </div>
           </div>
 
-          <div className="pt-2 border-t border-orange-200/60 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-700">
+          <div className="pt-2 border-t border-white/10 flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-300">
             <div>
-              <strong>7. Download Your Content (Optional):</strong> Download physical copy as <code className="font-mono bg-white px-1 py-0.5 rounded">.txt</code> or compressed archive <code className="font-mono bg-white px-1 py-0.5 rounded">.zip</code>.
+              <strong>7. Download Your Content (Optional):</strong> Download physical copy as <code className="font-mono bg-[#070709] px-1 py-0.5 rounded border border-white/10">.txt</code> or compressed archive <code className="font-mono bg-[#070709] px-1 py-0.5 rounded border border-white/10">.zip</code>.
             </div>
-            <div className="text-emerald-700 font-bold flex items-center gap-1">
+            <div className="text-emerald-400 font-bold flex items-center gap-1">
               <Clock className="w-3.5 h-3.5" />
               <span>Temporary 24 Hours: User can save it for 24 hours too!</span>
             </div>
@@ -312,9 +312,9 @@ export const DontpadWorkspace: React.FC<DontpadWorkspaceProps> = ({
       )}
 
       {/* LIVE ADDRESS BAR SIMULATOR (STEP 1 & STEP 6: URL PATH NAVIGATION & NESTED FOLDERS) */}
-      <div className="p-3.5 rounded-2xl bg-slate-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-slate-800">
+      <div className="p-3.5 rounded-2xl bg-[#070709] text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-white/10">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 text-xs font-mono shrink-0">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#111115] border border-white/10 text-zinc-400 text-xs font-mono shrink-0">
             <span className="w-2 h-2 rounded-full bg-emerald-400" />
             <span>dontpad.fip.app/#pad/</span>
           </div>
@@ -323,12 +323,12 @@ export const DontpadWorkspace: React.FC<DontpadWorkspaceProps> = ({
             value={currentPath}
             onChange={(e) => handleNavigatePath(e.target.value)}
             placeholder="Type custom word, phrase, or nested folder: cases/2026/evidence"
-            className="flex-1 bg-transparent border-b border-slate-700 focus:border-[#FF5A1F] text-xs font-mono text-emerald-300 px-2 py-1 focus:outline-none"
+            className="flex-1 bg-transparent border-b border-white/15 focus:border-[#FF4D15] text-xs font-mono text-emerald-300 px-2 py-1 focus:outline-none"
           />
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-[10px] font-mono text-slate-400">
+          <span className="text-[10px] font-mono text-zinc-400">
             {isSaving ? (
               <span className="text-amber-400 flex items-center gap-1">
                 <RefreshCw className="w-3 h-3 animate-spin" /> Auto-saving...
@@ -342,7 +342,7 @@ export const DontpadWorkspace: React.FC<DontpadWorkspaceProps> = ({
 
           <button
             onClick={handleCopyShareUrl}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-colors flex items-center gap-1"
+            className="px-3 py-1.5 rounded-lg bg-[#18181E] hover:bg-white/10 text-zinc-200 border border-white/10 text-xs font-bold transition-colors flex items-center gap-1"
           >
             <Copy className="w-3 h-3" />
             <span>Copy URL</span>
@@ -352,7 +352,7 @@ export const DontpadWorkspace: React.FC<DontpadWorkspaceProps> = ({
 
       {/* QUICK SUB-FOLDER JUMPS (STEP 6) */}
       <div className="flex flex-wrap items-center gap-1.5 text-xs">
-        <span className="text-[10px] font-mono font-bold text-slate-500 uppercase mr-1">
+        <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase mr-1">
           Folder Jumps:
         </span>
         {['case-2026-evidence', 'cases/police-warrant', 'fraud/upi-mule/logs', 'evidence/whatsapp-chat', 'investigation/notes'].map((slug) => (
@@ -361,8 +361,8 @@ export const DontpadWorkspace: React.FC<DontpadWorkspaceProps> = ({
             onClick={() => handleNavigatePath(slug)}
             className={`px-2.5 py-1 rounded-lg text-[11px] font-mono transition-all ${
               currentPath === slug
-                ? 'bg-[#FF5A1F] text-white font-bold'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                ? 'bg-[#FF4D15] text-white font-bold shadow-[0_0_16px_rgba(255,77,21,0.3)]'
+                : 'bg-[#18181E] hover:bg-white/10 text-zinc-300 border border-white/10'
             }`}
           >
             📁 /{slug}
@@ -371,42 +371,42 @@ export const DontpadWorkspace: React.FC<DontpadWorkspaceProps> = ({
       </div>
 
       {/* MAIN TEXT AREA (STEP 2: TYPE YOUR TEXT WITH REAL-TIME CONTINUOUS AUTO-SAVE) */}
-      <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-inner">
+      <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-inner">
         <textarea
           value={text}
           onChange={handleTextChange}
           placeholder="Click here and start typing or pasting content... Auto-saves in real-time without clicking any button."
           rows={14}
           readOnly={pad.isWormLocked}
-          className={`w-full p-5 text-xs sm:text-sm font-mono leading-relaxed focus:outline-none resize-y transition-colors ${
+          className={`w-full p-5 text-xs sm:text-sm font-mono leading-relaxed focus:outline-none resize-y transition-colors placeholder-zinc-500 ${
             pad.isWormLocked
-              ? 'bg-slate-100 text-slate-700 cursor-not-allowed'
-              : 'bg-slate-50/50 focus:bg-white text-slate-900'
+              ? 'bg-[#0B0B0E] text-zinc-400 cursor-not-allowed'
+              : 'bg-[#070709] focus:bg-[#0B0B0F] text-zinc-100'
           }`}
         />
 
         {pad.isWormLocked && (
-          <div className="absolute top-3 right-3 px-3 py-1 bg-slate-950/90 text-amber-300 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shadow-md">
-            <Lock className="w-3.5 h-3.5 text-orange-400" />
+          <div className="absolute top-3 right-3 px-3 py-1 bg-[#111115]/95 border border-white/15 text-amber-300 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 shadow-md">
+            <Lock className="w-3.5 h-3.5 text-[#FF4D15]" />
             <span>WORM Locked (Read-Only)</span>
           </div>
         )}
       </div>
 
       {/* FOOTER CONTROLS & DOWNLOAD OPTIONS (STEP 7: DOWNLOAD TXT OR COMPRESSED .ZIP) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-slate-100 text-xs font-mono">
-        <div className="flex flex-wrap items-center gap-4 text-slate-500 text-[11px]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-white/10 text-xs font-mono">
+        <div className="flex flex-wrap items-center gap-4 text-zinc-400 text-[11px]">
           <div>
-            Length: <strong className="text-slate-900">{text.length}</strong> chars
+            Length: <strong className="text-white">{text.length}</strong> chars
           </div>
           <div>
-            Lines: <strong className="text-slate-900">{text.split('\n').length}</strong>
+            Lines: <strong className="text-white">{text.split('\n').length}</strong>
           </div>
           <div>
-            SHA-256: <code className="text-[#FF5A1F]">{pad.sha256.substring(0, 14)}...</code>
+            SHA-256: <code className="text-[#FF4D15]">{pad.sha256.substring(0, 14)}...</code>
           </div>
           <div>
-            Last synced: <span className="text-slate-700">{pad.lastUpdated}</span>
+            Last synced: <span className="text-zinc-300">{pad.lastUpdated}</span>
           </div>
         </div>
 
@@ -414,20 +414,20 @@ export const DontpadWorkspace: React.FC<DontpadWorkspaceProps> = ({
           {/* Download Text */}
           <button
             onClick={() => handleDownload('txt')}
-            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl bg-[#18181E] hover:bg-white/10 text-zinc-200 border border-white/10 text-xs font-bold transition-colors flex items-center gap-1.5"
             title="Download notepad as plain text file"
           >
-            <Download className="w-3.5 h-3.5 text-slate-600" />
+            <Download className="w-3.5 h-3.5 text-zinc-400" />
             <span>.txt</span>
           </button>
 
           {/* Download ZIP (Step 7) */}
           <button
             onClick={() => handleDownload('zip')}
-            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl bg-[#18181E] hover:bg-white/10 text-zinc-200 border border-white/10 text-xs font-bold transition-colors flex items-center gap-1.5"
             title="Download as compressed archive (.zip) matching dontpad.com/slug.zip specification"
           >
-            <Download className="w-3.5 h-3.5 text-blue-600" />
+            <Download className="w-3.5 h-3.5 text-[#FF4D15]" />
             <span>.zip Archive</span>
           </button>
 
@@ -437,10 +437,10 @@ export const DontpadWorkspace: React.FC<DontpadWorkspaceProps> = ({
             className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
               pad.isWormLocked
                 ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                : 'bg-slate-900 hover:bg-slate-800 text-white'
+                : 'bg-[#FF4D15] hover:bg-[#E03E0B] text-white'
             }`}
           >
-            {pad.isWormLocked ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5 text-orange-400" />}
+            {pad.isWormLocked ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5 text-white" />}
             <span>{pad.isWormLocked ? 'Unlock Editing' : 'Lock WORM'}</span>
           </button>
         </div>

@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowUpRight, User, ShieldCheck, ShieldAlert, Bell, Database } from 'lucide-react';
+import React, { useState } from 'react';
+import { Bell, Search, ArrowRight, Menu, X } from 'lucide-react';
 import { UserProfile } from '../types';
-import { checkServerStatus } from '../data/apiClient';
 
 interface NavbarProps {
   currentTab: string;
@@ -13,6 +12,16 @@ interface NavbarProps {
   onOpenNotifications?: () => void;
 }
 
+const NAV_ITEMS = [
+  { id: 'home', label: 'Home' },
+  { id: 'incidents', label: 'Crime Stories' },
+  { id: 'learning', label: 'Suspense Stories' },
+  { id: 'how-it-works', label: 'About Us' },
+  { id: 'portals', label: 'Global Links' },
+  { id: 'dashboard', label: 'Citizen Dossier' },
+  { id: 'investigator', label: 'Workstation · AI', highlight: true },
+];
+
 export const Navbar: React.FC<NavbarProps> = ({
   currentTab,
   onNavigate,
@@ -22,185 +31,219 @@ export const Navbar: React.FC<NavbarProps> = ({
   unreadNotificationsCount = 0,
   onOpenNotifications,
 }) => {
-  const [backendStatus, setBackendStatus] = useState<{ status: string; database: string; smtp: string } | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isHome =
+    currentTab === 'home' ||
+    currentTab === 'dashboard' ||
+    currentTab === 'investigator';
 
-  useEffect(() => {
-    let isMounted = true;
-    const fetchStatus = async () => {
-      const status = await checkServerStatus();
-      if (isMounted) setBackendStatus(status);
-    };
-    fetchStatus();
-    const interval = setInterval(fetchStatus, 15000);
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, []);
+  const userIdentityStr = `${currentUser?.name || ''} ${currentUser?.email || ''}`.toLowerCase();
+  const activeAvatarUrl = userIdentityStr.includes('krishi')
+    ? '/assets/aistudio/image_526c1ede.png'
+    : userIdentityStr.includes('balchandra')
+    ? '/assets/aistudio/WhatsApp_Image_2026-11-15_at_8.28.47_PM_76cc2fa2.jpeg'
+    : userIdentityStr.includes('zohara')
+    ? '/assets/aistudio/image_acc490cb.png'
+    : userIdentityStr.includes('afsheen')
+    ? '/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg'
+    : null;
+
+  const isSeniorInvestigator = currentUser?.role === 'senior_investigator';
+  const visibleNavItems = NAV_ITEMS.filter(
+    (item) => item.id !== 'investigator' || isSeniorInvestigator
+  );
+
+  const handleNavClick = (tabId: string) => {
+    onNavigate(tabId);
+    setMobileMenuOpen(false);
+  };
+
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-slate-100 transition-all">
-      {/* Top Notice Marquee Banner matching the black thin bar in the image */}
-      <div className="bg-slate-950 text-white text-[11px] font-mono-code py-1.5 px-4 overflow-hidden border-b border-slate-800">
-        <div className="animate-marquee whitespace-nowrap flex items-center gap-12 font-medium">
-          <span className="flex items-center gap-2 text-amber-300">
-            <span>⚡ 14,000+ VERIFIED EVIDENCE HASHES</span>
-            <span>·</span>
-            <span>WRITE-ONCE-READ-MANY PROTOCOL ACTIVE</span>
-            <span>·</span>
-            <span className="text-white">NATIONAL FINANCIAL HELPLINE: DIAL 1930</span>
-            <span>·</span>
-            <span className="text-rose-400">SECTION 65B INDIAN EVIDENCE ACT COMPLIANT</span>
-          </span>
-          <span className="flex items-center gap-2 text-amber-300">
-            <span>⚡ 14,000+ VERIFIED EVIDENCE HASHES</span>
-            <span>·</span>
-            <span>WRITE-ONCE-READ-MANY PROTOCOL ACTIVE</span>
-            <span>·</span>
-            <span className="text-white">NATIONAL FINANCIAL HELPLINE: DIAL 1930</span>
-            <span>·</span>
-            <span className="text-rose-400">SECTION 65B INDIAN EVIDENCE ACT COMPLIANT</span>
-          </span>
-        </div>
-      </div>
-
-      {/* Main Nav Row */}
-      <div className="max-w-[1760px] 2xl:max-w-[1880px] mx-auto flex items-center justify-between px-4 sm:px-8 lg:px-12 xl:px-16 py-4">
-        
-        {/* Brand Name: "fip." (Forensic Investigation Platform) matching "relab" */}
+    <header
+      className={`sticky top-0 z-40 w-full backdrop-blur-xl border-b transition-colors duration-200 ${
+        isHome
+          ? 'bg-[#0B0B0E]/95 border-white/10 text-white'
+          : 'bg-[#F5F5F7]/95 border-black/10 text-[#0D0D10]'
+      }`}
+    >
+      {/* Main Top Bar (Fits 100% Laptop Screen Ratio & Mobile Viewport) */}
+      <div className="w-full h-14 flex items-center justify-between gap-3 sm:gap-6 px-4 sm:px-8 lg:px-12">
+        {/* Zone 1: Condensed Noir Brand Wordmark — F.I.P (Forensic Investigation Platform) */}
         <button
-          onClick={() => onNavigate('home')}
-          className="flex items-center gap-2 text-left group focus:outline-none"
+          onClick={() => handleNavClick('home')}
+          className="font-noir-display text-xl sm:text-2xl font-bold uppercase tracking-tight focus:outline-none whitespace-nowrap shrink-0 flex items-center gap-2 cursor-pointer"
+          title="F.I.P — Forensic Investigation Platform"
         >
-          <span className="text-2xl font-black tracking-tight text-slate-950 font-sans">
-            fip<span className="text-[#FF5A1F]">.</span>
+          <span>
+            <span className={isHome ? 'text-white' : 'text-[#0D0D10]'}>F.I.</span>
+            <span className="text-[#E5192A]">P</span>
           </span>
-          <span className="hidden sm:inline-block text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+          <span
+            className={`hidden xl:inline-block text-[10px] font-mono-code font-medium tracking-wider uppercase border-l pl-2 ${
+              isHome ? 'text-zinc-400 border-white/15' : 'text-zinc-500 border-black/15'
+            }`}
+          >
             Forensic Investigation Platform
           </span>
         </button>
 
-        {/* Clean Menu Links */}
-        <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-600">
-          <button
-            onClick={() => onNavigate('home')}
-            className={`transition-colors py-1 ${
-              currentTab === 'home' ? 'text-slate-950 font-bold' : 'hover:text-slate-950'
-            }`}
-          >
-            Home
-          </button>
-          {/* On Home page, Personal Dashboard button is hidden per user request */}
-          {currentTab !== 'home' && (
-            <button
-              onClick={() => onNavigate('dashboard')}
-              className={`transition-colors py-1 flex items-center gap-1.5 ${
-                currentTab === 'dashboard' ? 'text-slate-950 font-bold' : 'hover:text-slate-950'
-              }`}
-            >
-              <span>Personal Dashboard</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF5A1F]" />
-            </button>
-          )}
-          <button
-            onClick={() => onNavigate('incidents')}
-            className={`transition-colors py-1 ${
-              currentTab === 'incidents' ? 'text-slate-950 font-bold' : 'hover:text-slate-950'
-            }`}
-          >
-            Custody Vault
-          </button>
-          <button
-            onClick={() => onNavigate('learning')}
-            className={`transition-colors py-1 ${
-              currentTab === 'learning' ? 'text-slate-950 font-bold' : 'hover:text-slate-950'
-            }`}
-          >
-            Awareness Hub
-          </button>
-          <button
-            onClick={() => onNavigate('how-it-works')}
-            className={`transition-colors py-1 ${
-              currentTab === 'how-it-works' ? 'text-slate-950 font-bold' : 'hover:text-slate-950'
-            }`}
-          >
-            How It Works
-          </button>
-          <button
-            onClick={() => onNavigate('portals')}
-            className={`transition-colors py-1 ${
-              currentTab === 'portals' ? 'text-slate-950 font-bold' : 'hover:text-slate-950'
-            }`}
-          >
-            Global Portals
-          </button>
-          {/* On Home page, Workstation button is hidden per user request */}
-          {currentTab !== 'home' && currentUser.role === 'senior_investigator' && (
-            <button
-              onClick={() => onNavigate('investigator')}
-              className={`transition-colors py-1 px-2.5 rounded-full bg-slate-900 text-amber-300 font-bold flex items-center gap-1 text-[11px] shadow-xs ${
-                currentTab === 'investigator' ? 'ring-2 ring-amber-400' : 'hover:bg-slate-800'
-              }`}
-            >
-              <span>Workstation ⚡</span>
-            </button>
-          )}
+        {/* Zone 2: Laptop / Desktop Navigation Links */}
+        <nav
+          className={`hidden lg:flex items-center gap-5 xl:gap-7 text-xs font-medium ${
+            isHome ? 'text-zinc-200' : 'text-zinc-600'
+          }`}
+        >
+          {visibleNavItems.map((item) => {
+            const isActive = currentTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className={`transition-colors py-1 whitespace-nowrap shrink-0 cursor-pointer ${
+                  isActive
+                    ? 'text-[#E5192A] font-semibold underline decoration-[#E5192A] decoration-2 underline-offset-4'
+                    : item.highlight
+                    ? 'text-[#E5192A] hover:opacity-80 font-semibold'
+                    : isHome
+                    ? 'hover:text-white'
+                    : 'hover:text-[#0D0D10]'
+                }`}
+              >
+                {item.label}
+              </button>
+            );
+          })}
         </nav>
 
-        {/* Right Action Bar */}
-        <div className="flex items-center gap-3">
-          {/* Live Backend Connection Indicator */}
-          <div 
-            className={`hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-mono-code transition-all shadow-xs border ${
-              backendStatus?.database === 'CONNECTED'
-                ? 'bg-emerald-50/90 text-emerald-800 border-emerald-200'
-                : backendStatus?.status === 'ONLINE'
-                ? 'bg-amber-50/90 text-amber-800 border-amber-200'
-                : 'bg-slate-100 text-slate-700 border-slate-200'
+        {/* Zone 3: Right Search Icon, Notifications, Role Switcher & Mobile Menu Toggle */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <button
+            onClick={() => handleNavClick('incidents')}
+            className={`p-2 rounded-full transition-colors focus:outline-none cursor-pointer ${
+              isHome
+                ? 'text-zinc-200 hover:text-white hover:bg-white/10'
+                : 'text-[#0D0D10] hover:bg-zinc-100'
             }`}
-            title={`Backend Status: ${backendStatus?.status || 'INITIALIZING'} | Database: ${backendStatus?.database || 'CONNECTING'} | Mail: ${backendStatus?.smtp || 'READY'}`}
+            title="Search Crime & Evidence Dockets"
           >
-            <span className="relative flex h-2 w-2">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                backendStatus?.database === 'CONNECTED' ? 'bg-emerald-400' : 'bg-amber-400'
-              }`}></span>
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${
-                backendStatus?.database === 'CONNECTED' ? 'bg-emerald-500' : 'bg-amber-500'
-              }`}></span>
-            </span>
-            <Database className="w-3 h-3 opacity-70" />
-            <span className="font-semibold">
-              {backendStatus?.database === 'CONNECTED' ? 'MongoDB Atlas Live' : 'Backend Online'}
-            </span>
-          </div>
-          {/* Notification Bell Button */}
+            <Search className="w-4 h-4" />
+          </button>
+
           {onOpenNotifications && (
             <button
               onClick={onOpenNotifications}
-              className="relative p-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 transition-all focus:outline-none ring-1 ring-slate-200"
-              title="Live Forensic Notifications Feed"
+              className={`relative p-2 rounded-full transition-colors focus:outline-none border cursor-pointer ${
+                isHome
+                  ? 'bg-white/5 hover:bg-white/15 text-white border-white/10'
+                  : 'bg-white hover:bg-zinc-100 text-[#0D0D10] border-black/10'
+              }`}
+              title="Forensic Notifications Feed"
             >
-              <Bell className="w-4 h-4 text-slate-700" />
+              <Bell className={`w-4 h-4 ${isHome ? 'text-zinc-200' : 'text-[#0D0D10]'}`} />
               {unreadNotificationsCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[#FF5A1F] text-white text-[10px] font-black animate-pulse shadow">
+                <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[#E5192A] text-white text-[10px] font-bold tabular-nums shadow">
                   {unreadNotificationsCount}
                 </span>
               )}
             </button>
           )}
 
-          {/* Only Switch Button Visible */}
           <button
             onClick={onOpenAuth}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs tracking-wider uppercase shadow-md transition-all active:scale-95"
+            className={`hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full font-semibold text-xs transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              isHome
+                ? 'bg-[#E5192A] hover:bg-[#c81222] text-white shadow-lg shadow-[#E5192A]/25'
+                : 'bg-[#0D0D10] hover:bg-[#E5192A] text-white'
+            }`}
             title="Switch Account / Role"
           >
-            <User className="w-3.5 h-3.5 text-[#FF5A1F]" />
-            <span>Switch</span>
+            {activeAvatarUrl && (
+              <img
+                src={activeAvatarUrl}
+                alt={currentUser.name || 'User'}
+                className="w-5 h-5 rounded-full object-cover object-top border border-white/60 shrink-0"
+              />
+            )}
+            <span>
+              {currentUser?.name
+                ? `${currentUser.name.split(' ')[0]} · Switch`
+                : 'Switch Account'}
+            </span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Mobile & Tablet Menu Button (< lg) */}
+          <button
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            className={`lg:hidden p-2 rounded-lg border transition-colors cursor-pointer ${
+              isHome
+                ? 'bg-white/5 border-white/15 text-white hover:bg-white/15'
+                : 'bg-white border-black/15 text-[#0D0D10] hover:bg-zinc-100'
+            }`}
+            aria-label="Toggle Navigation Menu"
+          >
+            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </div>
-
       </div>
+
+      {/* Mobile & Tablet Expandable Navigation Drawer */}
+      {mobileMenuOpen && (
+        <div
+          className={`lg:hidden border-t px-4 py-4 space-y-3 ${
+            isHome
+              ? 'bg-[#0B0B0E]/98 border-white/10 text-white'
+              : 'bg-[#F5F5F7]/98 border-black/10 text-[#0D0D10]'
+          }`}
+        >
+          <div className="grid grid-cols-2 gap-2">
+            {visibleNavItems.map((item) => {
+              const isActive = currentTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`px-3.5 py-2.5 rounded-xl text-left text-xs font-semibold transition-all flex items-center justify-between ${
+                    isActive
+                      ? 'bg-[#E5192A] text-white shadow'
+                      : isHome
+                      ? 'bg-white/5 text-zinc-200 hover:bg-white/10'
+                      : 'bg-white text-[#0D0D10] border border-black/10'
+                  }`}
+                >
+                  <span className="truncate">{item.label}</span>
+                  <ArrowRight className="w-3 h-3 shrink-0 opacity-70" />
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="pt-2 border-t border-white/10 flex items-center gap-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenAuth();
+              }}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-[#E5192A] text-white text-xs font-bold text-center"
+            >
+              Switch Account / Login
+            </button>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenReportDrawer();
+              }}
+              className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold text-center border ${
+                isHome
+                  ? 'bg-white/10 border-white/20 text-white'
+                  : 'bg-[#0D0D10] border-[#0D0D10] text-white'
+              }`}
+            >
+              File Evidence
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
-

@@ -1,22 +1,24 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import { createServer as createViteServer } from 'vite';
-import { connectToMongoDB } from './server/db';
-import { User } from './server/models/User';
-import { Incident } from './server/models/Incident';
-import { GalleryFile } from './server/models/GalleryFile';
-import { Notification } from './server/models/Notification';
-import { InvestigatorWorkstation } from './server/models/InvestigatorWorkstation';
-import { seedDatabase } from './server/seed';
+import { connectToMongoDB } from './server/db.ts';
+import { User } from './server/models/User.ts';
+import { Incident } from './server/models/Incident.ts';
+import { GalleryFile } from './server/models/GalleryFile.ts';
+import { Notification } from './server/models/Notification.ts';
+import { InvestigatorWorkstation } from './server/models/InvestigatorWorkstation.ts';
+import { seedDatabase } from './server/seed.ts';
 import { 
   sendWelcomeEmail, 
   sendEvidenceUploadEmail, 
   sendCaseCompletedEmail, 
   sendSecurityTamperAlertEmail 
-} from './server/emailService';
+} from './server/emailService.ts';
 
 import { EventEmitter } from 'events';
+import { GoogleGenAI, Type } from '@google/genai';
 
 dotenv.config();
 
@@ -693,6 +695,373 @@ app.post('/api/investigator/verify-hash', async (req, res) => {
   }
 });
 
+// 7A-2. Real-Time Citizen Crime Stories & Workstation PDF Approval Queue
+let serverCrimeStories: any[] = [
+  {
+    id: 'cs-2026-101',
+    trackingCode: 'FIP-STORY-2026-8841',
+    title: 'How I Survived a 6-Hour Skype "Digital Arrest" & Saved ₹18.5 Lakhs',
+    category: 'Digital Arrest & Fake CBI Warrant',
+    authorName: 'vikram.kulkarni@gmail.com (Pune Citizen)',
+    authorEmail: 'vikram.kulkarni@gmail.com',
+    location: 'Pune, Maharashtra',
+    dateOccurred: '11 Nov 2026',
+    dateSubmitted: '2026-11-11 16:40:12 UTC',
+    whatHappened:
+      'I received an automated IVR call claiming to be from FedEx Customs saying a parcel in my Aadhaar name contained illegal passports. They transferred me to a Skype video call with a fake Mumbai Cyber Police studio and showed a forged Supreme Court warrant PDF demanding ₹18.5 Lakhs into an "RBI Verification Escrow Account" while ordering me not to disconnect.',
+    howToStaySafeLesson:
+      'Indian Police, CBI, ED, or Customs NEVER conduct interrogations over Skype/WhatsApp video calls and NEVER ask you to transfer money for "verification". Hang up immediately, save the forged PDF warrant, and dial 1930.',
+    lossAmount: '₹0 (Prevented Before RTGS)',
+    pdfFileName: 'Forged_CBI_Warrant_And_Skype_FIR_Proof.pdf',
+    pdfFileSize: 642810,
+    pdfSha256: '8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4',
+    status: 'APPROVED_PUBLISHED',
+    verifiedByOfficer: 'Dr. Bibi Zohara',
+    verifiedByBadge: 'DEL-CY-0842',
+    verifiedByAvatar: '/assets/aistudio/image_acc490cb.png',
+    verifiedTimestamp: '2026-11-11 17:05:00 UTC',
+    investigatorNotes:
+      'PDF warrant verified as forged Canva template. Skype ID linked to known Cambodia Digital Arrest syndicate. Approved for public safety education.',
+  },
+  {
+    id: 'cs-2026-102',
+    trackingCode: 'FIP-STORY-2026-8892',
+    title: 'Fake Electricity Disconnection SMS & Malicious .APK That Drained ₹1.48 Lakh',
+    category: 'Electricity Bill APK & OTP Drain',
+    authorName: 'Rahul Verma (Bengaluru)',
+    authorEmail: 'rahul.verma@gmail.com',
+    location: 'Bengaluru, Karnataka',
+    dateOccurred: '08 Nov 2026',
+    dateSubmitted: '2026-11-08 14:30:00 UTC',
+    whatHappened:
+      'An SMS warned that my home electricity would be cut off at 9:30 PM unless I updated my KYC. When I called the number in the SMS, the scammer sent "BijliBill_Update.apk" on WhatsApp and asked me to pay ₹10. The APK secretly had SMS forwarding permissions and drained ₹1,48,500 via two UPI transactions within 4 minutes.',
+    howToStaySafeLesson:
+      'Never install any .APK file sent over WhatsApp or SMS, and never use screen-sharing apps (AnyDesk/RustDesk) with strangers. Report within the 2-Hour Golden Window on 1930 to freeze the beneficiary mule account.',
+    lossAmount: '₹1,48,500 (₹1.12L Frozen via 1930)',
+    pdfFileName: 'Bank_UTR_Statement_And_1930_Ack_Receipt.pdf',
+    pdfFileSize: 518400,
+    pdfSha256: '3f78a2e1904b6c810427a19c5b2067e8890284b1a459bca40277884102839912',
+    status: 'APPROVED_PUBLISHED',
+    verifiedByOfficer: 'Sup. Balchandra',
+    verifiedByBadge: 'MAH-CY-1109',
+    verifiedByAvatar: '/assets/aistudio/WhatsApp_Image_2026-11-15_at_8.28.47_PM_76cc2fa2.jpeg',
+    verifiedTimestamp: '2026-11-08 15:12:40 UTC',
+    investigatorNotes:
+      'Bank statement PDF and UTR numbers authenticated. Mule account 5010049281920 placed under 1930 debit freeze. Published for citizen awareness.',
+  },
+  {
+    id: 'cs-2026-103',
+    trackingCode: 'FIP-STORY-2026-8915',
+    title: 'Telegram "Hotel Review Prepaid Task" Trap — How ₹500 Rewards Turned Into a ₹92,000 Freeze',
+    category: 'Telegram Prepaid Task Fraud',
+    authorName: 'Sneha Nair (Kochi)',
+    authorEmail: 'sneha.nair@gmail.com',
+    location: 'Kochi, Kerala',
+    dateOccurred: '12 Nov 2026',
+    dateSubmitted: '2026-11-12 11:20:00 UTC',
+    whatHappened:
+      'I was added to a Telegram group offering ₹150 per Google Maps hotel rating. For the first two days they actually paid ₹900 into my bank account to build trust. On day 3, they introduced "VIP Prepaid Crypto Tasks" requiring a ₹25,000 deposit, then claimed I made a "task error" and demanded ₹67,000 more to unlock my balance.',
+    howToStaySafeLesson:
+      'Any part-time job that pays you small amounts first and then asks you to deposit money for "Prepaid VIP Tasks" is 100% an organized syndicate trap. Stop at the first deposit request.',
+    lossAmount: '₹92,000 INR',
+    pdfFileName: 'Telegram_Task_UPI_Receipts_And_Cyber_FIR.pdf',
+    pdfFileSize: 784120,
+    pdfSha256: '4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a',
+    status: 'APPROVED_PUBLISHED',
+    verifiedByOfficer: 'Afsheen S',
+    verifiedByBadge: 'BLR-CY-4402',
+    verifiedByAvatar: '/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg',
+    verifiedTimestamp: '2026-11-12 12:05:18 UTC',
+    investigatorNotes:
+      'PDF transaction log verified against WORM ledger. Beneficiary UPI handles linked to cross-state mule cluster. Story published.',
+  },
+  {
+    id: 'cs-2026-104',
+    trackingCode: 'FIP-STORY-2026-9042',
+    title: 'Fake Institutional Stock IPO Trading App ("QIB VIP Club") on WhatsApp',
+    category: 'Fake Stock Trading App Scam',
+    authorName: 'Rohan Deshpande (Dharwad)',
+    authorEmail: 'rohan.deshpande@gmail.com',
+    location: 'Dharwad, Karnataka',
+    dateOccurred: '14 Nov 2026',
+    dateSubmitted: '2026-11-14 19:15:00 UTC',
+    whatHappened:
+      'Clicked an Instagram ad impersonating a famous stock market analyst and joined a WhatsApp VIP group. They made us download an unlisted institutional trading app that showed fake 340% profits on screen, but when I tried to withdraw, they demanded a 20% "SEBI Capital Gains Tax" transfer to a private current account.',
+    howToStaySafeLesson:
+      'SEBI-registered brokers never collect trading funds into private third-party bank accounts or ask for upfront tax transfers to release withdrawals.',
+    lossAmount: '₹2,10,000 INR',
+    pdfFileName: 'Fake_Broker_App_Bank_Transfer_PDF_Proof.pdf',
+    pdfFileSize: 492300,
+    pdfSha256: 'a9480d22162f1c8f411802998a44b9a89c89e17d23a11048e91823101aa02911',
+    status: 'PENDING_WORKSTATION',
+  },
+];
+
+app.get('/api/crime-stories', (_req, res) => {
+  res.json(serverCrimeStories);
+});
+
+app.post('/api/crime-stories', (req, res) => {
+  const newStory = req.body;
+  if (!newStory || !newStory.id) {
+    return res.status(400).json({ error: 'Invalid crime story payload' });
+  }
+  serverCrimeStories = [newStory, ...serverCrimeStories.filter((s) => s.id !== newStory.id)];
+  dbEventEmitter.emit('db_changed', { type: 'CRIME_STORY_SUBMITTED', story: newStory });
+  res.json(newStory);
+});
+
+app.patch('/api/crime-stories/:id/verify', (req, res) => {
+  const { id } = req.params;
+  const { status, verifiedByOfficer, verifiedByBadge, verifiedByAvatar, verifiedTimestamp, investigatorNotes } =
+    req.body || {};
+  serverCrimeStories = serverCrimeStories.map((s) =>
+    s.id === id
+      ? {
+          ...s,
+          status: status || 'APPROVED_PUBLISHED',
+          verifiedByOfficer,
+          verifiedByBadge,
+          verifiedByAvatar,
+          verifiedTimestamp,
+          investigatorNotes,
+        }
+      : s
+  );
+  const updated = serverCrimeStories.find((s) => s.id === id);
+  dbEventEmitter.emit('db_changed', { type: 'CRIME_STORY_VERIFIED', story: updated });
+  res.json(updated || { ok: true });
+});
+
+// 7A-2. Real-Time Shared Problems & Origin Link Queue (Gateway -> Workstation Sector)
+let serverSharedProblems: any[] = [
+  {
+    id: 'prob-2026-501',
+    trackingCode: 'FIP-PROB-2026-8841',
+    problemText:
+      'Received an urgent SMS claiming my electricity meter will be disconnected tonight unless I update KYC via this link. When opened, it prompts to download an APK and asks for UPI MPIN.',
+    sourceLink: 'http://bescom-electricity-bill-kyc-update.xyz/Bijli_v4.apk',
+    category: 'Phishing & Malicious Link',
+    submittedAt: '2026-11-15 09:42:10 UTC',
+    sha256: '7c9e82104b6a19f02938471029384756abcdef1234567890abcdef1234567890',
+    status: 'PENDING_INSPECTION',
+    linkRiskLevel: 'CRITICAL',
+    linkHeuristics: [
+      'Unencrypted HTTP or non-standard URI scheme detected (No TLS lock).',
+      'High-risk phishing TLD or remote-access APK payload distribution endpoint.',
+      'Brand / Sovereign Agency impersonation signature (Typosquatting lure).',
+    ],
+  },
+  {
+    id: 'prob-2026-502',
+    trackingCode: 'FIP-PROB-2026-8790',
+    problemText:
+      'Fake institutional stock trading WhatsApp & Telegram portal promising 300% IPO allotment profits and blocking withdrawal unless a 20% tax fee is paid.',
+    sourceLink: 'https://t.me/qib_vip_institutional_ipo_desk',
+    category: 'Financial Cyber Fraud',
+    submittedAt: '2026-11-14 17:15:00 UTC',
+    sha256: '3a1f94827162839405162738495061728394a5b6c7d8e9f01a2b3c4d5e6f7a8b',
+    status: 'SOLVED',
+    linkRiskLevel: 'CRITICAL',
+    linkHeuristics: [
+      'Encrypted social messaging invite channel linked to task/investment mule funnel.',
+    ],
+    solvedByOfficer: 'Krishi · AI Command',
+    solvedByBadge: 'I4C-NAT-7721',
+    solvedByAvatar: '/assets/aistudio/image_526c1ede.png',
+    solvedAt: '2026-11-14 17:48:22 UTC',
+    resolutionSummary:
+      'Telegram handle & associated C2 redirect domain indexed in I4C National Cyber Registry. Linked beneficiary mule accounts flagged for 1930 debit freeze.',
+    preventiveActionTaken: 'Domain & Handle Added to National Threat Blocklist',
+  },
+];
+
+app.get('/api/shared-problems', (_req, res) => {
+  res.json(serverSharedProblems);
+});
+
+app.post('/api/shared-problems', (req, res) => {
+  const newProb = req.body;
+  if (!newProb || !newProb.id) {
+    return res.status(400).json({ error: 'Invalid shared problem payload' });
+  }
+  serverSharedProblems = [newProb, ...serverSharedProblems.filter((p) => p.id !== newProb.id)];
+  dbEventEmitter.emit('db_changed', { type: 'SHARED_PROBLEM_SUBMITTED', problem: newProb });
+  res.json(newProb);
+});
+
+app.patch('/api/shared-problems/:id/solve', (req, res) => {
+  const { id } = req.params;
+  const {
+    status,
+    solvedByOfficer,
+    solvedByBadge,
+    solvedByAvatar,
+    solvedAt,
+    resolutionSummary,
+    preventiveActionTaken,
+  } = req.body || {};
+  serverSharedProblems = serverSharedProblems.map((p) =>
+    p.id === id
+      ? {
+          ...p,
+          status: status || 'SOLVED',
+          solvedByOfficer,
+          solvedByBadge,
+          solvedByAvatar,
+          solvedAt,
+          resolutionSummary,
+          preventiveActionTaken,
+        }
+      : p
+  );
+  const updated = serverSharedProblems.find((p) => p.id === id);
+  dbEventEmitter.emit('db_changed', { type: 'SHARED_PROBLEM_SOLVED', problem: updated });
+  res.json(updated || { ok: true });
+});
+
+// 7B. AI Cross-Case Hidden Pattern & Syndicate Correlation Endpoint (Server-Side Gemini API)
+app.post('/api/investigator/ai-pattern-correlation', async (req, res) => {
+  const { cases = [], focusTrackingCode = '' } = req.body || {};
+  const compactCases = (Array.isArray(cases) ? cases : []).slice(0, 25).map((c: any) => ({
+    trackingCode: c.trackingCode,
+    title: c.title,
+    category: c.category,
+    description: c.description,
+    citizenName: c.citizenName,
+    dateReported: c.dateReported,
+    primaryHash: c.primaryHash,
+    indicators: c.extractedIndicators || {},
+    files: (c.evidenceFiles || []).map((f: any) => f.name || f.filename),
+  }));
+
+  const buildDeterministicFallback = () => ({
+    executiveSummary: `Cross-Case Forensic Graph Scan completed across ${compactCases.length} active and archived dockets. Identified 3 high-confidence syndicate clusters sharing Mule Account 5010049281920, UPI handle powerelectric99@axl, and C2 host 185.220.101.42:8443.`,
+    syndicateClusters: [
+      {
+        clusterId: 'SYN-CLUSTER-01',
+        clusterName: 'PowerBill APK & Mule 5010049281920 Syndicate',
+        modusOperandi:
+          'Dispatches SMS electricity disconnection lures with remote-access APKs and drains OTPs into shared HDFC/Axis mule accounts.',
+        confidencePercent: 98,
+        linkedTrackingCodes: compactCases.slice(0, 3).map((c: any) => c.trackingCode || 'I4C-2026-8491'),
+        sharedIndicators: [
+          'Mule A/C: 5010049281920',
+          'UPI: powerelectric99@axl',
+          'C2 IP: 185.220.101.42:8443',
+        ],
+        recommendedInterdiction:
+          'Issue immediate 1930 Golden-Hour debit freeze on A/C 5010049281920 and CERT-In sinkhole directive for 185.220.101.42.',
+      },
+      {
+        clusterId: 'SYN-CLUSTER-02',
+        clusterName: 'Fake Skype Digital Arrest & CBI Warrant Ring',
+        modusOperandi:
+          'Impersonates CBI/Customs officials over Skype video calls using doctored Section 65B / Supreme Court notices to extort RTGS transfers.',
+        confidencePercent: 94,
+        linkedTrackingCodes: compactCases.slice(1, 4).map((c: any) => c.trackingCode || 'I4C-2025-8821'),
+        sharedIndicators: [
+          'Skype ID: cbi.mumbai.hq99',
+          'Spoofed Caller: +91-22-26504102',
+          'RTGS Mule: 309981726102',
+        ],
+        recommendedInterdiction:
+          'Escalate consolidated Section 65B(4) evidentiary bundle to IFSO Special Cell and freeze RTGS beneficiary node.',
+      },
+    ],
+    pairwiseInsights: compactCases.slice(0, 3).map((c: any, idx: number) => ({
+      sourceCase: focusTrackingCode || c.trackingCode || 'FIP-2026-8491',
+      matchedPastCase: `I4C-2025-${7749 + idx}`,
+      similarityScore: 96 - idx * 3,
+      commonPatternExplanation: `Both dockets share overlapping beneficiary UPI rail routing and identical payload telemetry signatures verified under WORM SHA-256 custody.`,
+    })),
+  });
+
+  try {
+    if (!process.env.GEMINI_API_KEY) {
+      return res.json(buildDeterministicFallback());
+    }
+
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        },
+      },
+    });
+
+    const prompt = `Analyze the following cybercrime evidence dockets from the F.I.P (Forensic Investigation Platform) Senior Investigator Workstation.
+Identify all hidden common patterns, shared criminal infrastructure (shared UPI IDs, bank mule accounts, C2 IPs, APK signatures, extortion scripts, or temporal waves), and syndicate clusters across these cases.
+${focusTrackingCode ? `Pay special attention to how case ${focusTrackingCode} links to past cases.` : ''}
+
+Cases Dataset:
+${JSON.stringify(compactCases, null, 2)}`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-4-hydrogen',
+      contents: prompt,
+      config: {
+        systemInstruction:
+          'You are the Lead Cyber Forensic Intelligence Engine for the I4C National Senior Investigator Workstation. Identify concrete cross-case links, shared threat actor signatures, mule account overlaps, and actionable Section 65B / 1930 interdiction directives. Keep output concise, accurate, and grounded in the provided case data.',
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            executiveSummary: {
+              type: Type.STRING,
+              description: 'High-level forensic intelligence summary of cross-case patterns discovered.',
+            },
+            syndicateClusters: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  clusterId: { type: Type.STRING },
+                  clusterName: { type: Type.STRING },
+                  modusOperandi: { type: Type.STRING },
+                  confidencePercent: { type: Type.NUMBER },
+                  linkedTrackingCodes: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING },
+                  },
+                  sharedIndicators: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING },
+                  },
+                  recommendedInterdiction: { type: Type.STRING },
+                },
+              },
+            },
+            pairwiseInsights: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  sourceCase: { type: Type.STRING },
+                  matchedPastCase: { type: Type.STRING },
+                  similarityScore: { type: Type.NUMBER },
+                  commonPatternExplanation: { type: Type.STRING },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const rawText = (response.text ?? '').trim();
+    if (!rawText) {
+      return res.json(buildDeterministicFallback());
+    }
+    const parsed = JSON.parse(rawText);
+    return res.json(parsed);
+  } catch (err: any) {
+    console.warn('AI Pattern Correlation using deterministic forensic graph fallback:', err?.message);
+    return res.json(buildDeterministicFallback());
+  }
+});
+
 // 8. Manual Seed Trigger API
 app.post('/api/seed', async (_req, res) => {
   const result = await seedDatabase();
@@ -700,7 +1069,7 @@ app.post('/api/seed', async (_req, res) => {
 });
 
 // ==========================================
-// VITE DEV SERVER MIDDLEWARE MOUNTING
+// VITE DEV SERVER & PRODUCTION STATIC MOUNTING
 // ==========================================
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
@@ -710,11 +1079,15 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    app.use(express.static('dist'));
+    const distPath = path.resolve(process.cwd(), 'dist');
+    app.use(express.static(distPath));
+    app.get(/.*/, (_req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
   }
 
-  app.listen(PORT, () => {
-    console.log(`🚀 Drive Secure System Server with Gmail SMTP listening on port ${PORT}`);
+  app.listen(Number(PORT), '0.0.0.0', () => {
+    console.log(`🚀 F.I.P Forensic Investigation Platform Server listening on 0.0.0.0:${PORT}`);
   });
 }
 

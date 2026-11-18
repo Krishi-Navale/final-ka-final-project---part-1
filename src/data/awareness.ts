@@ -46,8 +46,8 @@ export const CYBERCRIME_TAXONOMY: AwarenessCategory[] = [
     ],
     actionSteps: [
       'Call National Cyber Helpline 1930 immediately',
-      'Upload screenshots & call logs to ForensiCrypt for SHA-256 WORM sealing',
-      'File an official report on cybercrime.gov.in with your ForensiCrypt custody code'
+      'Upload screenshots & call logs to F.I.P for SHA-256 WORM sealing',
+      'File an official report on cybercrime.gov.in with your F.I.P custody code'
     ],
     dangerLevel: 'Critical'
   },
@@ -68,7 +68,7 @@ export const CYBERCRIME_TAXONOMY: AwarenessCategory[] = [
     ],
     actionSteps: [
       'Call 1930 to trigger the Indian Cyber Coordination Centre bank freeze protocol',
-      'Preserve chat export and UPI screenshots in ForensiCrypt with WORM hash lock',
+      'Preserve chat export and UPI screenshots in F.I.P with WORM hash lock',
       'Submit dispute chargeback with your home bank within 72 hours'
     ],
     dangerLevel: 'High'
@@ -89,7 +89,7 @@ export const CYBERCRIME_TAXONOMY: AwarenessCategory[] = [
       'Do not panic—law enforcement agencies handle thousands of such cases with strict confidentiality'
     ],
     actionSteps: [
-      'Secure raw screenshots and hash them on ForensiCrypt to preserve court-admissible timestamps',
+      'Secure raw screenshots and hash them on F.I.P to preserve court-admissible timestamps',
       'Report content to StopNCII.org (hash-matching tool to prevent viral spread) and cybercrime.gov.in',
       'File an online complaint under the women/citizens protection category on NCRP'
     ],
@@ -112,7 +112,7 @@ export const CYBERCRIME_TAXONOMY: AwarenessCategory[] = [
     ],
     actionSteps: [
       'Report the fraudulent app directly to Sachet RBI Portal (sachet.rbi.org.in)',
-      'Preserve APK hash, threat audio clips, and payment receipts on ForensiCrypt',
+      'Preserve APK hash, threat audio clips, and payment receipts on F.I.P',
       'File harassment complaint with state police Cyber Cell'
     ],
     dangerLevel: 'High'
@@ -135,14 +135,14 @@ export const CITIZEN_RECOVERY_PROTOCOL = [
   {
     step: '03',
     timeframe: 'Forensic Locking',
-    title: 'Generate SHA-256 Hashes via ForensiCrypt',
-    instruction: 'Upload raw screenshots, audio, and documents to ForensiCrypt. The platform generates an immutable SHA-256 fingerprint under Write-Once-Read-Many (WORM) rules. This proves in court that your evidence was not altered.'
+    title: 'Generate SHA-256 Hashes via F.I.P',
+    instruction: 'Upload raw screenshots, audio, and documents to F.I.P. The platform generates an immutable SHA-256 fingerprint under Write-Once-Read-Many (WORM) rules. This proves in court that your evidence was not altered.'
   },
   {
     step: '04',
     timeframe: 'Within 24 Hours',
     title: 'Lodge Official Complaint on National Portal',
-    instruction: 'Submit an incident report at cybercrime.gov.in (India) or IC3.gov / Action Fraud (International). Quote your ForensiCrypt Evidence Tracking Code and attach the Court Admissibility Certificate.'
+    instruction: 'Submit an incident report at cybercrime.gov.in (India) or IC3.gov / Action Fraud (International). Quote your F.I.P Evidence Tracking Code and attach the Court Admissibility Certificate.'
   },
   {
     step: '05',

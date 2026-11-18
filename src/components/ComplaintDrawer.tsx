@@ -52,6 +52,7 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
   const [isHashing, setIsHashing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedReport, setSubmittedReport] = useState<IncidentReport | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -152,12 +153,13 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     if (!citizenEmail.trim()) {
-      alert('Please enter your Gmail address so we can route your WORM token & email notifications.');
+      setFormError('Please enter your Gmail address so we can route your WORM token & email notifications.');
       return;
     }
     if (!title.trim() || !description.trim()) {
-      alert('Please provide an incident title and description.');
+      setFormError('Please provide an incident title and description.');
       return;
     }
 
@@ -247,6 +249,7 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
 
   const handleResetAndClose = () => {
     setSubmittedReport(null);
+    setFormError(null);
     setTitle('');
     setDescription('');
     setSuspectDetails('');
@@ -260,26 +263,26 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
       {/* Backdrop blur overlay */}
       <div 
         onClick={handleResetAndClose}
-        className="fixed inset-0 bg-slate-950/60 backdrop-blur-md transition-opacity duration-300"
+        className="fixed inset-0 bg-[#070709]/80 backdrop-blur-md transition-opacity duration-300"
       />
 
       {/* Ease Out Right Slide Drawer */}
-      <div className="relative z-10 w-full max-w-2xl bg-white shadow-2xl h-full flex flex-col justify-between overflow-y-auto transform transition-transform duration-300 ease-out animate-in slide-in-from-right">
+      <div className="relative z-10 w-full max-w-2xl bg-[#111115] text-white border-l border-white/10 shadow-2xl h-full flex flex-col justify-between overflow-y-auto transform transition-transform duration-300 ease-out animate-in slide-in-from-right">
         
         {/* Drawer Header */}
-        <div className="p-6 border-b border-slate-200 flex items-center justify-between bg-white sticky top-0 z-20 backdrop-blur-sm">
+        <div className="p-6 border-b border-white/10 flex items-center justify-between bg-[#070709]/95 sticky top-0 z-20 backdrop-blur-md">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#FF5A1F] text-white flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 rounded-2xl bg-[#FF4D15] text-white flex items-center justify-center shadow-[0_0_20px_rgba(255,77,21,0.35)]">
               <Lock className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-slate-950">Citizen Case & Evidence Intake</h2>
-              <p className="text-xs text-slate-500 font-mono-code">WORM Cryptographic Custody Intake</p>
+              <h2 className="text-lg font-black text-white">Citizen Case & Evidence Intake</h2>
+              <p className="text-xs text-zinc-400 font-mono-code">WORM Cryptographic Custody Intake</p>
             </div>
           </div>
           <button
             onClick={handleResetAndClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors"
+            className="w-8 h-8 rounded-full bg-[#18181E] hover:bg-white/15 border border-white/10 flex items-center justify-center text-zinc-300 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -289,55 +292,97 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
         <div className="p-6 sm:p-8 flex-1 space-y-6">
           {submittedReport ? (
             <div className="py-8 text-center space-y-5">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center shadow-inner">
+              <div className="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 mx-auto flex items-center justify-center shadow-inner">
                 <CheckCircle2 className="w-10 h-10" />
               </div>
               <div>
-                <h3 className="text-2xl font-black text-slate-950">
+                <h3 className="text-2xl font-black text-white">
                   Evidence Cryptographically Locked!
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed mt-1">
-                  Your incident has been written to the immutable WORM ledger. An official tracking confirmation email has been dispatched directly to <strong>{submittedReport.citizenEmail}</strong>.
+                <p className="text-xs sm:text-sm text-zinc-400 max-w-md mx-auto leading-relaxed mt-1">
+                  Your incident has been written to the immutable WORM ledger. An official tracking confirmation email has been dispatched directly to <strong className="text-white">{submittedReport.citizenEmail}</strong>.
                 </p>
               </div>
               
-              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 max-w-md mx-auto text-left font-mono-code text-xs space-y-2.5">
-                <div className="flex justify-between items-center pb-2 border-b border-slate-200">
-                  <span className="text-slate-500">Tracking Code:</span>
-                  <span className="font-bold text-rose-600 text-sm">{submittedReport.trackingCode}</span>
+              <div className="p-5 rounded-2xl bg-[#070709] border border-white/10 max-w-md mx-auto text-left font-mono-code text-xs space-y-2.5">
+                <div className="flex justify-between items-center pb-2 border-b border-white/10">
+                  <span className="text-zinc-400">Tracking Code:</span>
+                  <span className="font-bold text-[#FF4D15] text-sm">{submittedReport.trackingCode}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Reporting Mode:</span>
-                  <span className="text-slate-900 font-bold">
+                  <span className="text-zinc-400">Reporting Mode:</span>
+                  <span className="text-white font-bold">
                     {submittedReport.isConfidentialReport ? '🔒 Confidential (Gmail Only)' : '👤 Registered Citizen'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Gmail Notification:</span>
-                  <span className="text-emerald-700 font-bold">Dispatched to {submittedReport.citizenEmail}</span>
+                  <span className="text-zinc-400">Gmail Notification:</span>
+                  <span className="text-emerald-400 font-bold">Dispatched to {submittedReport.citizenEmail}</span>
                 </div>
-                <div className="pt-2 border-t border-slate-200">
-                  <div className="text-[11px] text-slate-500">Assigned Senior Supervisor:</div>
-                  <div className="text-slate-900 font-bold text-xs mt-0.5">{submittedReport.seniorOfficerAssigned}</div>
-                  <div className="text-[#FF5A1F] text-[10px] font-bold">Badge ID: {submittedReport.officerBadge}</div>
+                <div className="pt-2 border-t border-white/10">
+                  <div className="text-[11px] text-zinc-400">Assigned Senior Supervisor:</div>
+                  <div className="text-white font-bold text-xs mt-1 flex items-center gap-2">
+                    {(submittedReport.seniorOfficerAssigned || '').toLowerCase().includes('balchandra') && (
+                      <img
+                        src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_8.28.47_PM_76cc2fa2.jpeg"
+                        alt="Balchandra"
+                        className="w-6 h-6 rounded-full object-cover object-top border border-[#FF4D15]"
+                      />
+                    )}
+                    {(submittedReport.seniorOfficerAssigned || '').toLowerCase().includes('zohara') && (
+                      <img
+                        src="/assets/aistudio/image_acc490cb.png"
+                        alt="Bibi Zohara"
+                        className="w-6 h-6 rounded-full object-cover object-top border border-[#FF4D15]"
+                      />
+                    )}
+                    {(submittedReport.seniorOfficerAssigned || '').toLowerCase().includes('afsheen') && (
+                      <img
+                        src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg"
+                        alt="Afsheen S"
+                        className="w-6 h-6 rounded-full object-cover object-top border border-[#FF4D15]"
+                      />
+                    )}
+                    {(submittedReport.seniorOfficerAssigned || '').toLowerCase().includes('krishi') && (
+                      <img
+                        src="/assets/aistudio/image_526c1ede.png"
+                        alt="Krishi"
+                        className="w-6 h-6 rounded-full object-cover object-top border border-[#FF4D15]"
+                      />
+                    )}
+                    <span>{submittedReport.seniorOfficerAssigned}</span>
+                  </div>
+                  <div className="text-[#FF4D15] text-[10px] font-bold mt-0.5">Badge ID: {submittedReport.officerBadge}</div>
                 </div>
               </div>
 
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <button
                   onClick={handleResetAndClose}
-                  className="w-full sm:w-auto px-8 py-3.5 bg-slate-950 hover:bg-slate-800 text-white font-bold rounded-full text-xs shadow-md transition-all flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-8 py-3.5 bg-[#FF4D15] hover:bg-[#E03E0B] text-white font-bold rounded-full text-xs shadow-[0_0_24px_rgba(255,77,21,0.35)] transition-all flex items-center justify-center gap-2"
                 >
                   <span>Open Citizen Case Dashboard</span>
-                  <ArrowRight className="w-4 h-4 text-rose-300" />
+                  <ArrowRight className="w-4 h-4 text-white" />
                 </button>
               </div>
             </div>
           ) : (
             <form id="incident-form" onSubmit={handleSubmit} className="space-y-6">
+              {formError && (
+                <div className="p-3.5 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs font-medium flex items-center justify-between gap-2">
+                  <span>{formError}</span>
+                  <button
+                    type="button"
+                    onClick={() => setFormError(null)}
+                    className="text-rose-300 hover:text-white text-xs font-bold"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
               
               <div className="space-y-2">
-                <div className="text-[11px] font-mono-code uppercase font-bold text-slate-500">
+                <div className="text-[11px] font-mono-code uppercase font-bold text-zinc-400">
                   Step 1: Choose Reporting Identity Mode
                 </div>
                 
@@ -346,19 +391,19 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
                     onClick={() => setReportingPhase('confidential')}
                     className={`p-4 rounded-2xl border-2 cursor-pointer transition-all ${
                       reportingPhase === 'confidential'
-                        ? 'border-[#FF5A1F] bg-orange-50/50 shadow-sm'
-                        : 'border-slate-200 bg-white hover:border-slate-300'
+                        ? 'border-[#FF4D15] bg-[#FF4D15]/10 shadow-[0_0_20px_rgba(255,77,21,0.15)]'
+                        : 'border-white/10 bg-[#18181E] hover:border-white/25'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
-                        <EyeOff className="w-4 h-4 text-[#FF5A1F]" />
-                        <span className="font-bold text-xs text-slate-950">Confidential Report</span>
+                        <EyeOff className="w-4 h-4 text-[#FF4D15]" />
+                        <span className="font-bold text-xs text-white">Confidential Report</span>
                       </div>
-                      <span className="w-2 h-2 rounded-full bg-[#FF5A1F]" />
+                      <span className="w-2 h-2 rounded-full bg-[#FF4D15]" />
                     </div>
-                    <p className="text-[11px] text-slate-600 leading-relaxed">
-                      <strong>Zero Name Required.</strong> Keeps your identity 100% private. Just provide a Gmail address for tracking.
+                    <p className="text-[11px] text-zinc-400 leading-relaxed">
+                      <strong className="text-zinc-200">Zero Name Required.</strong> Keeps your identity 100% private. Just provide a Gmail address for tracking.
                     </p>
                   </div>
 
@@ -366,31 +411,31 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
                     onClick={() => setReportingPhase('registered')}
                     className={`p-4 rounded-2xl border-2 cursor-pointer transition-all ${
                       reportingPhase === 'registered'
-                        ? 'border-slate-900 bg-slate-50 shadow-sm'
-                        : 'border-slate-200 bg-white hover:border-slate-300'
+                        ? 'border-white bg-[#18181E] shadow-sm'
+                        : 'border-white/10 bg-[#18181E] hover:border-white/25'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
-                        <UserCheck className="w-4 h-4 text-slate-900" />
-                        <span className="font-bold text-xs text-slate-950">Registered Citizen</span>
+                        <UserCheck className="w-4 h-4 text-white" />
+                        <span className="font-bold text-xs text-white">Registered Citizen</span>
                       </div>
-                      <span className="w-2 h-2 rounded-full bg-slate-400" />
+                      <span className="w-2 h-2 rounded-full bg-zinc-400" />
                     </div>
-                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                    <p className="text-[11px] text-zinc-400 leading-relaxed">
                       Provide your full legal name to appear on the official Section 65B judicial court affidavit.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-start gap-3">
-                <ShieldAlert className="w-4 h-4 text-[#FF5A1F] shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-2xl bg-[#FF4D15]/10 border border-[#FF4D15]/25 text-zinc-200 text-xs flex items-start gap-3">
+                <ShieldAlert className="w-4 h-4 text-[#FF4D15] shrink-0 mt-0.5" />
                 <div className="leading-relaxed text-[11px]">
                   {reportingPhase === 'confidential' ? (
-                    <span><strong>Private Reporting Active:</strong> Your name will NOT be recorded. Email tracking notifications will be sent directly to your Gmail.</span>
+                    <span><strong className="text-white">Private Reporting Active:</strong> Your name will NOT be recorded. Email tracking notifications will be sent directly to your Gmail.</span>
                   ) : (
-                    <span><strong>Verified Citizen Active:</strong> Your legal name will be affixed to the WORM Section 65B record and confirmed via Gmail.</span>
+                    <span><strong className="text-white">Verified Citizen Active:</strong> Your legal name will be affixed to the WORM Section 65B record and confirmed via Gmail.</span>
                   )}
                 </div>
               </div>
@@ -398,42 +443,42 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
               <div className="space-y-4">
                 {reportingPhase === 'registered' && (
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    <label className="block text-xs font-semibold text-zinc-200 mb-1.5">
                       Your Full Legal Name (Appears on Court Certificate)
                     </label>
                     <div className="relative">
-                      <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <User className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input
                         type="text"
                         required
                         value={citizenName}
                         onChange={(e) => setCitizenName(e.target.value)}
                         placeholder="Enter your full name"
-                        className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5A1F]"
+                        className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-white/10 text-xs bg-[#070709] text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
                       />
                     </div>
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-zinc-200 mb-1.5 flex items-center justify-between">
                     <span>Gmail Address (Mandatory for Email Tracking Notifications)</span>
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <Mail className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="email"
                       required
                       value={citizenEmail}
                       onChange={(e) => setCitizenEmail(e.target.value)}
                       placeholder="Enter your Gmail address"
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5A1F]"
+                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-white/10 text-xs bg-[#070709] text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-zinc-200 mb-1.5">
                     Phone Number (SMS / 1930 Nodal Updates)
                   </label>
                   <input
@@ -442,14 +487,14 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
                     value={citizenPhone}
                     onChange={(e) => setCitizenPhone(e.target.value)}
                     placeholder="Enter phone number"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5A1F]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 text-xs bg-[#070709] text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-zinc-200 mb-1.5">
                     Place / Location of Incident
                   </label>
                   <input
@@ -457,11 +502,11 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
                     value={incidentPlace}
                     onChange={(e) => setIncidentPlace(e.target.value)}
                     placeholder="e.g. New Delhi / Mumbai / Bank Branch"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5A1F]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 text-xs bg-[#070709] text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-zinc-200 mb-1.5">
                     Time & Date of Incident
                   </label>
                   <input
@@ -469,20 +514,20 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
                     value={incidentTime}
                     onChange={(e) => setIncidentTime(e.target.value)}
                     placeholder="e.g. 14:30 IST, Oct 9, 2026"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5A1F]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 text-xs bg-[#070709] text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-zinc-200 mb-1.5">
                     Cybercrime Category
                   </label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5A1F]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 text-xs bg-[#070709] text-white focus:outline-none focus:border-[#FF4D15]"
                   >
                     <option value="Financial Cyber Fraud">Financial Cyber Fraud (UPI / Bank / UTR)</option>
                     <option value="Digital Arrest & Agency Coercion">Digital Arrest & Agency Coercion (Skype/CBI)</option>
@@ -495,7 +540,7 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-zinc-200 mb-1.5">
                     Estimated Loss (if financial)
                   </label>
                   <input
@@ -503,13 +548,13 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
                     value={lossAmount}
                     onChange={(e) => setLossAmount(e.target.value)}
                     placeholder="e.g. 1,48,500 or 0"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5A1F]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 text-xs bg-[#070709] text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-zinc-200 mb-1.5">
                   Residential / Business Address
                 </label>
                 <input
@@ -518,12 +563,12 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
                   value={citizenAddress}
                   onChange={(e) => setCitizenAddress(e.target.value)}
                   placeholder="Enter your complete address"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5A1F]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 text-xs bg-[#070709] text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-zinc-200 mb-1.5">
                   Incident Title / Headline
                 </label>
                 <input
@@ -532,12 +577,12 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Unauthorized UPI debit following electricity bill SMS threat"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5A1F]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 text-xs bg-[#070709] text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-zinc-200 mb-1.5">
                   Suspect Identifiers (Phone, UPI, Bank Acc, Skype, or URL - Optional)
                 </label>
                 <input
@@ -545,12 +590,12 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
                   value={suspectDetails}
                   onChange={(e) => setSuspectDetails(e.target.value)}
                   placeholder="e.g. Phone: +91-98765-43210, UPI: fraudpayment@oksbi, Skype: cbi_hq_delhi"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5A1F]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 text-xs bg-[#070709] text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-zinc-200 mb-1.5">
                   Detailed Sequence of Incident
                 </label>
                 <textarea
@@ -559,34 +604,34 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Explain exactly what happened, dates, times, and what links or apps you were asked to install..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#FF5A1F] leading-relaxed"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 text-xs bg-[#070709] text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15] leading-relaxed"
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-zinc-200">
                     Upload Raw Evidence Files
                   </label>
                   <button
                     type="button"
                     onClick={handleAddSampleScreenshot}
-                    className="text-[11px] text-[#FF5A1F] hover:underline font-bold"
+                    className="text-[11px] text-[#FF4D15] hover:underline font-bold"
                   >
                     + Attach Demo Fraud Screenshot
                   </button>
                 </div>
 
-                <div className="p-6 rounded-2xl border-2 border-dashed border-slate-300 hover:border-slate-400 bg-slate-50 text-center transition-colors">
-                  <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                  <p className="text-xs font-semibold text-slate-700 mb-1">
+                <div className="p-6 rounded-2xl border-2 border-dashed border-white/15 hover:border-[#FF4D15]/60 bg-[#070709] text-center transition-colors">
+                  <Upload className="w-8 h-8 text-zinc-500 mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-zinc-200 mb-1">
                     Drag and drop screenshots, bank PDFs, audio notes, or APK files
                   </p>
-                  <p className="text-[11px] text-slate-500 mb-3">
+                  <p className="text-[11px] text-zinc-400 mb-3">
                     Files are instantly hashed locally using browser SHA-256 WebCrypto
                   </p>
                   
-                  <label className="inline-block px-4 py-2 bg-white border border-slate-300 hover:bg-slate-100 rounded-xl text-xs font-bold text-slate-800 cursor-pointer shadow-sm">
+                  <label className="inline-block px-4 py-2 bg-[#18181E] border border-white/15 hover:bg-white/10 rounded-xl text-xs font-bold text-white cursor-pointer shadow-sm">
                     Browse Files
                     <input
                       type="file"
@@ -598,7 +643,7 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
                 </div>
 
                 {isHashing && (
-                  <div className="mt-3 text-xs text-[#FF5A1F] flex items-center gap-2 animate-pulse font-mono-code font-bold">
+                  <div className="mt-3 text-xs text-[#FF4D15] flex items-center gap-2 animate-pulse font-mono-code font-bold">
                     <Hash className="w-3.5 h-3.5" />
                     <span>Computing client-side SHA-256 digests...</span>
                   </div>
@@ -606,34 +651,34 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
 
                 {evidenceFiles.length > 0 && (
                   <div className="mt-4 space-y-2.5">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
                       Hashed Evidence Payload ({evidenceFiles.length})
                     </div>
                     {evidenceFiles.map((ev) => (
                       <div
                         key={ev.id}
-                        className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between gap-1.5"
+                        className="p-3 rounded-xl bg-[#18181E] border border-white/10 text-xs flex flex-col justify-between gap-1.5"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-semibold text-slate-900 truncate max-w-[320px]">
+                          <span className="font-semibold text-white truncate max-w-[320px]">
                             {ev.name}
                           </span>
                           <div className="flex items-center gap-3">
-                            <span className="text-slate-500 font-mono-code text-[11px]">
+                            <span className="text-zinc-400 font-mono-code text-[11px]">
                               {formatBytes(ev.size)}
                             </span>
                             <button
                               type="button"
                               onClick={() => handleRemoveFile(ev.id)}
-                              className="text-slate-400 hover:text-rose-600"
+                              className="text-zinc-500 hover:text-rose-400"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         </div>
 
-                        <div className="font-mono-code text-[10px] text-slate-700 bg-white p-1.5 rounded-lg border border-slate-200 break-all font-semibold">
-                          <span className="text-[#FF5A1F] font-bold mr-1">SHA256:</span>
+                        <div className="font-mono-code text-[10px] text-zinc-300 bg-[#070709] p-1.5 rounded-lg border border-white/10 break-all font-semibold">
+                          <span className="text-[#FF4D15] font-bold mr-1">SHA256:</span>
                           {ev.sha256}
                         </div>
                       </div>
@@ -648,11 +693,11 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
 
         {/* Drawer Footer */}
         {!submittedReport && (
-          <div className="p-6 border-t border-slate-200 bg-white sticky bottom-0 z-20 flex items-center justify-between gap-4">
+          <div className="p-6 border-t border-white/10 bg-[#070709]/95 sticky bottom-0 z-20 flex items-center justify-between gap-4">
             <button
               type="button"
               onClick={handleResetAndClose}
-              className="px-5 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900"
+              className="px-5 py-2.5 text-xs font-semibold text-zinc-400 hover:text-white"
             >
               Cancel
             </button>
@@ -660,7 +705,7 @@ export const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
               type="submit"
               form="incident-form"
               disabled={isSubmitting || isHashing}
-              className="px-7 py-3.5 bg-[#FF5A1F] hover:bg-[#E04B14] disabled:opacity-50 text-white text-xs font-bold rounded-full shadow-md flex items-center gap-2 active:scale-95 transition-all"
+              className="px-7 py-3.5 bg-[#FF4D15] hover:bg-[#E03E0B] disabled:opacity-50 text-white text-xs font-bold rounded-full shadow-[0_0_24px_rgba(255,77,21,0.35)] flex items-center gap-2 active:scale-95 transition-all"
             >
               {isSubmitting ? (
                 <span>Writing to WORM & Dispatching Email...</span>

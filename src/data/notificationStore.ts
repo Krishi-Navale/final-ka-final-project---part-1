@@ -1,70 +1,102 @@
 import { SystemNotification } from '../types';
 import { createNotificationAPI, fetchNotificationsAPI } from './apiClient';
 
-const NOTIFICATIONS_KEY = 'fip_system_notifications_v2';
+const NOTIFICATIONS_KEY = 'fip_system_notifications_v3';
+
+function getRecentTimestamp(minutesAgo: number): string {
+  const d = new Date(Date.now() - minutesAgo * 60 * 1000);
+  return d.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+}
 
 export const INITIAL_NOTIFICATIONS: SystemNotification[] = [
   {
     id: 'notif-1',
-    timestamp: '2026-10-09 22:15:00 UTC',
+    timestamp: getRecentTimestamp(4),
     type: 'CERTIFICATE',
     title: 'Section 65B Admissibility Certificate Issued',
-    message: 'Official Section 65B certificate (CERT-65B-2026-CIT-92810) generated and cryptographically sealed for Case #CYBER-2026-9281.',
+    message:
+      'Official Section 65B certificate (CERT-65B-2026-CIT-92810) generated and cryptographically sealed for Case #IN-CFC-2026-849102.',
     recipientEmail: 'navalekrishi@gmail.com',
     recipientRole: 'all',
     read: false,
-    relatedTrackingCode: 'CYBER-2026-9281',
-    senderName: 'Dr. Bibi Zohara',
-    badge: 'LEAD FORENSIC EXAMINER',
+    relatedTrackingCode: 'IN-CFC-2026-849102',
+    senderName: 'Bibi Zohara',
+    badge: 'SEC 65B SEALED',
   },
   {
     id: 'notif-2',
-    timestamp: '2026-10-09 21:40:00 UTC',
+    timestamp: getRecentTimestamp(18),
     type: 'DIRECT_NOTICE',
-    title: 'Official Investigator Instruction Received',
-    message: 'Senior Examiner Balchandra requested bank statement screenshots for 1930 Cyber Cell Lien verification.',
+    title: 'Official Investigator Instruction Dispatched',
+    message:
+      'Senior Examiner Balchandra requested high-resolution UTR debit screenshots for 1930 Nodal Bank Lien verification.',
     recipientEmail: 'navalekrishi@gmail.com',
     recipientRole: 'citizen',
     read: false,
-    relatedTrackingCode: 'CYBER-2026-9281',
-    senderName: 'Sup. Balchandra K',
-    badge: 'CYBER POLICE HQ',
+    relatedTrackingCode: 'IN-CFC-2026-849102',
+    senderName: 'Balchandra',
+    badge: '1930 NODAL HQ',
   },
   {
     id: 'notif-3',
-    timestamp: '2026-10-09 20:05:00 UTC',
+    timestamp: getRecentTimestamp(42),
     type: 'CUSTODY_ALERT',
-    title: 'WORM Bitstream Audit Passed',
-    message: 'RFC-3161 Merkle tree integrity check completed across 14,820 evidence blocks. Zero tamper detected.',
-    recipientRole: 'senior_investigator',
-    read: true,
-    senderName: 'WORM Ledger Engine',
-    badge: 'AUTOMATED AUDIT',
+    title: 'AI Syndicate Correlation: 99.4% Pattern Match',
+    message:
+      'Cross-Case AI Engine linked Mule Account 5010049281920 & UPI powerelectric99@axl across 3 historical dockets.',
+    recipientRole: 'all',
+    read: false,
+    relatedTrackingCode: 'IN-CFC-2026-849102',
+    senderName: 'Krishi · AI Engine',
+    badge: 'SYNDICATE MATCH',
   },
   {
     id: 'notif-4',
-    timestamp: '2026-10-09 19:22:00 UTC',
-    type: 'DONTPAD_SYNC',
-    title: 'Dontpad Repository Linked',
-    message: 'Custom pad #pad/evidence-vault-docket synchronized with encrypted SHA-256 hash stamp.',
+    timestamp: getRecentTimestamp(95),
+    type: 'LIEN_ISSUED',
+    title: '1930 Golden-Hour Bank Freeze Executed',
+    message:
+      'Emergency NPCI lien hold placed on beneficiary A/C #5010049281920 within the 120-minute Golden Window.',
     recipientRole: 'all',
     read: false,
-    actionUrlHash: '#pad/evidence-vault-docket',
-    senderName: 'Drive Secure System',
-    badge: 'VAULT SYNC',
+    relatedTrackingCode: 'IN-CFC-2026-849103',
+    senderName: 'Afsheen S',
+    badge: 'LIEN ACTIVE',
   },
   {
     id: 'notif-5',
-    timestamp: '2026-10-09 18:00:00 UTC',
-    type: 'LIEN_ISSUED',
-    title: '1930 Bank Account Freeze Dispatched',
-    message: 'Emergency lien dispatched to ICICI / HDFC Nodal Cyber Officer for Mule A/C #9182****4410.',
-    recipientRole: 'senior_investigator',
-    read: false,
-    senderName: 'Insp. Rajesh Sharma',
-    badge: '1930 CELL',
-  }
+    timestamp: getRecentTimestamp(180),
+    type: 'DONTPAD_SYNC',
+    title: 'WORM Bitstream Audit & Vault Sync Complete',
+    message:
+      'RFC-3161 Merkle tree integrity check completed across 14,820 evidence blocks. Zero bit mutation detected.',
+    recipientRole: 'all',
+    read: true,
+    actionUrlHash: '#pad/evidence-vault-docket',
+    senderName: 'F.I.P WORM Ledger',
+    badge: 'RFC-3161 VERIFIED',
+  },
 ];
+
+export function formatNotificationRelativeTime(raw?: string): string {
+  if (!raw) return 'Just now';
+  const normalized = raw.trim().replace(' UTC', 'Z').replace(' ', 'T');
+  const parsed = new Date(normalized);
+  if (isNaN(parsed.getTime())) return raw;
+
+  const diffSec = Math.max(0, Math.floor((Date.now() - parsed.getTime()) / 1000));
+  if (diffSec < 45) return 'Just now';
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+  const days = Math.floor(diffSec / 86400);
+  if (days === 1) return 'Yesterday';
+  if (days < 14) return `${days}d ago`;
+  return parsed.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
 
 export function getStoredNotifications(): SystemNotification[] {
   try {
@@ -83,44 +115,69 @@ export function getStoredNotifications(): SystemNotification[] {
 export function saveStoredNotifications(notifications: SystemNotification[]) {
   try {
     localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(notifications));
-    window.dispatchEvent(new CustomEvent('fip_notifications_updated', { detail: notifications }));
+    window.dispatchEvent(
+      new CustomEvent('fip_notifications_updated', { detail: notifications })
+    );
   } catch (e) {
     console.error('Failed saving notifications', e);
   }
 }
 
-export function addNotification(notification: Omit<SystemNotification, 'id' | 'timestamp' | 'read'> & { id?: string; timestamp?: string; read?: boolean }): SystemNotification {
+export function addNotification(
+  notification: Omit<SystemNotification, 'id' | 'timestamp' | 'read'> & {
+    id?: string;
+    timestamp?: string;
+    read?: boolean;
+  }
+): SystemNotification {
   const fullNotif: SystemNotification = {
     ...notification,
-    id: notification.id || `notif-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    timestamp: notification.timestamp || (new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC'),
+    id:
+      notification.id ||
+      `notif-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    timestamp:
+      notification.timestamp ||
+      new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC',
     read: notification.read ?? false,
   };
 
   const list = getStoredNotifications();
-  // Avoid duplicates
-  const existingIndex = list.findIndex(n => n.id === fullNotif.id);
-  const updated = existingIndex >= 0 
-    ? list.map(n => n.id === fullNotif.id ? fullNotif : n)
-    : [fullNotif, ...list];
+  const existingIndex = list.findIndex((n) => n.id === fullNotif.id);
+  const updated =
+    existingIndex >= 0
+      ? list.map((n) => (n.id === fullNotif.id ? fullNotif : n))
+      : [fullNotif, ...list];
 
   saveStoredNotifications(updated);
 
-  // Sync with MongoDB backend in background
-  createNotificationAPI(fullNotif).catch(err => console.warn('Backend notification sync error:', err));
+  createNotificationAPI(fullNotif).catch((err) =>
+    console.warn('Backend notification sync error:', err)
+  );
 
   return fullNotif;
 }
 
-export async function syncNotificationsWithBackend(): Promise<SystemNotification[]> {
+export function removeNotificationById(id: string): SystemNotification[] {
+  const list = getStoredNotifications();
+  const updated = list.filter((n) => n.id !== id);
+  saveStoredNotifications(updated);
+  return updated;
+}
+
+export async function syncNotificationsWithBackend(): Promise<
+  SystemNotification[]
+> {
   try {
     const backendNotifs = await fetchNotificationsAPI();
-    if (backendNotifs && Array.isArray(backendNotifs) && backendNotifs.length > 0) {
+    if (
+      backendNotifs &&
+      Array.isArray(backendNotifs) &&
+      backendNotifs.length > 0
+    ) {
       const local = getStoredNotifications();
       const map = new Map<string, SystemNotification>();
-      // Prefer newer ones
-      backendNotifs.forEach(n => map.set(n.id, n));
-      local.forEach(n => {
+      backendNotifs.forEach((n) => map.set(n.id, n));
+      local.forEach((n) => {
         if (!map.has(n.id)) {
           map.set(n.id, n);
         }

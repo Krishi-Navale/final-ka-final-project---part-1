@@ -1,13 +1,28 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --fip-bg: #070709;
+    --fip-surface: #111115;
+    --fip-surface-elevated: #18181E;
+    --fip-accent: #FF4D15;
+    --fip-accent-hover: #E03E0B;
+    --fip-accent-glow: rgba(255, 77, 21, 0.38);
+    --fip-text: #FFFFFF;
+    --fip-text-muted: #A1A1AA;
+    --fip-border: rgba(255, 255, 255, 0.09);
+  }
+
   html {
     scroll-behavior: smooth;
+    background-color: #070709;
+    color: #FFFFFF;
   }
+
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: #0F172A;
-    background-color: #FAFAFC;
+    color: #FFFFFF;
+    background-color: #070709;
     overflow-x: hidden;
   }
 }
@@ -17,20 +32,47 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Funky aesthetic sticker badge from the attached image */
-.badge-sticker-orange {
-  background: #FF5A1F;
-  color: #FFFFFF;
-  border-radius: 8px;
-  box-shadow: 0 4px 14px rgba(255, 90, 31, 0.35);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
+.font-pixel-accent {
+  font-family: 'Pixelify Sans', 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Floating organic blob background */
-.bg-organic-blob {
-  background-image: radial-gradient(circle at 50% 50%, rgba(240, 242, 245, 0.8) 0%, transparent 70%);
+.font-noir-display {
+  font-family: 'Oswald', 'Arial Narrow', Impact, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.font-noir-typewriter {
+  font-family: 'Courier Prime', 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* Architectural Swiss Grid Pattern matching Reference Design */
+.bg-swiss-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+/* Studio Vertical Stripe Surface for Light Architectural Sections */
+.bg-studio-stripes {
+  background-color: #EAEAEF;
+  background-image: repeating-linear-gradient(
+    to right,
+    rgba(13, 13, 16, 0.04) 0px,
+    rgba(13, 13, 16, 0.04) 1px,
+    transparent 1px,
+    transparent 14px
+  );
+}
+
+/* Radiant Blaze Orange Accent Badge */
+.badge-sticker-orange {
+  background: #FF4D15;
+  color: #FFFFFF;
+  border-radius: 9999px;
+  box-shadow: 0 6px 24px rgba(255, 77, 21, 0.42);
+  font-weight: 800;
 }
 
 /* Ticker marquee animation */
@@ -42,23 +84,23 @@
 .animate-marquee {
   display: flex;
   width: 200%;
-  animation: marquee 25s linear infinite;
+  animation: marquee 28s linear infinite;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar matching Obsidian Void theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0F172A;
+  background: #070709;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #27272A;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #FF4D15;
 }
 
 /* Cyber-Forensic Custom Effects & Animations */
@@ -69,18 +111,13 @@
 }
 
 @keyframes pulseGlow {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.04); }
 }
 
 @keyframes floatSlow {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   50% { transform: translateY(-10px) rotate(1deg); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
 }
 
 .animate-laser-sweep {
@@ -95,27 +132,11 @@
   animation: floatSlow 6s ease-in-out infinite;
 }
 
-.shimmer-text {
-  background: linear-gradient(90deg, #38BDF8 0%, #818CF8 25%, #F43F5E 50%, #818CF8 75%, #38BDF8 100%);
-  background-size: 200% auto;
-  color: transparent;
-  -webkit-background-clip: text;
-  background-clip: text;
-  animation: shimmer 4s linear infinite;
-}
-
 .glass-card-dark {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.glass-card-light {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(17, 17, 21, 0.85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
 }
 
 .scanline-overlay {
@@ -128,3 +149,31 @@
   );
   background-size: 100% 4px;
 }
+
+@keyframes auraBreath {
+  0%, 100% { transform: scale(1) translate3d(0, 0, 0); opacity: 0.72; }
+  50% { transform: scale(1.08) translate3d(0, -8px, 0); opacity: 0.96; }
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes floatGentle {
+  0%, 100% { transform: translate3d(0, 0px, 0); }
+  50% { transform: translate3d(0, -14px, 0); }
+}
+
+.animate-aura-breath {
+  animation: auraBreath 5.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.animate-spin-slow {
+  animation: spinSlow 24s linear infinite;
+}
+
+.animate-float-gentle {
+  animation: floatGentle 6.5s ease-in-out infinite;
+}
+

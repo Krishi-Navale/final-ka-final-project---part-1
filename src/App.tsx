@@ -25,6 +25,11 @@ import {
   addNotification,
   syncNotificationsWithBackend
 } from './data/notificationStore';
+import { syncCrimeStoriesWithBackend } from './data/crimeStoriesStore';
+import {
+  syncSharedProblemsWithBackend,
+  SharedProblemReport,
+} from './data/sharedProblemsStore';
 import { 
   fetchIncidentsAPI, 
   createIncidentAPI, 
@@ -46,7 +51,7 @@ export default function App() {
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [certificateIncident, setCertificateIncident] = useState<IncidentReport | null>(null);
 
-  // Sync incidents & notifications with MongoDB Atlas backend in real-time
+  // Sync incidents, crime stories, shared problems & notifications with backend in real-time
   useEffect(() => {
     let isMounted = true;
 
@@ -70,6 +75,8 @@ export default function App() {
 
     const syncAll = () => {
       syncIncidents();
+      syncCrimeStoriesWithBackend().catch(() => {});
+      syncSharedProblemsWithBackend().catch(() => {});
       syncNotificationsWithBackend().then(synced => {
         if (isMounted && synced && synced.length > 0) {
           setNotifications(synced);
@@ -133,6 +140,11 @@ export default function App() {
       const hash = window.location.hash;
       if (hash.startsWith('#pad/') || hash.includes('vault=secure')) {
         setCurrentTab('dashboard');
+      } else if (
+        (hash === '#workstation-shared-problems' || hash === '#workstation-story-approvals') &&
+        currentUser.role === 'senior_investigator'
+      ) {
+        setCurrentTab('investigator');
       }
     };
     handleUrlHash();
@@ -140,7 +152,7 @@ export default function App() {
     return () => {
       window.removeEventListener('hashchange', handleUrlHash);
     };
-  }, []);
+  }, [currentUser.role]);
 
   const unreadNotifsCount = notifications.filter(n => {
     if (n.read) return false;
@@ -165,6 +177,34 @@ export default function App() {
 
   const handleSelectNotificationAction = (notif: SystemNotification) => {
     setIsNotificationModalOpen(false);
+
+    if (
+      notif.actionUrlHash === '#workstation-shared-problems' ||
+      notif.badge === 'SHARE A PROBLEM'
+    ) {
+      window.location.hash = '#workstation-shared-problems';
+      if (currentUser.role === 'senior_investigator') {
+        setCurrentTab('investigator');
+      } else {
+        setIsAuthModalOpen(true);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (
+      notif.actionUrlHash === '#workstation-story-approvals' ||
+      notif.badge === 'PDF VERIFICATION QUEUED'
+    ) {
+      if (currentUser.role === 'senior_investigator') {
+        window.location.hash = '#workstation-story-approvals';
+        setCurrentTab('investigator');
+      } else {
+        setCurrentTab('incidents');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
 
     if (notif.actionUrlHash) {
       window.location.hash = notif.actionUrlHash;
@@ -237,24 +277,27 @@ export default function App() {
   };
 
   const handleCreateCaseFromProblem = async (
-    email: string, 
-    problemText: string, 
-    _password: string, 
-    citizenName?: string,
-    categoryName?: string
+    problemText: string,
+    sourceLink: string,
+    categoryName?: string,
+    createdReport?: SharedProblemReport
   ) => {
-    const hash = await computeSHA256(problemText + Date.now().toString());
-    const tracking = generateTrackingCode();
-    const finalName = citizenName?.trim() || email.split('@')[0];
+    const hash =
+      createdReport?.sha256 ||
+      (await computeSHA256(`${sourceLink}::${problemText}::${Date.now()}`));
+    const tracking = createdReport?.trackingCode || generateTrackingCode();
+    const reporterName = currentUser.name || 'Anonymous Citizen Reporter';
+    const reporterEmail = currentUser.email || 'anonymous-intake@fip-gateway.gov.in';
+
     const newIncident: IncidentReport = {
       id: `inc-${Date.now()}`,
       trackingCode: tracking,
       title: problemText.length > 60 ? problemText.substring(0, 57) + '...' : problemText,
-      category: categoryName || 'Citizen Cyber Incident',
-      description: problemText,
-      citizenName: finalName,
-      citizenEmail: email,
-      suspectDetails: 'Reported via Direct Citizen Intake',
+      category: categoryName || 'Phishing & Malicious Link',
+      description: `${problemText}\n\n[ORIGIN LINK]: ${sourceLink}`,
+      citizenName: reporterName,
+      citizenEmail: reporterEmail,
+      suspectDetails: `Origin Link: ${sourceLink}`,
       lossAmount: 'Under Forensic Assessment',
       dateReported: new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC',
       status: 'WORM_LOCKED',
@@ -262,41 +305,33 @@ export default function App() {
       evidenceFiles: [
         {
           id: `ev-${Date.now()}`,
-          name: 'citizen_case_statement.txt',
-          size: problemText.length * 2,
+          name: 'shared_problem_and_origin_link.txt',
+          size: (problemText.length + sourceLink.length) * 2,
           type: 'text/plain',
           sha256: hash,
           wormTimestamp: generateWORMStamp(),
         },
       ],
-      seniorOfficerAssigned: 'Dr. Bibi Zohara (Lead Forensic Examiner)',
-      officerBadge: 'CYBER-DEL-0842',
-      officerNotes: 'Case submitted via Direct Citizen Intake. Cryptographic WORM hash registered under RFC-3161 protocol.',
-      legalAdmissibilityCertId: `CERT-65B-2026-CIT-${Math.floor(10000 + Math.random() * 90000)}`,
-      rawOriginalContent: problemText,
+      seniorOfficerAssigned: 'Krishi · AI Command',
+      officerBadge: 'I4C-NAT-7721',
+      officerNotes: `Shared Problem & Origin Link (${sourceLink}) received via Cryptographic Credential Gateway. Routed to Workstation Share a Problem Sector.`,
+      legalAdmissibilityCertId: `CERT-65B-2026-PROB-${Math.floor(10000 + Math.random() * 90000)}`,
+      rawOriginalContent: `Origin Link: ${sourceLink}\nProblem: ${problemText}`,
       hashFormat: {
         sha256: hash,
         merkleRoot: hash.substring(0, 32),
         algorithm: 'SHA-256 / RFC-3161 WORM Ledger',
-        byteSize: problemText.length,
-        wormDigest: `WORM-LEDGER-BLK-${tracking.replace(/[^0-9]/g, '').slice(0, 6) || '849102'}-SEC65B`
+        byteSize: problemText.length + sourceLink.length,
+        wormDigest: `WORM-LEDGER-BLK-${tracking.replace(/[^0-9]/g, '').slice(0, 6) || '849102'}-SEC65B`,
       },
       custodyEvents: [
         {
           id: `cust-${Date.now()}`,
           timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC',
-          actor: `Citizen (${email})`,
-          role: 'Victim / Primary Reporter',
-          action: 'Incident problem statement submitted and hashed into immutable WORM ledger',
+          actor: 'Cryptographic Credential Gateway (Share Problem)',
+          role: 'Zero-Friction Citizen Intake',
+          action: `Problem & Origin Link (${sourceLink}) submitted and routed to Workstation Share a Problem Sector.`,
           merkleHash: hash.substring(0, 16) + '...',
-        },
-        {
-          id: `cust-${Date.now() + 1}`,
-          timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC',
-          actor: 'Dr. Bibi Zohara',
-          role: 'Accredited Cyber Investigator (IFSO)',
-          action: 'Assigned supervisor linked to case. Prepared for Section 65B court certificate.',
-          merkleHash: 'c4e910...8290',
         },
       ],
     };
@@ -305,7 +340,6 @@ export default function App() {
     setIncidents(nextList);
     saveStoredIncidents(nextList);
 
-    // Persist to MongoDB Atlas backend
     try {
       await createIncidentAPI(newIncident);
     } catch (err) {
@@ -313,27 +347,16 @@ export default function App() {
     }
 
     addNotification({
-      type: 'EVIDENCE_UPLOAD',
-      title: `Direct Citizen Case Ingested (#${tracking})`,
-      message: `Direct intake completed for ${email}. Case statement hashed under SHA-256.`,
-      recipientEmail: email,
+      type: 'CUSTODY_ALERT',
+      title: `🚨 Share a Problem Alert (${tracking})`,
+      message: `Problem shared with origin link [${sourceLink}]: "${problemText.substring(0, 90)}${problemText.length > 90 ? '...' : ''}" — Routed to Workstation Share a Problem Sector for inspection & resolution.`,
       recipientRole: 'all',
       relatedTrackingCode: tracking,
-      senderName: 'Drive Secure System',
-      badge: 'WORM INGESTED',
+      actionUrlHash: '#workstation-shared-problems',
+      senderName: 'F.I.P Gateway · Share Problem',
+      badge: 'SHARE A PROBLEM',
     });
     setNotifications(getStoredNotifications());
-
-    const user: UserProfile = {
-      name: email.split('@')[0],
-      email: email,
-      role: 'citizen',
-      isAnonymous: false,
-    };
-    setCurrentUser(user);
-    saveStoredUser(user);
-
-    setCurrentTab('dashboard');
   };
 
   const handleVerifyIncident = async (incidentId: string, officerNotes: string) => {
@@ -391,12 +414,16 @@ export default function App() {
   };
 
   const handleNavigate = (tab: string) => {
+    if (tab === 'investigator' && currentUser.role !== 'senior_investigator') {
+      setIsAuthModalOpen(true);
+      return;
+    }
     setCurrentTab(tab as any);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-slate-900 selection:bg-rose-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#070709] text-white selection:bg-[#FF4D15] selection:text-white">
       {/* Top Navigation Bar with Notification Bell */}
       <Navbar
         currentTab={currentTab}
@@ -428,11 +455,15 @@ export default function App() {
             onViewCertificate={(inc) => setCertificateIncident(inc)}
             onOpenReportModal={() => setIsReportDrawerOpen(true)}
             onOpenAuthModal={() => setIsAuthModalOpen(true)}
-            onNavigateToInvestigator={() => handleNavigate('investigator')}
+            onNavigateToInvestigator={
+              currentUser.role === 'senior_investigator'
+                ? () => handleNavigate('investigator')
+                : undefined
+            }
           />
         )}
 
-        {currentTab === 'investigator' && (
+        {currentTab === 'investigator' && currentUser.role === 'senior_investigator' && (
           <SeniorInvestigatorWorkstation
             incidents={incidents}
             currentUser={currentUser}
@@ -443,6 +474,36 @@ export default function App() {
             onNavigate={handleNavigate}
             onViewCertificate={(inc) => setCertificateIncident(inc)}
           />
+        )}
+
+        {currentTab === 'investigator' && currentUser.role !== 'senior_investigator' && (
+          <div className="w-full min-h-[75vh] bg-[#070709] flex items-center justify-center px-4 py-16">
+            <div className="max-w-lg w-full p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#FF4D15]/40 text-center space-y-5 shadow-2xl">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FF4D15]/15 border border-[#FF4D15]/40 text-[#FF4D15] text-[11px] font-mono-code font-bold uppercase tracking-wider">
+                Restricted Command Node
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                Senior Investigator Clearance Required
+              </h2>
+              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                The F.I.P Examiner Workstation &amp; AI Syndicate Engine is strictly restricted to accredited Senior Investigators (Krishi, Dr. Bibi Zohara, Sup. Balchandra, and Afsheen S).
+              </p>
+              <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="px-6 py-3 rounded-full bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Authenticate as Senior Investigator →
+                </button>
+                <button
+                  onClick={() => setCurrentTab('home')}
+                  className="px-5 py-3 rounded-full bg-white/10 hover:bg-white/15 text-white text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Return Home
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {currentTab === 'learning' && (
@@ -476,6 +537,7 @@ export default function App() {
       <Footer
         onNavigate={handleNavigate}
         onOpenReportDrawer={() => setIsReportDrawerOpen(true)}
+        currentUser={currentUser}
       />
 
       {/* Slide Drawer for Case Evidence Intake */}

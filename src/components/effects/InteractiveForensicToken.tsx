@@ -167,8 +167,15 @@ export const InteractiveForensicToken: React.FC<InteractiveForensicTokenProps> =
                   <div className="text-slate-950 font-black text-sm sm:text-base tracking-tight leading-tight mt-1">
                     Section 65B Seal
                   </div>
-                  <div className="text-[10px] font-mono-code text-slate-500 font-bold">
-                    Officer: {activeExaminerName}
+                  <div className="text-[10px] font-mono-code text-slate-500 font-bold flex items-center justify-center gap-1.5 mt-1">
+                    {activeExaminerName.toLowerCase().includes('krishi') && (
+                      <img
+                        src="/assets/aistudio/image_526c1ede.png"
+                        alt={activeExaminerName}
+                        className="w-4 h-4 rounded-full object-cover object-top border border-[#FF5A1F]"
+                      />
+                    )}
+                    <span>Officer: {activeExaminerName}</span>
                   </div>
                 </>
               )}

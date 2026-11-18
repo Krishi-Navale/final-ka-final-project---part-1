@@ -22,29 +22,29 @@ export const CustodyCertificateModal: React.FC<CustodyCertificateModalProps> = (
       {/* Backdrop */}
       <div 
         onClick={onClose}
-        className="fixed inset-0 bg-slate-950/70 backdrop-blur-md transition-opacity" 
+        className="fixed inset-0 bg-[#070709]/85 backdrop-blur-md transition-opacity" 
       />
 
       {/* Certificate Modal Container */}
-      <div className="relative z-10 w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-slate-300 overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative z-10 w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-white/20 overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
         
         {/* Top Control Bar */}
-        <div className="p-4 bg-slate-900 text-white flex items-center justify-between print:hidden">
+        <div className="p-4 bg-[#070709] border-b border-white/10 text-white flex items-center justify-between print:hidden">
           <div className="flex items-center gap-2 text-xs font-semibold">
-            <Scale className="w-4 h-4 text-amber-400" />
+            <Scale className="w-4 h-4 text-[#FF4D15]" />
             <span>Official Electronic Evidence Certificate (Sec. 65B Indian Evidence Act)</span>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+              className="px-3 py-1.5 rounded-lg bg-[#FF4D15] hover:bg-[#E03E0B] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print / Save PDF</span>
             </button>
             <button
               onClick={onClose}
-              className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 transition-colors"
+              className="w-7 h-7 rounded-full bg-[#18181E] hover:bg-white/15 border border-white/10 flex items-center justify-center text-zinc-300 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -129,14 +129,21 @@ export const CustodyCertificateModal: React.FC<CustodyCertificateModalProps> = (
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {incident.evidenceFiles.map((ev, i) => (
-                    <tr key={ev.id} className="text-[11px]">
+                  {(incident.evidenceFiles || []).map((ev, i) => (
+                    <tr key={ev.id || `${ev.name}-${i}`} className="text-[11px]">
                       <td className="p-2 font-bold text-slate-900">{ev.name}</td>
-                      <td className="p-2 text-slate-600">{ev.size} B</td>
-                      <td className="p-2 text-slate-600 break-all max-w-[200px]">{ev.sha256.substring(0, 20)}...</td>
+                      <td className="p-2 text-slate-600">{ev.size || 0} B</td>
+                      <td className="p-2 text-slate-600 break-all max-w-[200px]">{ev.sha256?.substring(0, 20) || 'SHA-256 SEALED'}...</td>
                       <td className="p-2 text-emerald-700 font-bold">LOCKED</td>
                     </tr>
                   ))}
+                  {(incident.evidenceFiles || []).length === 0 && (
+                    <tr className="text-[11px]">
+                      <td colSpan={4} className="p-3 text-center text-slate-500">
+                        Primary incident statement hash sealed under RFC-3161 ledger.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -169,7 +176,37 @@ export const CustodyCertificateModal: React.FC<CustodyCertificateModalProps> = (
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>COURT ADMISSIBLE</span>
               </div>
-              <div className="font-extrabold text-slate-900 text-xs">{incident.seniorOfficerAssigned}</div>
+              <div className="font-extrabold text-slate-900 text-xs flex items-center justify-center gap-1.5">
+                {(incident.seniorOfficerAssigned || '').toLowerCase().includes('zohara') && (
+                  <img
+                    src="/assets/aistudio/image_acc490cb.png"
+                    alt="Bibi Zohara"
+                    className="w-5 h-5 rounded-full object-cover object-top border border-slate-900 shrink-0"
+                  />
+                )}
+                {(incident.seniorOfficerAssigned || '').toLowerCase().includes('balchandra') && (
+                  <img
+                    src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_8.28.47_PM_76cc2fa2.jpeg"
+                    alt="Balchandra"
+                    className="w-5 h-5 rounded-full object-cover object-top border border-slate-900 shrink-0"
+                  />
+                )}
+                {(incident.seniorOfficerAssigned || '').toLowerCase().includes('krishi') && (
+                  <img
+                    src="/assets/aistudio/image_526c1ede.png"
+                    alt="Krishi"
+                    className="w-5 h-5 rounded-full object-cover object-top border border-slate-900 shrink-0"
+                  />
+                )}
+                {(incident.seniorOfficerAssigned || '').toLowerCase().includes('afsheen') && (
+                  <img
+                    src="/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg"
+                    alt="Afsheen S"
+                    className="w-5 h-5 rounded-full object-cover object-top border border-slate-900 shrink-0"
+                  />
+                )}
+                <span>{incident.seniorOfficerAssigned}</span>
+              </div>
               <div className="text-slate-600 text-[10px] font-bold">Badge: {incident.officerBadge}</div>
               <div className="text-slate-400 text-[9px]">Cyber Police IFSO / Judicial Seal</div>
             </div>

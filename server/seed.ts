@@ -1,9 +1,9 @@
-import { User } from './models/User';
-import { Incident } from './models/Incident';
-import { GalleryFile } from './models/GalleryFile';
-import { Notification } from './models/Notification';
-import { InvestigatorWorkstation } from './models/InvestigatorWorkstation';
-import { connectToMongoDB } from './db';
+import { User } from './models/User.ts';
+import { Incident } from './models/Incident.ts';
+import { GalleryFile } from './models/GalleryFile.ts';
+import { Notification } from './models/Notification.ts';
+import { InvestigatorWorkstation } from './models/InvestigatorWorkstation.ts';
+import { connectToMongoDB } from './db.ts';
 
 export const seedDatabase = async (force: boolean = true) => {
   const isConnected = await connectToMongoDB();
