@@ -920,12 +920,13 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
 
   // Filtered cases for "My Cases" tab
   const filteredCases = useMemo(() => {
+    const q = (caseSearchTerm || '').toLowerCase();
     return userSortedIncidents.filter(c => {
       const matchesSearch = 
-        c.title.toLowerCase().includes(caseSearchTerm.toLowerCase()) ||
-        c.trackingCode.toLowerCase().includes(caseSearchTerm.toLowerCase()) ||
-        c.category.toLowerCase().includes(caseSearchTerm.toLowerCase()) ||
-        c.description.toLowerCase().includes(caseSearchTerm.toLowerCase());
+        (c.title || '').toLowerCase().includes(q) ||
+        (c.trackingCode || '').toLowerCase().includes(q) ||
+        (c.category || '').toLowerCase().includes(q) ||
+        (c.description || '').toLowerCase().includes(q);
       
       const matchesStatus = caseStatusFilter === 'ALL' || c.status === caseStatusFilter;
       return matchesSearch && matchesStatus;
@@ -3523,11 +3524,14 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                       {(selectedCase?.evidenceFiles && selectedCase.evidenceFiles.length > 0) ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {selectedCase.evidenceFiles.map((file, idx) => {
-                            const isImage = file.type?.includes('image') || file.name.endsWith('.png') || file.name.endsWith('.jpg') || file.name.endsWith('.jpeg');
-                            const isVideo = file.type?.includes('video') || file.name.endsWith('.mp4') || file.name.endsWith('.mov');
-                            const isPdf = file.type?.includes('pdf') || file.name.endsWith('.pdf');
-                            const isAudio = file.type?.includes('audio') || file.name.endsWith('.mp3') || file.name.endsWith('.wav');
-                            const isApk = file.name.endsWith('.apk');
+                            const fName = String(file?.name || (file as any)?.filename || '').toLowerCase();
+                            const fType = String(file?.type || (file as any)?.fileType || '').toLowerCase();
+                            const displayFileName = file?.name || (file as any)?.filename || `evidence_artifact_${idx + 1}.bin`;
+                            const isImage = fType.includes('image') || fName.endsWith('.png') || fName.endsWith('.jpg') || fName.endsWith('.jpeg');
+                            const isVideo = fType.includes('video') || fName.endsWith('.mp4') || fName.endsWith('.mov');
+                            const isPdf = fType.includes('pdf') || fName.endsWith('.pdf');
+                            const isAudio = fType.includes('audio') || fName.endsWith('.mp3') || fName.endsWith('.wav');
+                            const isApk = fName.endsWith('.apk');
 
                             const formatLabel = isImage ? 'RAW PNG/JPG IMAGE' : isVideo ? 'RAW MP4 VIDEO' : isPdf ? 'RAW PDF STATEMENT' : isAudio ? 'RAW AUDIO CALL' : isApk ? 'RAW APK BINARY' : 'RAW DATA PAYLOAD';
 
@@ -3554,11 +3558,11 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                                       )}
                                     </div>
                                     <div className="min-w-0">
-                                      <div className="font-black text-xs text-white truncate" title={file.name}>
-                                        {file.name}
+                                      <div className="font-black text-xs text-white truncate" title={displayFileName}>
+                                        {displayFileName}
                                       </div>
                                       <div className="text-[10px] text-zinc-400 font-mono-code flex items-center gap-2 mt-0.5">
-                                        <span>{file.size ? `${(file.size / 1024).toFixed(1)} KB` : 'Native Size'}</span>
+                                        <span>{(file.size || (file as any).sizeBytes) ? `${((file.size || (file as any).sizeBytes) / 1024).toFixed(1)} KB` : 'Native Size'}</span>
                                         <span>•</span>
                                         <span>{file.wormTimestamp || 'WORM Sealed'}</span>
                                       </div>
@@ -4304,30 +4308,43 @@ export const CitizenDashboardPage: React.FC<CitizenDashboardPageProps> = ({
                     </div>
 
                     <div className="p-4 bg-[#070709] rounded-2xl border border-white/10 flex items-center justify-center min-h-[200px] max-h-[360px] overflow-hidden">
-                      {inspectingRawFile.type?.includes('image') || inspectingRawFile.name.endsWith('.png') || inspectingRawFile.name.endsWith('.jpg') || inspectingRawFile.name.endsWith('.jpeg') ? (
-                        <img
-                          src={inspectingRawFile.previewUrl || inspectingRawFile.rawContent}
-                          alt={inspectingRawFile.name}
-                          className="max-h-[340px] max-w-full rounded-xl object-contain"
-                        />
-                      ) : inspectingRawFile.type?.includes('video') || inspectingRawFile.name.endsWith('.mp4') || inspectingRawFile.name.endsWith('.mov') ? (
-                        <div className="w-full text-center space-y-3">
-                          <video
-                            controls
-                            src={inspectingRawFile.previewUrl || inspectingRawFile.rawContent}
-                            className="max-h-[320px] max-w-full mx-auto rounded-xl"
-                          />
-                        </div>
-                      ) : inspectingRawFile.type?.includes('audio') || inspectingRawFile.name.endsWith('.mp3') || inspectingRawFile.name.endsWith('.wav') ? (
-                        <div className="w-full text-center space-y-4 p-6">
-                          <Music className="w-12 h-12 mx-auto text-emerald-400" />
-                          <audio controls src={inspectingRawFile.previewUrl || inspectingRawFile.rawContent} className="w-full mx-auto" />
-                        </div>
-                      ) : (
-                        <div className="w-full text-left p-4 bg-[#18181E] rounded-xl font-mono-code text-xs text-zinc-300 leading-relaxed overflow-x-auto max-h-[300px]">
-                          {inspectingRawFile.rawContent || inspectingRawFile.previewUrl || 'RAW_PAYLOAD_BINARY_PRESERVED'}
-                        </div>
-                      )}
+                      {(() => {
+                        const rawName = String(inspectingRawFile?.name || (inspectingRawFile as any)?.filename || '').toLowerCase();
+                        const rawType = String(inspectingRawFile?.type || (inspectingRawFile as any)?.fileType || '').toLowerCase();
+                        if (rawType.includes('image') || rawName.endsWith('.png') || rawName.endsWith('.jpg') || rawName.endsWith('.jpeg')) {
+                          return (
+                            <img
+                              src={inspectingRawFile.previewUrl || inspectingRawFile.rawContent}
+                              alt={inspectingRawFile.name || (inspectingRawFile as any).filename || 'Evidence'}
+                              className="max-h-[340px] max-w-full rounded-xl object-contain"
+                            />
+                          );
+                        }
+                        if (rawType.includes('video') || rawName.endsWith('.mp4') || rawName.endsWith('.mov')) {
+                          return (
+                            <div className="w-full text-center space-y-3">
+                              <video
+                                controls
+                                src={inspectingRawFile.previewUrl || inspectingRawFile.rawContent}
+                                className="max-h-[320px] max-w-full mx-auto rounded-xl"
+                              />
+                            </div>
+                          );
+                        }
+                        if (rawType.includes('audio') || rawName.endsWith('.mp3') || rawName.endsWith('.wav')) {
+                          return (
+                            <div className="w-full text-center space-y-4 p-6">
+                              <Music className="w-12 h-12 mx-auto text-emerald-400" />
+                              <audio controls src={inspectingRawFile.previewUrl || inspectingRawFile.rawContent} className="w-full mx-auto" />
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="w-full text-left p-4 bg-[#18181E] rounded-xl font-mono-code text-xs text-zinc-300 leading-relaxed overflow-x-auto max-h-[300px]">
+                            {inspectingRawFile.rawContent || inspectingRawFile.previewUrl || 'RAW_PAYLOAD_BINARY_PRESERVED'}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
 

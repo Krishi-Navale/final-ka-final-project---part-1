@@ -2,23 +2,33 @@ import mongoose from 'mongoose';
 
 const evidenceFileSchema = new mongoose.Schema({
   id: String,
+  name: String,
   filename: String,
+  type: String,
   fileType: String,
+  size: Number,
   sizeBytes: Number,
   originalFormat: String,
+  sha256: String,
   sha256Hash: String,
+  wormTimestamp: String,
+  previewUrl: String,
+  rawContent: String,
   base64Data: String,
   uploadedAt: { type: Date, default: Date.now }
-});
+}, { strict: false });
 
 const custodyLogSchema = new mongoose.Schema({
   id: String,
   timestamp: String,
+  actor: String,
+  role: String,
   action: String,
+  merkleHash: String,
   officerName: String,
   hashVerified: Boolean,
   notes: String
-});
+}, { strict: false });
 
 const incidentSchema = new mongoose.Schema({
   trackingCode: { type: String, required: true, unique: true, index: true },

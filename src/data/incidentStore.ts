@@ -1,6 +1,6 @@
 import { IncidentReport, UserProfile } from '../types';
 import { generateWORMStamp } from '../utils/crypto';
-import { createIncidentAPI } from './apiClient';
+import { createIncidentAPI, normalizeIncidentRecord } from './apiClient';
 
 export const INITIAL_INCIDENTS: IncidentReport[] = [
   {
@@ -200,22 +200,25 @@ export function getStoredIncidents(): IncidentReport[] {
     let list: IncidentReport[] = raw ? JSON.parse(raw) : INITIAL_INCIDENTS;
 
     // Normalize incidents
-    list = list.map(inc => ({
-      ...inc,
-      investigationProgress: typeof inc.investigationProgress === 'number' 
-        ? inc.investigationProgress 
-        : (inc.status === 'VERIFIED' ? 85 : (inc.status === 'ASSIGNED' ? 50 : 30)),
-      investigatorStudyNotes: inc.investigatorStudyNotes || inc.officerNotes || '',
-      investigatorMessages: inc.investigatorMessages || [],
-      rawOriginalContent: inc.rawOriginalContent || inc.description,
-      hashFormat: inc.hashFormat || {
-        sha256: inc.primaryHash || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-        merkleRoot: (inc.primaryHash || 'e3b0c442').substring(0, 32),
-        algorithm: 'SHA-256 / RFC-3161 WORM Ledger',
-        byteSize: (inc.description || '').length,
-        wormDigest: `WORM-LEDGER-BLK-${(inc.trackingCode || 'REC').replace(/[^0-9]/g, '').slice(0, 6) || '849102'}-SEC65B`
-      }
-    }));
+    list = list.map(rawInc => {
+      const inc = normalizeIncidentRecord(rawInc);
+      return {
+        ...inc,
+        investigationProgress: typeof inc.investigationProgress === 'number' 
+          ? inc.investigationProgress 
+          : (inc.status === 'VERIFIED' ? 85 : (inc.status === 'ASSIGNED' ? 50 : 30)),
+        investigatorStudyNotes: inc.investigatorStudyNotes || inc.officerNotes || '',
+        investigatorMessages: inc.investigatorMessages || [],
+        rawOriginalContent: inc.rawOriginalContent || inc.description,
+        hashFormat: inc.hashFormat || {
+          sha256: inc.primaryHash || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+          merkleRoot: (inc.primaryHash || 'e3b0c442').substring(0, 32),
+          algorithm: 'SHA-256 / RFC-3161 WORM Ledger',
+          byteSize: (inc.description || '').length,
+          wormDigest: `WORM-LEDGER-BLK-${(inc.trackingCode || 'REC').replace(/[^0-9]/g, '').slice(0, 6) || '849102'}-SEC65B`
+        }
+      };
+    });
 
     // Auto-sync folders for all registered citizen accounts so each has a dedicated folder
     const accounts = getRegisteredAccounts();

@@ -69,10 +69,17 @@ app.get('/api/events', (req, res) => {
   });
 });
 
-// Initialize DB Connection and Auto-Seed Sample Data
+// Initialize DB Connection and Auto-Seed Sample Data only when DB is empty
 connectToMongoDB().then(async (connected) => {
   if (connected) {
-    await seedDatabase();
+    try {
+      const count = await Incident.countDocuments();
+      if (count === 0) {
+        await seedDatabase();
+      }
+    } catch {
+      await seedDatabase(false);
+    }
   }
 });
 

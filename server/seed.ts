@@ -5,7 +5,7 @@ import { Notification } from './models/Notification.ts';
 import { InvestigatorWorkstation } from './models/InvestigatorWorkstation.ts';
 import { connectToMongoDB } from './db.ts';
 
-export const seedDatabase = async (force: boolean = true) => {
+export const seedDatabase = async (force: boolean = false) => {
   const isConnected = await connectToMongoDB();
   if (!isConnected) {
     console.warn('⚠️ Seed aborted: No MongoDB connection established.');
@@ -13,6 +13,14 @@ export const seedDatabase = async (force: boolean = true) => {
   }
 
   try {
+    if (!force) {
+      const existingCount = await Incident.countDocuments();
+      if (existingCount > 0) {
+        console.log(`✅ MongoDB already contains ${existingCount} forensic dockets (skipping re-seed).`);
+        return { success: true, message: 'Database already seeded' };
+      }
+    }
+
     console.log('🌱 Populating MongoDB database with rich, professional forensic dataset...');
 
     if (force) {
