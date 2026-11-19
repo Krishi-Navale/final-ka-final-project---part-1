@@ -927,6 +927,96 @@ app.patch('/api/shared-problems/:id/solve', (req, res) => {
   res.json(updated || { ok: true });
 });
 
+// 7A-2. Senior Investigator Workstation Duty Sessions & Tamper-Catching Ledger
+let serverWorkstationSessions: any[] = [
+  {
+    id: 'WS-DUTY-2026-9041',
+    investigatorName: 'Dr. Bibi Zohara',
+    badgeNumber: 'DEL-CY-0842',
+    loginTime: '2026-11-18 09:14:22 UTC',
+    logoutTime: '2026-11-18 13:48:10 UTC',
+    status: 'LOGGED_OUT_SEALED',
+    wormSha256Hash: 'a4f9128c019e4b77c2189401a9f883217c410298ab819201948102938471829a',
+    casesReviewedCount: 4,
+    casesSealedForCourtCount: 2,
+    tamperAttempts: [],
+  },
+  {
+    id: 'WS-DUTY-2026-9042',
+    investigatorName: 'Balchandra',
+    badgeNumber: 'MAH-CY-1109',
+    loginTime: '2026-11-18 14:05:11 UTC',
+    logoutTime: '2026-11-18 17:32:49 UTC',
+    status: 'LOGGED_OUT_SEALED',
+    wormSha256Hash: '7c8910293847102938475610293847561029384756a8b9c0d1e2f3a4b5c6d7e8',
+    casesReviewedCount: 3,
+    casesSealedForCourtCount: 1,
+    tamperAttempts: [],
+  },
+];
+
+app.get('/api/workstation/sessions', (_req, res) => {
+  res.json(serverWorkstationSessions);
+});
+
+app.post('/api/workstation/sessions', (req, res) => {
+  const newSession = req.body;
+  if (!newSession || !newSession.id) {
+    return res.status(400).json({ error: 'Invalid session payload' });
+  }
+  serverWorkstationSessions = [
+    newSession,
+    ...serverWorkstationSessions.filter((s) => s.id !== newSession.id),
+  ];
+  dbEventEmitter.emit('db_changed', {
+    type: 'WORKSTATION_SESSION_SIGNIN',
+    session: newSession,
+  });
+  res.status(201).json(newSession);
+});
+
+app.patch('/api/workstation/sessions/:id/logout', (req, res) => {
+  const { id } = req.params;
+  const { logoutTime, status, wormSha256Hash } = req.body || {};
+  serverWorkstationSessions = serverWorkstationSessions.map((s) =>
+    s.id === id
+      ? {
+          ...s,
+          logoutTime: logoutTime || new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC',
+          status: status || 'LOGGED_OUT_SEALED',
+          wormSha256Hash: wormSha256Hash || s.wormSha256Hash,
+        }
+      : s
+  );
+  const updated = serverWorkstationSessions.find((s) => s.id === id);
+  dbEventEmitter.emit('db_changed', {
+    type: 'WORKSTATION_SESSION_SIGNOUT',
+    session: updated,
+  });
+  res.json(updated || { ok: true });
+});
+
+app.post('/api/workstation/sessions/:id/tamper-attempt', (req, res) => {
+  const { id } = req.params;
+  const { attempt, status } = req.body || {};
+  serverWorkstationSessions = serverWorkstationSessions.map((s) =>
+    s.id === id
+      ? {
+          ...s,
+          status: status || 'TAMPER_FLAGGED',
+          tamperAttempts: [attempt, ...(s.tamperAttempts || [])],
+        }
+      : s
+  );
+  const updated = serverWorkstationSessions.find((s) => s.id === id);
+  dbEventEmitter.emit('db_changed', {
+    type: 'WORKSTATION_TAMPER_CAUGHT',
+    session: updated,
+    attempt,
+  });
+  res.json(updated || { ok: true });
+});
+
 // 7B. AI Cross-Case Hidden Pattern & Syndicate Correlation Endpoint (Server-Side Gemini API)
 app.post('/api/investigator/ai-pattern-correlation', async (req, res) => {
   const { cases = [], focusTrackingCode = '' } = req.body || {};

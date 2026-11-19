@@ -73,6 +73,9 @@ export interface IncidentReport {
   address?: string;
   place?: string;
   time?: string;
+  courtSealedBy?: string;
+  courtSealedAt?: string;
+  courtSealHash?: string;
   hashFormat?: {
     sha256: string;
     merkleRoot: string;

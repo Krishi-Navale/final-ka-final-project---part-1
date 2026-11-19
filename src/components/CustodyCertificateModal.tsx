@@ -94,6 +94,30 @@ export const CustodyCertificateModal: React.FC<CustodyCertificateModalProps> = (
             </div>
           </div>
 
+          {/* Court Seal Judicial Stamp (Shown when Sealed for the Court) */}
+          {(incident.status === 'SUBMITTED_TO_COURT' || incident.courtSealHash) && (
+            <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-600 text-xs space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="font-extrabold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>SEALED FOR THE COURT — READY FOR JUDICIAL SUBMISSION</span>
+                </span>
+                <span className="font-mono-code font-bold text-emerald-900">
+                  {incident.courtSealedAt || incident.dateReported}
+                </span>
+              </div>
+              <div className="text-slate-700">
+                Sealed &amp; Certified By:{' '}
+                <strong className="text-slate-950">
+                  {incident.courtSealedBy || incident.seniorOfficerAssigned}
+                </strong>
+              </div>
+              <div className="font-mono-code text-[11px] text-emerald-900 break-all">
+                Judicial Seal SHA-256: {incident.courtSealHash || incident.primaryHash}
+              </div>
+            </div>
+          )}
+
           {/* Case Narrative */}
           <div className="space-y-1.5 text-xs">
             <div className="font-bold uppercase tracking-wider text-slate-600">Incident Classification:</div>
