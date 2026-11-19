@@ -43,10 +43,21 @@ const incidentSchema = new mongoose.Schema({
     default: 'WORM_LOCKED' 
   },
   seniorInvestigator: { type: String, default: 'Dr. Bibi Zohara' },
+  seniorOfficerAssigned: { type: String, default: 'Dr. Bibi Zohara (Lead Forensic Examiner)' },
+  officerBadge: { type: String, default: 'DEL-CY-0842' },
+  officerNotes: { type: String, default: '' },
+  investigatorStudyNotes: { type: String, default: '' },
+  investigationProgress: { type: Number, default: 50 },
+  legalAdmissibilityCertId: { type: String, default: '' },
+  courtSealedBy: { type: String, default: '' },
+  courtSealedAt: { type: String, default: '' },
+  courtSealHash: { type: String, default: '' },
   citizenEmail: { type: String, required: true, index: true },
   citizenName: { type: String, default: 'Anonymous Citizen' },
   evidenceFiles: [evidenceFileSchema],
   custodyLogs: [custodyLogSchema],
+  custodyEvents: [custodyLogSchema],
+  investigatorMessages: { type: [mongoose.Schema.Types.Mixed], default: [] },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 }, { strict: false });

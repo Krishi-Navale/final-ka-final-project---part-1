@@ -693,22 +693,22 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
   };
 
   return (
-    <div className="p-6 sm:p-8 space-y-8 text-white">
+    <div className="space-y-6 text-[#111318]">
       {/* =====================================================================
           HEADER & LIVE GEMINI AI SCAN TRIGGER
       ===================================================================== */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-white/10">
+      <div className="p-6 rounded-2xl bg-white border border-[#ECEEF2] shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div className="space-y-2 max-w-3xl">
-          <div className="text-xs font-mono-code text-[#FF4D15] font-semibold">
+          <div className="text-xs font-mono-code text-[#FF4D15] font-bold">
             I4C National Intelligence · Cross-Case Correlation Engine
           </div>
           <h1
-            className="text-2xl sm:text-4xl font-bold tracking-tight text-white"
+            className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111318]"
             style={{ textWrap: 'balance' }}
           >
             AI Cross-Case Hidden Pattern &amp; Syndicate Correlation Engine
           </h1>
-          <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
             Automatically cross-references all stored workstation dockets and historical archives to uncover shared mule accounts, identical APK C2 servers, and repeated coercion scripts.
           </p>
         </div>
@@ -717,7 +717,7 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
           <button
             onClick={handleRunGeminiScan}
             disabled={isRunningAiScan}
-            className="px-5 py-3 rounded-xl bg-[#FF4D15] hover:bg-[#E03E0B] disabled:opacity-60 text-white text-xs font-bold inline-flex items-center gap-2 transition-colors shadow-lg shadow-[#FF4D15]/25 whitespace-nowrap shrink-0 cursor-pointer"
+            className="px-5 py-3 rounded-xl bg-[#14161D] hover:bg-[#FF4D15] disabled:opacity-60 text-white text-xs font-bold inline-flex items-center gap-2 transition-colors shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
           >
             {isRunningAiScan ? (
               <>
@@ -726,7 +726,7 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-4 h-4 text-[#FF4D15]" />
                 <span>Run Live AI Cross-Case Pattern Scan</span>
               </>
             )}
@@ -735,64 +735,64 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
       </div>
 
       {/* =====================================================================
-          TOP KPI METRICS BAR (Tabular Numerals, Clean Unboxed Hierarchy)
+          TOP KPI METRICS BAR (Tabular Numerals, Crisp White Cards)
       ===================================================================== */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-[#111115] border border-white/10 space-y-1">
-          <div className="text-xs text-zinc-400">Total Cases Correlated</div>
-          <div className="text-3xl font-bold text-white font-mono-code tabular-nums">
+        <div className="p-5 rounded-2xl bg-white border border-[#ECEEF2] space-y-1">
+          <div className="text-xs text-slate-500 font-medium">Total Cases Correlated</div>
+          <div className="text-3xl font-extrabold text-[#111318] font-mono-code tabular-nums">
             {allCorpusCases.length}
           </div>
-          <div className="text-[11px] text-zinc-500 font-mono-code">
+          <div className="text-[11px] text-slate-400 font-mono-code">
             {incidents.length} Active · {HISTORICAL_ARCHIVE_CASES.length} National Archive
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-[#111115] border border-white/10 space-y-1">
-          <div className="text-xs text-zinc-400">Syndicate Clusters Detected</div>
-          <div className="text-3xl font-bold text-[#FF4D15] font-mono-code tabular-nums">
+        <div className="p-5 rounded-2xl bg-white border border-[#ECEEF2] space-y-1">
+          <div className="text-xs text-slate-500 font-medium">Syndicate Clusters Detected</div>
+          <div className="text-3xl font-extrabold text-[#FF4D15] font-mono-code tabular-nums">
             {activeClusters.length}
           </div>
-          <div className="text-[11px] text-zinc-500 font-mono-code">
+          <div className="text-[11px] text-slate-400 font-mono-code">
             Multi-Docket Infrastructure Overlap
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-[#111115] border border-white/10 space-y-1">
-          <div className="text-xs text-zinc-400">Shared Mule / C2 Indicators</div>
-          <div className="text-3xl font-bold text-sky-400 font-mono-code tabular-nums">
+        <div className="p-5 rounded-2xl bg-white border border-[#ECEEF2] space-y-1">
+          <div className="text-xs text-slate-500 font-medium">Shared Mule / C2 Indicators</div>
+          <div className="text-3xl font-extrabold text-sky-600 font-mono-code tabular-nums">
             12
           </div>
-          <div className="text-[11px] text-zinc-500 font-mono-code">
+          <div className="text-[11px] text-slate-400 font-mono-code">
             UPI Handles · Bank A/Cs · C2 IPs
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-[#111115] border border-white/10 space-y-1">
-          <div className="text-xs text-zinc-400">Peak Correlation Confidence</div>
-          <div className="text-3xl font-bold text-emerald-400 font-mono-code tabular-nums">
+        <div className="p-5 rounded-2xl bg-white border border-[#ECEEF2] space-y-1">
+          <div className="text-xs text-slate-500 font-medium">Peak Correlation Confidence</div>
+          <div className="text-3xl font-extrabold text-emerald-600 font-mono-code tabular-nums">
             {selectedCluster?.confidencePercent || 96}%
           </div>
-          <div className="text-[11px] text-zinc-500 font-mono-code">
+          <div className="text-[11px] text-slate-400 font-mono-code">
             Section 65B Joint Docket Ready
           </div>
         </div>
       </div>
 
       {/* =====================================================================
-          AI EXECUTIVE INTELLIGENCE BRIEF (When Gemini Scan Runs or Error Occurs)
+          AI EXECUTIVE INTELLIGENCE BRIEF
       ===================================================================== */}
       {aiError && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-xs flex items-center justify-between gap-4">
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
             <span>
               <strong>AI Scan Notice:</strong> {aiError} (Showing deterministic cryptographic &amp; heuristic pattern matches below).
             </span>
           </div>
           <button
             onClick={() => setAiError(null)}
-            className="text-xs font-mono-code underline shrink-0"
+            className="text-xs font-mono-code underline shrink-0 cursor-pointer"
           >
             Dismiss
           </button>
@@ -800,38 +800,38 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
       )}
 
       {aiSummary && (
-        <div className="p-6 rounded-2xl bg-[#14141B] border border-[#FF4D15]/40 space-y-2">
+        <div className="p-6 rounded-2xl bg-orange-50 border border-orange-200 space-y-2">
           <div className="flex items-center justify-between text-xs font-mono-code text-[#FF4D15]">
             <span className="font-bold">Gemini AI Cross-Case Intelligence Synthesis</span>
             <span>Verified by {selectedOfficer.badge}</span>
           </div>
-          <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed">{aiSummary}</p>
+          <p className="text-xs sm:text-sm text-[#111318] leading-relaxed">{aiSummary}</p>
         </div>
       )}
 
       {/* =====================================================================
           SECTION 1: SELECT ANY CASE TO FIND MATCHING PAST CASES
       ===================================================================== */}
-      <div className="rounded-3xl bg-[#111115] border border-white/10 p-6 sm:p-8 space-y-6">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-white/10">
+      <div className="rounded-[24px] bg-white border border-[#ECEEF2] shadow-[0_10px_30px_rgba(15,23,42,0.04)] p-6 sm:p-7 space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-[#ECEEF2]">
           <div className="space-y-1">
-            <div className="text-xs font-mono-code text-[#FF4D15] font-semibold">
+            <div className="text-xs font-mono-code text-[#FF4D15] font-bold">
               01. Case-to-Past-Cases Pattern Matcher
             </div>
-            <h2 className="text-xl font-bold text-white">
+            <h2 className="text-xl font-extrabold text-[#111318]">
               Select a Case to Uncover Common Patterns Across All Past Cases
             </h2>
           </div>
 
           {/* Case Selector Dropdown */}
           <div className="flex items-center gap-3">
-            <label className="text-xs text-zinc-400 font-medium whitespace-nowrap">
+            <label className="text-xs text-slate-500 font-semibold whitespace-nowrap">
               Target Case:
             </label>
             <select
               value={selectedFocusCaseId}
               onChange={(e) => setSelectedFocusCaseId(e.target.value)}
-              className="px-4 py-2.5 rounded-xl bg-[#070709] border border-white/15 text-xs text-white font-mono-code focus:outline-none focus:border-[#FF4D15]"
+              className="px-4 py-2.5 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] text-xs text-[#111318] font-mono-code focus:outline-none focus:border-[#14161D]"
             >
               {allCorpusCases.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -844,28 +844,28 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
 
         {/* Selected Target Case Summary Bar */}
         {focusCase && (
-          <div className="p-5 rounded-2xl bg-[#070709] border border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div className="p-5 rounded-2xl bg-[#F8F9FB] border border-[#E6E8EE] grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
             <div className="lg:col-span-5 space-y-1.5">
-              <div className="flex items-center gap-2 text-xs font-mono-code text-zinc-400">
+              <div className="flex items-center gap-2 text-xs font-mono-code text-slate-500">
                 <span className="text-[#FF4D15] font-bold">#{focusCase.trackingCode}</span>
                 <span>·</span>
                 <span>{focusCase.category}</span>
                 <span>·</span>
                 <span>{focusCase.citizenName}</span>
               </div>
-              <div className="text-base font-bold text-white">{focusCase.title}</div>
-              <p className="text-xs text-zinc-400 line-clamp-2">{focusCase.description}</p>
+              <div className="text-base font-bold text-[#111318]">{focusCase.title}</div>
+              <p className="text-xs text-slate-500 line-clamp-2">{focusCase.description}</p>
             </div>
 
             <div className="lg:col-span-5 space-y-2">
-              <div className="text-[11px] font-mono-code text-zinc-400">
+              <div className="text-[11px] font-mono-code text-slate-500 font-semibold">
                 Extracted Forensic Fingerprints in Target Case:
               </div>
               <div className="flex flex-wrap gap-2 text-[11px] font-mono-code">
                 {indicatorMap.get(focusCase.trackingCode)?.upiHandles.map((u) => (
                   <span
                     key={u}
-                    className="px-2.5 py-1 rounded-md bg-[#18181E] border border-white/10 text-amber-300"
+                    className="px-2.5 py-1 rounded-md bg-white border border-amber-200 text-amber-700 font-semibold"
                   >
                     UPI: {u}
                   </span>
@@ -873,7 +873,7 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
                 {indicatorMap.get(focusCase.trackingCode)?.bankAccounts.map((b) => (
                   <span
                     key={b}
-                    className="px-2.5 py-1 rounded-md bg-[#18181E] border border-white/10 text-emerald-300"
+                    className="px-2.5 py-1 rounded-md bg-white border border-emerald-200 text-emerald-700 font-semibold"
                   >
                     A/C: {b}
                   </span>
@@ -881,7 +881,7 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
                 {indicatorMap.get(focusCase.trackingCode)?.c2Hosts.map((ip) => (
                   <span
                     key={ip}
-                    className="px-2.5 py-1 rounded-md bg-[#18181E] border border-white/10 text-rose-300"
+                    className="px-2.5 py-1 rounded-md bg-white border border-rose-200 text-rose-700 font-semibold"
                   >
                     C2: {ip}
                   </span>
@@ -889,7 +889,7 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
                 {indicatorMap.get(focusCase.trackingCode)?.scriptSignatures.map((sig) => (
                   <span
                     key={sig}
-                    className="px-2.5 py-1 rounded-md bg-[#18181E] border border-white/10 text-sky-300"
+                    className="px-2.5 py-1 rounded-md bg-white border border-sky-200 text-sky-700 font-semibold"
                   >
                     MO: {sig}
                   </span>
@@ -901,7 +901,7 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
               {incidents.some((i) => i.id === focusCase.id) && (
                 <button
                   onClick={() => onSelectCaseForDrawer(focusCase.id)}
-                  className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-[#FF4D15] text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0"
+                  className="px-4 py-2.5 rounded-xl bg-[#14161D] hover:bg-[#FF4D15] text-white text-xs font-bold inline-flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                 >
                   <span>Open Folder</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
@@ -913,7 +913,7 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
 
         {/* Matching Past Cases Grid */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs font-mono-code text-zinc-400">
+          <div className="flex items-center justify-between text-xs font-mono-code text-slate-500">
             <span>
               Past Cases Sharing Hidden Patterns with #{focusCase?.trackingCode}:
             </span>
@@ -923,11 +923,11 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
           </div>
 
           {matchingPastCases.length === 0 ? (
-            <div className="p-8 rounded-2xl bg-[#070709] border border-white/10 text-center space-y-2">
-              <div className="text-sm font-semibold text-zinc-300">
+            <div className="p-8 rounded-2xl bg-[#F8F9FB] border border-[#E6E8EE] text-center space-y-2">
+              <div className="text-sm font-bold text-[#111318]">
                 No identical infrastructure overlap detected yet for this docket.
               </div>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-slate-500">
                 Click &ldquo;Run Live AI Cross-Case Pattern Scan&rdquo; above to perform deep semantic &amp; behavioral correlation.
               </p>
             </div>
@@ -938,11 +938,11 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
                 return (
                   <div
                     key={match.caseB.trackingCode}
-                    className="p-5 rounded-2xl bg-[#070709] border border-white/10 hover:border-[#FF4D15]/60 transition-all flex flex-col justify-between space-y-4"
+                    className="p-5 rounded-2xl bg-[#F8F9FB] border border-[#E6E8EE] hover:border-[#14161D] transition-all flex flex-col justify-between space-y-4"
                   >
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between gap-2 pb-3 border-b border-white/10 text-xs font-mono-code">
-                        <span className="font-bold text-white">
+                      <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E6E8EE] text-xs font-mono-code">
+                        <span className="font-bold text-[#111318]">
                           #{match.caseB.trackingCode}
                         </span>
                         <span className="text-[#FF4D15] font-bold tabular-nums">
@@ -951,23 +951,23 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
                       </div>
 
                       <div>
-                        <h3 className="text-sm font-bold text-white leading-snug">
+                        <h3 className="text-sm font-bold text-[#111318] leading-snug">
                           {match.caseB.title}
                         </h3>
-                        <div className="text-[11px] text-zinc-400 mt-0.5">
+                        <div className="text-[11px] text-slate-500 mt-0.5">
                           {match.caseB.citizenName} · {match.caseB.dateReported}
                         </div>
                       </div>
 
                       {/* Exact Common Hidden Patterns */}
                       <div className="space-y-1.5 pt-1">
-                        <div className="text-[10px] font-mono-code text-zinc-400">
+                        <div className="text-[10px] font-mono-code text-slate-400">
                           Common Hidden Denominators:
                         </div>
                         {match.sharedPatterns.map((pat, idx) => (
                           <div
                             key={idx}
-                            className="text-xs font-mono-code text-emerald-400 flex items-center gap-1.5"
+                            className="text-xs font-mono-code text-emerald-700 font-medium flex items-center gap-1.5"
                           >
                             <Link2 className="w-3.5 h-3.5 text-[#FF4D15] shrink-0" />
                             <span className="truncate">{pat}</span>
@@ -975,19 +975,19 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
                         ))}
                       </div>
 
-                      <p className="text-xs text-zinc-400 leading-relaxed pt-2 border-t border-white/5">
+                      <p className="text-xs text-slate-600 leading-relaxed pt-2 border-t border-[#E6E8EE]">
                         {match.explanation}
                       </p>
                     </div>
 
-                    <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2">
-                      <span className="text-[11px] font-mono-code text-zinc-500">
+                    <div className="pt-3 border-t border-[#E6E8EE] flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-mono-code text-slate-400">
                         {isLiveDocket ? 'Workstation Docket' : 'National I4C Archive'}
                       </span>
                       {isLiveDocket ? (
                         <button
                           onClick={() => onSelectCaseForDrawer(match.caseB.id)}
-                          className="text-xs font-semibold text-[#FF4D15] hover:underline inline-flex items-center gap-1"
+                          className="text-xs font-bold text-[#FF4D15] hover:underline inline-flex items-center gap-1 cursor-pointer"
                         >
                           <span>Inspect Docket</span>
                           <ArrowUpRight className="w-3.5 h-3.5" />
@@ -1000,7 +1000,7 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
                               `Switched focus to archive case #${match.caseB.trackingCode}`
                             );
                           }}
-                          className="text-xs font-semibold text-zinc-300 hover:text-white inline-flex items-center gap-1"
+                          className="text-xs font-bold text-[#111318] hover:text-[#FF4D15] inline-flex items-center gap-1 cursor-pointer"
                         >
                           <span>Pivot Focus</span>
                           <ArrowUpRight className="w-3.5 h-3.5" />
@@ -1020,13 +1020,13 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
       ===================================================================== */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-stretch">
         {/* Left 7 Cols: Interactive Syndicate Topology Canvas */}
-        <div className="xl:col-span-7 rounded-3xl bg-[#111115] border border-white/10 p-6 sm:p-8 flex flex-col justify-between space-y-5">
+        <div className="xl:col-span-7 rounded-[24px] bg-white border border-[#ECEEF2] shadow-[0_10px_30px_rgba(15,23,42,0.04)] p-6 sm:p-7 flex flex-col justify-between space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="text-xs font-mono-code text-[#FF4D15] font-semibold">
+              <div className="text-xs font-mono-code text-[#FF4D15] font-bold">
                 02. Live Syndicate Topology Graph
               </div>
-              <h3 className="text-lg font-bold text-white">
+              <h3 className="text-lg font-extrabold text-[#111318]">
                 {selectedCluster?.clusterName}
               </h3>
             </div>
@@ -1036,10 +1036,10 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
                 <button
                   key={cl.clusterId}
                   onClick={() => setSelectedClusterId(cl.clusterId)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-mono-code font-semibold transition-colors whitespace-nowrap shrink-0 ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-mono-code font-bold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                     selectedCluster?.clusterId === cl.clusterId
-                      ? 'bg-[#FF4D15] text-white'
-                      : 'bg-[#070709] text-zinc-400 border border-white/10 hover:text-white'
+                      ? 'bg-[#14161D] text-white'
+                      : 'bg-[#F4F5F8] text-slate-600 hover:text-[#111318]'
                   }`}
                 >
                   {cl.clusterId}
@@ -1048,9 +1048,9 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
             </div>
           </div>
 
-          <div className="w-full h-[320px] rounded-2xl bg-[#070709] border border-white/10 overflow-hidden relative">
+          <div className="w-full h-[320px] rounded-2xl bg-[#14161D] overflow-hidden relative shadow-inner">
             <canvas ref={graphCanvasRef} className="w-full h-full block" />
-            <div className="absolute bottom-3 left-4 flex items-center gap-4 text-[11px] font-mono-code text-zinc-400">
+            <div className="absolute bottom-3 left-4 flex items-center gap-4 text-[11px] font-mono-code text-zinc-300">
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#FF4D15]" />
                 <span>Linked Case Dockets</span>
@@ -1062,16 +1062,16 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
             </div>
           </div>
 
-          <p className="text-xs text-zinc-400 leading-relaxed">
+          <p className="text-xs text-slate-600 leading-relaxed">
             {selectedCluster?.modusOperandi}
           </p>
         </div>
 
         {/* Right 5 Cols: Cluster Details & One-Click WORM Syndicate Link */}
-        <div className="xl:col-span-5 rounded-3xl bg-[#111115] border border-white/10 p-6 sm:p-8 flex flex-col justify-between space-y-6">
+        <div className="xl:col-span-5 rounded-[24px] bg-white border border-[#ECEEF2] shadow-[0_10px_30px_rgba(15,23,42,0.04)] p-6 sm:p-7 flex flex-col justify-between space-y-6">
           <div className="space-y-5">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10">
-              <span className="text-xs font-mono-code text-zinc-400">
+            <div className="flex items-center justify-between pb-4 border-b border-[#ECEEF2]">
+              <span className="text-xs font-mono-code text-slate-500 font-semibold">
                 Cluster Confidence
               </span>
               <span className="text-2xl font-black text-[#FF4D15] font-mono-code tabular-nums">
@@ -1080,14 +1080,14 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
             </div>
 
             <div className="space-y-2">
-              <div className="text-xs font-mono-code text-zinc-400">
+              <div className="text-xs font-mono-code text-slate-500 font-semibold">
                 Linked Case Tracking Codes:
               </div>
               <div className="flex flex-wrap gap-2">
                 {selectedCluster?.linkedTrackingCodes.map((code) => (
                   <span
                     key={code}
-                    className="px-3 py-1.5 rounded-lg bg-[#070709] border border-white/15 text-xs font-mono-code font-bold text-white"
+                    className="px-3 py-1.5 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] text-xs font-mono-code font-bold text-[#111318]"
                   >
                     #{code}
                   </span>
@@ -1096,14 +1096,14 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
             </div>
 
             <div className="space-y-2">
-              <div className="text-xs font-mono-code text-zinc-400">
+              <div className="text-xs font-mono-code text-slate-500 font-semibold">
                 Shared Criminal Infrastructure &amp; Signatures:
               </div>
               <div className="space-y-1.5">
                 {selectedCluster?.sharedIndicators.map((ind, i) => (
                   <div
                     key={i}
-                    className="p-2.5 rounded-xl bg-[#070709] border border-white/10 text-xs font-mono-code text-zinc-200"
+                    className="p-2.5 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] text-xs font-mono-code text-[#111318]"
                   >
                     {ind}
                   </div>
@@ -1111,11 +1111,11 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#070709] border border-[#FF4D15]/30 space-y-1.5">
+            <div className="p-4 rounded-2xl bg-orange-50 border border-orange-200 space-y-1.5">
               <div className="text-[11px] font-mono-code font-bold text-[#FF4D15]">
                 Recommended Joint 1930 / I4C Action:
               </div>
-              <p className="text-xs text-zinc-300 leading-relaxed">
+              <p className="text-xs text-slate-700 leading-relaxed">
                 {selectedCluster?.recommendedInterdiction}
               </p>
             </div>
@@ -1126,7 +1126,7 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
             className={`w-full py-3.5 px-5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer ${
               selectedCluster && sealedClusterIds.includes(selectedCluster.clusterId)
                 ? 'bg-emerald-600 text-white'
-                : 'bg-[#FF4D15] hover:bg-[#E03E0B] text-white shadow-lg shadow-[#FF4D15]/25'
+                : 'bg-[#14161D] hover:bg-[#FF4D15] text-white'
             }`}
           >
             {selectedCluster && sealedClusterIds.includes(selectedCluster.clusterId) ? (
@@ -1136,7 +1136,7 @@ export const SyndicatePatternEngine: React.FC<SyndicatePatternEngineProps> = ({
               </>
             ) : (
               <>
-                <Lock className="w-4 h-4" />
+                <Lock className="w-4 h-4 text-[#FF4D15]" />
                 <span>Link Cases &amp; Seal Syndicate Tag in WORM Custody</span>
               </>
             )}

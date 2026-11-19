@@ -58,18 +58,48 @@ export default function App() {
     const syncIncidents = async () => {
       try {
         const backendIncidents = await fetchIncidentsAPI(currentUser.email, currentUser.role);
-        if (isMounted && backendIncidents && Array.isArray(backendIncidents) && backendIncidents.length > 0) {
-          setIncidents(backendIncidents);
-          saveStoredIncidents(backendIncidents);
-        } else if (isMounted && currentUser.email && currentUser.role === 'citizen') {
-          // If no backend records exist yet for this account, strictly isolate local records
-          const localStored = getStoredIncidents();
+        const localStored = getStoredIncidents();
+
+        if (!isMounted) return;
+
+        if (backendIncidents && Array.isArray(backendIncidents) && backendIncidents.length > 0) {
+          // Merge backend records with any unsynced local records (backend wins on matching trackingCode)
+          const mergedMap = new Map<string, IncidentReport>();
+          backendIncidents.forEach((b) => mergedMap.set(b.trackingCode, b));
+          localStored.forEach((l) => {
+            if (!mergedMap.has(l.trackingCode)) {
+              if (
+                currentUser.role === 'senior_investigator' ||
+                !currentUser.email ||
+                (l.citizenEmail || '').toLowerCase().trim() === currentUser.email.toLowerCase().trim()
+              ) {
+                mergedMap.set(l.trackingCode, l);
+              }
+            }
+          });
+          const merged = Array.from(mergedMap.values());
+          setIncidents(merged);
+          saveStoredIncidents(merged);
+        } else if (currentUser.email && currentUser.role === 'citizen') {
           const cleanEmail = currentUser.email.toLowerCase().trim();
-          const isolated = localStored.filter(i => (i.citizenEmail || '').toLowerCase().trim() === cleanEmail);
+          let isolated = localStored.filter(
+            (i) => (i.citizenEmail || '').toLowerCase().trim() === cleanEmail
+          );
+          if (isolated.length === 0) {
+            const { updatedList, folder } = ensureCitizenFolderExists(currentUser, localStored);
+            saveStoredIncidents(updatedList);
+            createIncidentAPI(folder).catch(() => {});
+            isolated = [folder];
+          }
           setIncidents(isolated);
+        } else {
+          setIncidents(localStored);
         }
       } catch (err) {
         console.warn('Backend incidents sync error:', err);
+        if (isMounted) {
+          setIncidents(getStoredIncidents());
+        }
       }
     };
 
@@ -235,8 +265,12 @@ export default function App() {
     saveStoredUser(updated);
 
     if (updated.email) {
-      const { updatedList } = ensureCitizenFolderExists(updated, incidents);
+      const { updatedList, folder } = ensureCitizenFolderExists(updated, incidents);
       setIncidents(updatedList);
+      saveStoredIncidents(updatedList);
+      if (folder) {
+        createIncidentAPI(folder).catch(() => {});
+      }
     }
 
     if (updated.email) {
@@ -422,8 +456,14 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const isLightWorkspace = currentTab === 'dashboard' || currentTab === 'investigator';
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#070709] text-white selection:bg-[#FF4D15] selection:text-white">
+    <div
+      className={`min-h-screen flex flex-col selection:bg-[#FF4D15] selection:text-white ${
+        isLightWorkspace ? 'bg-[#F4F5F8] text-[#111318]' : 'bg-[#070709] text-white'
+      }`}
+    >
       {/* Top Navigation Bar with Notification Bell */}
       <Navbar
         currentTab={currentTab}

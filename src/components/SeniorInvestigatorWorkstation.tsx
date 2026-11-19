@@ -3,30 +3,22 @@ import {
   Folder,
   Search,
   FileText,
-  Hash,
   CheckCircle2,
   Clock,
   User,
-  Eye,
-  Bell,
   Shield,
-  ArrowUpRight,
-  ExternalLink,
   X,
   ShieldCheck,
   Lock,
-  Copy,
   Scan,
   AlertCircle,
-  MessageSquare,
   Link2,
-  Globe,
   Scale,
   LogOut,
   LogIn,
   AlertTriangle,
   Sparkles,
-  Check,
+  Wifi,
 } from 'lucide-react';
 import {
   IncidentReport,
@@ -106,7 +98,8 @@ export const SENIOR_INVESTIGATORS: SeniorInvestigatorProfile[] = [
     specialization: 'Banking Trojan & UPI Mule Telemetry',
     avatarInitials: 'BK',
     avatarColor: 'from-emerald-600 to-teal-800',
-    avatarUrl: '/assets/aistudio/WhatsApp_Image_2026-11-15_at_8.28.47_PM_76cc2fa2.jpeg',
+    avatarUrl:
+      '/assets/aistudio/WhatsApp_Image_2026-11-15_at_8.28.47_PM_76cc2fa2.jpeg',
     status: 'ACTIVE_ON_DUTY',
     casesCount: 42,
     phone: '+91 98201 11090',
@@ -121,7 +114,8 @@ export const SENIOR_INVESTIGATORS: SeniorInvestigatorProfile[] = [
     specialization: 'SHA-256 WORM Ledger & Section 65B Audits',
     avatarInitials: 'AS',
     avatarColor: 'from-purple-600 to-fuchsia-800',
-    avatarUrl: '/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg',
+    avatarUrl:
+      '/assets/aistudio/WhatsApp_Image_2026-11-15_at_11.07.15_AM_8f0b2ddc.jpeg',
     status: 'INVESTIGATING',
     casesCount: 29,
     phone: '+91 98450 44021',
@@ -167,7 +161,6 @@ export const SeniorInvestigatorWorkstation: React.FC<
   incidents,
   currentUser,
   onUpdateIncidents,
-  onNavigate,
   onViewCertificate,
 }) => {
   // 5 Focused, Well-Structured Workstation Sectors
@@ -187,7 +180,9 @@ export const SeniorInvestigatorWorkstation: React.FC<
   };
 
   // Match officer profile from name/email
-  const resolveOfficerProfile = (nameOrEmail: string): SeniorInvestigatorProfile => {
+  const resolveOfficerProfile = (
+    nameOrEmail: string
+  ): SeniorInvestigatorProfile => {
     const lower = (nameOrEmail || '').toLowerCase();
     if (lower.includes('zohara')) return SENIOR_INVESTIGATORS[0];
     if (lower.includes('balchandra')) return SENIOR_INVESTIGATORS[1];
@@ -203,11 +198,11 @@ export const SeniorInvestigatorWorkstation: React.FC<
   // ============================================================================
   // 1. MANDATORY WORKSTATION DUTY SIGN-IN, AUTO TIMESTAMP & TAMPER LEDGER
   // ============================================================================
-  const [dutySessions, setDutySessions] = useState<WorkstationDutySession[]>(() =>
-    getStoredWorkstationSessions()
+  const [dutySessions, setDutySessions] = useState<WorkstationDutySession[]>(
+    () => getStoredWorkstationSessions()
   );
-  const [activeSessionId, setActiveSessionIdState] = useState<string | null>(() =>
-    getActiveWorkstationSessionId()
+  const [activeSessionId, setActiveSessionIdState] = useState<string | null>(
+    () => getActiveWorkstationSessionId()
   );
   const [dutyNameInput, setDutyNameInput] = useState<string>(
     currentUser?.name || 'Krishi Navale'
@@ -251,7 +246,10 @@ export const SeniorInvestigatorWorkstation: React.FC<
         setDutySessions(e.detail || getStoredWorkstationSessions());
       }
     };
-    window.addEventListener('fip_workstation_sessions_updated', handleSessionsUpdated);
+    window.addEventListener(
+      'fip_workstation_sessions_updated',
+      handleSessionsUpdated
+    );
     return () => {
       mounted = false;
       window.removeEventListener(
@@ -274,13 +272,16 @@ export const SeniorInvestigatorWorkstation: React.FC<
     if (activeDutySession) {
       return resolveOfficerProfile(activeDutySession.investigatorName);
     }
-    return resolveOfficerProfile(dutyNameInput || currentUser?.name || 'Krishi Navale');
+    return resolveOfficerProfile(
+      dutyNameInput || currentUser?.name || 'Krishi Navale'
+    );
   }, [activeDutySession, dutyNameInput, currentUser?.name]);
 
   const totalTamperAttemptsCount = useMemo(
     () =>
       dutySessions.reduce(
-        (sum, s) => sum + (Array.isArray(s.tamperAttempts) ? s.tamperAttempts.length : 0),
+        (sum, s) =>
+          sum + (Array.isArray(s.tamperAttempts) ? s.tamperAttempts.length : 0),
         0
       ),
     [dutySessions]
@@ -290,7 +291,9 @@ export const SeniorInvestigatorWorkstation: React.FC<
     e.preventDefault();
     const cleanName = dutyNameInput.trim();
     if (!cleanName) {
-      showToast('Please enter your Senior Investigator name to log into the Workstation.');
+      showToast(
+        'Please enter your Senior Investigator name to log into the Workstation.'
+      );
       return;
     }
     const profile = resolveOfficerProfile(cleanName);
@@ -335,7 +338,9 @@ export const SeniorInvestigatorWorkstation: React.FC<
 
   const openTamperTrapModal = (session: WorkstationDutySession) => {
     setTamperTargetSession(session);
-    setTamperActorName(activeDutySession?.investigatorName || session.investigatorName);
+    setTamperActorName(
+      activeDutySession?.investigatorName || session.investigatorName
+    );
     setTamperField('Login Timestamp');
     setTamperFakeValue('2026-11-18 06:00:00 UTC (Backdated Entry)');
   };
@@ -352,7 +357,8 @@ export const SeniorInvestigatorWorkstation: React.FC<
         : tamperTargetSession.investigatorName;
 
     const fakeVal =
-      tamperFakeValue.trim() || '2026-11-18 05:00:00 UTC (Unauthorized Edit)';
+      tamperFakeValue.trim() ||
+      '2026-11-18 05:00:00 UTC (Unauthorized Edit)';
     const perpetrator =
       tamperActorName.trim() ||
       activeDutySession?.investigatorName ||
@@ -405,12 +411,19 @@ export const SeniorInvestigatorWorkstation: React.FC<
   const [statusFilter, setStatusFilter] = useState<
     'ALL' | 'ACTIVE' | 'SUBMITTED_TO_COURT'
   >('ALL');
-  const [investigatorNotesInput, setInvestigatorNotesInput] = useState<string>('');
+  const [investigatorNotesInput, setInvestigatorNotesInput] =
+    useState<string>('');
   const [messageInput, setMessageInput] = useState<string>('');
   const [isSealingForCourt, setIsSealingForCourt] = useState<boolean>(false);
   const [verifiedFileHashes, setVerifiedFileHashes] = useState<
     Record<string, boolean>
   >({});
+
+  useEffect(() => {
+    if (incidents.length > 0 && !incidents.some((i) => i.id === selectedCaseId)) {
+      setSelectedCaseId(incidents[0].id);
+    }
+  }, [incidents, selectedCaseId]);
 
   const filteredIncidents = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -446,7 +459,7 @@ export const SeniorInvestigatorWorkstation: React.FC<
         selectedCase.investigatorStudyNotes || selectedCase.officerNotes || ''
       );
     }
-  }, [selectedCase?.id]);
+  }, [selectedCase?.id, selectedCase?.officerNotes, selectedCase?.investigatorStudyNotes]);
 
   const handleSaveInvestigatorNotes = async () => {
     if (!selectedCase) return;
@@ -458,7 +471,10 @@ export const SeniorInvestigatorWorkstation: React.FC<
       seniorOfficerAssigned: `${selectedOfficer.name} (${selectedOfficer.role})`,
       officerBadge: selectedOfficer.badge,
       lastInvestigatedAt: timestamp,
-      investigationProgress: Math.max(selectedCase.investigationProgress || 60, 75),
+      investigationProgress: Math.max(
+        selectedCase.investigationProgress || 60,
+        75
+      ),
       custodyEvents: [
         {
           id: `cust-note-${Date.now()}`,
@@ -466,7 +482,7 @@ export const SeniorInvestigatorWorkstation: React.FC<
           actor: selectedOfficer.name,
           role: `${selectedOfficer.role} (${selectedOfficer.badge})`,
           action: `Updated forensic examination findings: "${investigatorNotesInput.slice(0, 100)}"`,
-          merkleHash: `${selectedCase.primaryHash.slice(0, 12)}...`,
+          merkleHash: `${(selectedCase.primaryHash || '').slice(0, 12)}...`,
         },
         ...(selectedCase.custodyEvents || []),
       ],
@@ -475,7 +491,9 @@ export const SeniorInvestigatorWorkstation: React.FC<
     const nextList = updateIncidentInStore(updatedCase);
     onUpdateIncidents(nextList);
     updateIncidentAPI(selectedCase.trackingCode, updatedCase).catch(() => {});
-    showToast(`Forensic examination notes saved for ${selectedCase.trackingCode}.`);
+    showToast(
+      `Forensic examination notes saved for ${selectedCase.trackingCode}.`
+    );
   };
 
   const handleSendCitizenNotice = async (e: React.FormEvent) => {
@@ -492,17 +510,22 @@ export const SeniorInvestigatorWorkstation: React.FC<
       subject: `Forensic Case Update (${selectedCase.trackingCode})`,
       content: messageInput.trim(),
       read: false,
-      merkleStamp: selectedCase.primaryHash.slice(0, 16),
+      merkleStamp: (selectedCase.primaryHash || 'SEALED').slice(0, 16),
     };
 
     const updatedCase: IncidentReport = {
       ...selectedCase,
-      investigatorMessages: [newMsg, ...(selectedCase.investigatorMessages || [])],
+      investigatorMessages: [
+        newMsg,
+        ...(selectedCase.investigatorMessages || []),
+      ],
     };
 
     const nextList = updateIncidentInStore(updatedCase);
     onUpdateIncidents(nextList);
-    dispatchInvestigatorMessageAPI(selectedCase.trackingCode, newMsg).catch(() => {});
+    dispatchInvestigatorMessageAPI(selectedCase.trackingCode, newMsg).catch(
+      () => {}
+    );
 
     addNotification({
       type: 'DIRECT_NOTICE',
@@ -553,13 +576,18 @@ export const SeniorInvestigatorWorkstation: React.FC<
         courtSealedBy: `${selectedOfficer.name} (${selectedOfficer.badge})`,
         courtSealedAt: sealedAt,
         courtSealHash,
-        custodyEvents: [courtCustodyEvent, ...(targetCase.custodyEvents || [])],
+        custodyEvents: [
+          courtCustodyEvent,
+          ...(targetCase.custodyEvents || []),
+        ],
       };
 
       const nextList = updateIncidentInStore(updatedCase);
       onUpdateIncidents(nextList);
 
-      await updateIncidentAPI(targetCase.trackingCode, updatedCase).catch(() => {});
+      await updateIncidentAPI(targetCase.trackingCode, updatedCase).catch(
+        () => {}
+      );
       await updateCustodyLogAPI(
         targetCase.trackingCode,
         courtCustodyEvent.action,
@@ -592,10 +620,12 @@ export const SeniorInvestigatorWorkstation: React.FC<
   // ============================================================================
   // 3. SHARE A PROBLEM SECTOR & CRIME STORY PDF APPROVALS STATE
   // ============================================================================
-  const [sharedProblems, setSharedProblems] = useState<SharedProblemReport[]>(() =>
-    getStoredSharedProblems()
+  const [sharedProblems, setSharedProblems] = useState<SharedProblemReport[]>(
+    () => getStoredSharedProblems()
   );
-  const [selectedProblemId, setSelectedProblemId] = useState<string | null>(null);
+  const [selectedProblemId, setSelectedProblemId] = useState<string | null>(
+    null
+  );
   const [problemResolutionNotes, setProblemResolutionNotes] = useState<
     Record<string, string>
   >({});
@@ -606,7 +636,9 @@ export const SeniorInvestigatorWorkstation: React.FC<
   const [scannedProblemIds, setScannedProblemIds] = useState<
     Record<string, boolean>
   >({});
-  const [scanningProblemId, setScanningProblemId] = useState<string | null>(null);
+  const [scanningProblemId, setScanningProblemId] = useState<string | null>(
+    null
+  );
 
   const [crimeStories, setCrimeStories] = useState<CommunityCrimeStory[]>(() =>
     getStoredCrimeStories()
@@ -762,7 +794,10 @@ export const SeniorInvestigatorWorkstation: React.FC<
         recipientRole: 'all',
         relatedTrackingCode: story.trackingCode,
         senderName: selectedOfficer.name,
-        badge: decision === 'APPROVED_PUBLISHED' ? 'STORY APPROVED' : 'STORY REVIEWED',
+        badge:
+          decision === 'APPROVED_PUBLISHED'
+            ? 'STORY APPROVED'
+            : 'STORY REVIEWED',
       });
 
       showToast(
@@ -781,60 +816,65 @@ export const SeniorInvestigatorWorkstation: React.FC<
   );
 
   // ============================================================================
-  // RENDER 1: MANDATORY DUTY SIGN-IN GATE (IF NOT CURRENTLY SIGNED IN ON DUTY)
+  // RENDER 1: MANDATORY DUTY SIGN-IN GATE (CRISP DAYLIGHT + SELECTIVE OBSIDIAN)
   // ============================================================================
   if (!activeDutySession) {
     return (
-      <div className="min-h-screen bg-[#070709] text-white py-12 px-4 sm:px-8 flex items-center justify-center">
-        <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 rounded-2xl bg-[#111116] border border-white/15 overflow-hidden shadow-2xl">
+      <div className="min-h-screen bg-[#F4F5F8] text-[#111318] py-10 px-4 sm:px-8 flex items-center justify-center font-sans">
+        <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 rounded-[28px] bg-white border border-[#E6E8EE] overflow-hidden shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
           {/* Left Panel: Mandatory Duty Registration Form */}
           <div className="lg:col-span-7 p-6 sm:p-10 space-y-6">
             <div className="space-y-2">
-              <div className="text-xs font-mono-code text-[#FF4D15] tracking-wider">
-                WORM CHAIN-OF-CUSTODY · MANDATORY DUTY REGISTER
+              <div className="inline-flex items-center gap-2 text-xs font-mono-code font-bold text-[#FF4D15] tracking-wider">
+                <span className="w-2 h-2 rounded-full bg-[#FF4D15]" />
+                <span>WORM CHAIN-OF-CUSTODY · MANDATORY DUTY REGISTER</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111318] tracking-tight">
                 Senior Investigator Workstation Sign-In
               </h1>
-              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
                 Enter your full name to unlock the Workstation. Your{' '}
-                <strong className="text-white">Login Timestamp</strong> is captured
-                automatically upon entry, and your{' '}
-                <strong className="text-white">Logout Timestamp</strong> is captured
-                automatically when you exit. All records are WORM-locked inside the
-                Workstation so any attempt to alter them is immediately caught.
+                <strong className="text-[#111318]">Login Timestamp</strong> is
+                captured automatically upon entry, and your{' '}
+                <strong className="text-[#111318]">Logout Timestamp</strong> is
+                captured automatically when you exit. All records are WORM-locked
+                inside the Workstation so any attempt to alter them is
+                immediately caught.
               </p>
             </div>
 
             <form onSubmit={handleDutySignIn} className="space-y-5">
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-zinc-300">
+                <label className="block text-xs font-bold text-[#111318]">
                   Write Your Senior Investigator Name
                 </label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     required
                     value={dutyNameInput}
                     onChange={(e) => setDutyNameInput(e.target.value)}
                     placeholder="Enter your full name (e.g., Krishi Navale)..."
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-[#070709] border border-white/15 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] text-sm text-[#111318] placeholder-slate-400 focus:outline-none focus:border-[#14161D]"
                   />
                 </div>
 
                 {/* Quick-Select Authorized Architects */}
-                <div className="pt-1 flex flex-wrap items-center gap-1.5">
-                  <span className="text-[11px] text-zinc-500 mr-1">Quick Fill:</span>
+                <div className="pt-1.5 flex flex-wrap items-center gap-1.5">
+                  <span className="text-[11px] font-semibold text-slate-400 mr-1">
+                    Quick Fill:
+                  </span>
                   {SENIOR_INVESTIGATORS.map((inv) => (
                     <button
                       key={inv.id}
                       type="button"
                       onClick={() => setDutyNameInput(inv.name)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                        dutyNameInput.trim().toLowerCase() === inv.name.toLowerCase()
-                          ? 'bg-[#FF4D15] text-white'
-                          : 'bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10'
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                        dutyNameInput.trim().toLowerCase() ===
+                        inv.name.toLowerCase()
+                          ? 'bg-[#14161D] text-white shadow-sm'
+                          : 'bg-[#F4F5F8] hover:bg-[#E6E8EE] text-slate-600'
                       }`}
                     >
                       {inv.name}
@@ -843,23 +883,23 @@ export const SeniorInvestigatorWorkstation: React.FC<
                 </div>
               </div>
 
-              {/* Automatic Timestamp Preview Box (Read-Only) */}
-              <div className="p-4 rounded-xl bg-[#070709] border border-white/10 space-y-2">
+              {/* Automatic Timestamp Preview Box */}
+              <div className="p-4 rounded-2xl bg-[#F8F9FB] border border-[#E6E8EE] space-y-2.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-zinc-400 flex items-center gap-1.5">
+                  <span className="text-slate-500 flex items-center gap-1.5 font-medium">
                     <Clock className="w-3.5 h-3.5 text-[#FF4D15]" />
                     <span>Automatic Entry Time (System Captured):</span>
                   </span>
-                  <span className="font-mono-code tabular-nums text-emerald-400 font-semibold">
+                  <span className="font-mono-code tabular-nums text-emerald-700 font-bold">
                     {liveClock}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-zinc-400 flex items-center gap-1.5">
-                    <Lock className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-slate-500 flex items-center gap-1.5 font-medium">
+                    <Lock className="w-3.5 h-3.5 text-amber-600" />
                     <span>Anti-Tamper Protection:</span>
                   </span>
-                  <span className="font-mono-code text-zinc-300">
+                  <span className="font-mono-code text-[#111318] font-semibold">
                     SHA-256 WORM Ledger Active
                   </span>
                 </div>
@@ -867,7 +907,7 @@ export const SeniorInvestigatorWorkstation: React.FC<
 
               <button
                 type="submit"
-                className="w-full py-3.5 px-5 rounded-xl bg-[#FF4D15] hover:bg-[#e03e0b] text-white font-semibold text-sm transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-[#FF4D15]/20"
+                className="w-full py-3.5 px-5 rounded-xl bg-[#14161D] hover:bg-[#FF4D15] text-white font-bold text-sm transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-[0_12px_28px_rgba(20,22,29,0.18)]"
               >
                 <LogIn className="w-4 h-4" />
                 <span>Sign In &amp; Automatically Capture Login Time</span>
@@ -875,30 +915,31 @@ export const SeniorInvestigatorWorkstation: React.FC<
             </form>
           </div>
 
-          {/* Right Panel: Recent Immutable Duty Sessions in Workstation */}
-          <div className="lg:col-span-5 bg-[#0B0B0F] border-t lg:border-t-0 lg:border-l border-white/10 p-6 sm:p-8 flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
+          {/* Right Panel: Recent Immutable Duty Sessions (Signature Obsidian Panel) */}
+          <div className="lg:col-span-5 bg-[#14161D] text-white p-6 sm:p-8 flex flex-col justify-between space-y-6 relative overflow-hidden">
+            <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-[#FF4D15]/15 blur-2xl pointer-events-none" />
+            <div className="space-y-4 relative z-10">
               <div className="flex items-center justify-between">
                 <h2 className="text-xs font-mono-code uppercase tracking-wider text-zinc-400">
                   Recent Workstation Duty Logs
                 </h2>
-                <span className="text-xs font-mono-code tabular-nums text-zinc-500">
+                <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-[11px] font-mono-code tabular-nums text-zinc-300">
                   {dutySessions.length} Sealed
                 </span>
               </div>
 
-              <div className="space-y-3 max-h-[320px] overflow-y-auto pr-1">
+              <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
                 {dutySessions.slice(0, 4).map((sess) => (
                   <div
                     key={sess.id}
-                    className={`p-3.5 rounded-xl border text-xs space-y-1.5 ${
+                    className={`p-3.5 rounded-2xl border text-xs space-y-1.5 ${
                       sess.status === 'TAMPER_FLAGGED'
-                        ? 'bg-rose-950/20 border-rose-500/40'
-                        : 'bg-[#121218] border-white/10'
+                        ? 'bg-rose-950/40 border-rose-500/40'
+                        : 'bg-white/[0.06] border-white/10'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-white">
+                      <span className="font-bold text-white">
                         {sess.investigatorName}
                       </span>
                       <span className="font-mono-code text-[11px] text-zinc-400">
@@ -910,9 +951,11 @@ export const SeniorInvestigatorWorkstation: React.FC<
                       <div>
                         Out:{' '}
                         {sess.logoutTime ? (
-                          <span className="text-zinc-300">{sess.logoutTime}</span>
+                          <span className="text-zinc-200">{sess.logoutTime}</span>
                         ) : (
-                          <span className="text-emerald-400">On Duty</span>
+                          <span className="text-emerald-400 font-semibold">
+                            On Duty
+                          </span>
                         )}
                       </div>
                     </div>
@@ -920,7 +963,8 @@ export const SeniorInvestigatorWorkstation: React.FC<
                       <div className="text-[11px] text-rose-400 font-semibold flex items-center gap-1 pt-1">
                         <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                         <span>
-                          CAUGHT: {sess.tamperAttempts.length} Tamper Attempt(s) Blocked
+                          CAUGHT: {sess.tamperAttempts.length} Tamper Attempt(s)
+                          Blocked
                         </span>
                       </div>
                     )}
@@ -929,10 +973,11 @@ export const SeniorInvestigatorWorkstation: React.FC<
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 text-[11px] text-zinc-400 leading-relaxed">
-              Every login and logout timestamp is cryptographically chained. If any
-              Senior Investigator attempts to edit or backdate their timestamp, the
-              Workstation immediately flags and records the violation.
+            <div className="p-4 rounded-2xl bg-white/[0.06] border border-white/10 text-[11px] text-zinc-300 leading-relaxed relative z-10">
+              Every login and logout timestamp is cryptographically chained. If
+              any Senior Investigator attempts to edit or backdate their
+              timestamp, the Workstation immediately flags and records the
+              violation.
             </div>
           </div>
         </div>
@@ -940,14 +985,51 @@ export const SeniorInvestigatorWorkstation: React.FC<
     );
   }
 
+  const sectorNavItems: {
+    id: typeof activeNav;
+    label: string;
+    icon: React.ReactNode;
+    badge?: number | string;
+  }[] = [
+    {
+      id: 'workflows',
+      label: '01. Case Dockets & Court Seal',
+      icon: <Folder className="w-4 h-4" />,
+      badge: incidents.length,
+    },
+    {
+      id: 'shared_problems',
+      label: '02. Share a Problem',
+      icon: <Link2 className="w-4 h-4" />,
+      badge: pendingSharedProblems.length,
+    },
+    {
+      id: 'story_approvals',
+      label: '03. Crime Story PDFs',
+      icon: <FileText className="w-4 h-4" />,
+      badge: pendingCrimeStories.length,
+    },
+    {
+      id: 'duty_ledger',
+      label: '04. Duty & Tamper Ledger',
+      icon: <Clock className="w-4 h-4" />,
+      badge: dutySessions.length,
+    },
+    {
+      id: 'ai_syndicate',
+      label: '05. AI Syndicate Engine',
+      icon: <Sparkles className="w-4 h-4" />,
+    },
+  ];
+
   // ============================================================================
-  // RENDER 2: CLEAN, AESTHETIC SENIOR INVESTIGATOR WORKSTATION
+  // RENDER 2: PREMIUM DAYLIGHT SAAS WORKSTATION (MATCHING DOTCOIN REFERENCE)
   // ============================================================================
   return (
-    <div className="min-h-screen bg-[#070709] text-white flex flex-col">
+    <div className="w-full min-h-screen bg-[#F4F5F8] text-[#111318] font-sans">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-md px-4 py-3 rounded-xl bg-[#16161D] border border-[#FF4D15] text-white text-xs font-medium shadow-2xl flex items-center gap-3">
+        <div className="fixed bottom-6 right-6 z-50 max-w-md px-4 py-3.5 rounded-2xl bg-[#14161D] text-white text-xs font-semibold shadow-2xl flex items-center gap-3 border border-white/10">
           <ShieldCheck className="w-4 h-4 text-[#FF4D15] shrink-0" />
           <span>{toastMessage}</span>
           <button
@@ -959,1132 +1041,1152 @@ export const SeniorInvestigatorWorkstation: React.FC<
         </div>
       )}
 
-      {/* Top Context & Active Duty Session Bar */}
-      <div className="bg-[#0E0E13] border-b border-white/10 px-4 sm:px-8 py-3.5">
-        <div className="max-w-[1440px] mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          {/* Left: Investigator Identity & Captured Login Time */}
-          <div className="flex flex-wrap items-center gap-3 text-xs">
-            <div className="flex items-center gap-2.5">
-              {selectedOfficer.avatarUrl ? (
-                <img
-                  src={selectedOfficer.avatarUrl}
-                  alt={selectedOfficer.name}
-                  referrerPolicy="no-referrer"
-                  className="w-8 h-8 rounded-lg object-cover border border-white/20"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-lg bg-[#FF4D15] text-white font-bold flex items-center justify-center">
-                  {selectedOfficer.avatarInitials}
-                </div>
-              )}
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-white text-sm">
-                    {activeDutySession.investigatorName}
-                  </span>
-                  <span className="text-zinc-500">·</span>
-                  <span className="font-mono-code text-zinc-400">
-                    {activeDutySession.badgeNumber}
-                  </span>
-                </div>
-                <div className="text-[11px] text-zinc-400 font-mono-code tabular-nums">
-                  Duty Session: {activeDutySession.id} · Login Captured:{' '}
-                  <strong className="text-emerald-400">
-                    {activeDutySession.loginTime}
-                  </strong>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: Quick Duty Actions & Automatic Logout Button */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={() => setActiveNav('duty_ledger')}
-              className="px-3.5 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-zinc-200 transition-colors cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5"
-            >
-              <Shield className="w-3.5 h-3.5 text-[#FF4D15]" />
-              <span>
-                Duty &amp; Tamper Ledger ({dutySessions.length} Logs
-                {totalTamperAttemptsCount > 0
-                  ? ` · ${totalTamperAttemptsCount} Caught`
-                  : ''}
-                )
-              </span>
-            </button>
-
-            <button
-              onClick={handleDutySignOut}
-              className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Log Out &amp; Capture Exit Time</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Caught Tamper Alert Banner (Appears whenever someone tries to alter a log) */}
-      {lastCaughtTamperAlert && (
-        <div className="bg-rose-950/80 border-b border-rose-500/50 px-4 sm:px-8 py-3">
-          <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-            <div className="flex items-start sm:items-center gap-2.5 text-rose-200">
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5 sm:mt-0" />
-              <div>
-                <strong className="text-white">
-                  SECURITY VIOLATION CAUGHT ({lastCaughtTamperAlert.sessionId}):
-                </strong>{' '}
-                Senior Investigator{' '}
-                <strong className="text-rose-300">
-                  {lastCaughtTamperAlert.actor}
-                </strong>{' '}
-                attempted to change{' '}
-                <span className="underline">{lastCaughtTamperAlert.field}</span> from{' '}
-                <code className="font-mono-code text-emerald-300">
-                  {lastCaughtTamperAlert.originalValue}
-                </code>{' '}
-                to{' '}
-                <code className="font-mono-code text-rose-300">
-                  {lastCaughtTamperAlert.fakeValue}
-                </code>
-                . Edit blocked &amp; permanently recorded.
-              </div>
-            </div>
-            <button
-              onClick={() => setLastCaughtTamperAlert(null)}
-              className="text-rose-300 hover:text-white text-xs font-semibold self-end sm:self-center cursor-pointer whitespace-nowrap"
-            >
-              Dismiss Notice
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Main Enterprise Workspace Layout: Sidebar + Content Viewport */}
-      <div className="max-w-[1440px] w-full mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 sm:px-8 py-6">
-        {/* Left Sidebar Navigation (3 Columns on Desktop) */}
-        <aside className="lg:col-span-3 space-y-5">
-          <div className="p-4 rounded-xl bg-[#111116] border border-white/10 space-y-1">
-            <div className="text-[11px] font-mono-code text-zinc-400 px-2 pb-2">
-              Workstation Sectors
-            </div>
-
-            <button
-              onClick={() => setActiveNav('workflows')}
-              className={`w-full px-3 py-2.5 rounded-lg text-left text-xs font-medium transition-colors cursor-pointer flex items-center justify-between ${
-                activeNav === 'workflows'
-                  ? 'bg-[#FF4D15] text-white font-semibold'
-                  : 'text-zinc-300 hover:bg-white/5'
-              }`}
-            >
-              <span className="flex items-center gap-2.5 truncate">
-                <Folder className="w-4 h-4 shrink-0" />
-                <span className="truncate">01. Case Dockets &amp; Court Seal</span>
-              </span>
-              <span className="font-mono-code tabular-nums text-[11px] opacity-80">
-                {incidents.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveNav('shared_problems')}
-              className={`w-full px-3 py-2.5 rounded-lg text-left text-xs font-medium transition-colors cursor-pointer flex items-center justify-between ${
-                activeNav === 'shared_problems'
-                  ? 'bg-[#FF4D15] text-white font-semibold'
-                  : 'text-zinc-300 hover:bg-white/5'
-              }`}
-            >
-              <span className="flex items-center gap-2.5 truncate">
-                <Link2 className="w-4 h-4 shrink-0" />
-                <span className="truncate">02. Share a Problem Sector</span>
-              </span>
-              <span className="font-mono-code tabular-nums text-[11px] opacity-90">
-                {pendingSharedProblems.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveNav('story_approvals')}
-              className={`w-full px-3 py-2.5 rounded-lg text-left text-xs font-medium transition-colors cursor-pointer flex items-center justify-between ${
-                activeNav === 'story_approvals'
-                  ? 'bg-[#FF4D15] text-white font-semibold'
-                  : 'text-zinc-300 hover:bg-white/5'
-              }`}
-            >
-              <span className="flex items-center gap-2.5 truncate">
-                <FileText className="w-4 h-4 shrink-0" />
-                <span className="truncate">03. Crime Story PDF Approvals</span>
-              </span>
-              <span className="font-mono-code tabular-nums text-[11px] opacity-90">
-                {pendingCrimeStories.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveNav('duty_ledger')}
-              className={`w-full px-3 py-2.5 rounded-lg text-left text-xs font-medium transition-colors cursor-pointer flex items-center justify-between ${
-                activeNav === 'duty_ledger'
-                  ? 'bg-[#FF4D15] text-white font-semibold'
-                  : 'text-zinc-300 hover:bg-white/5'
-              }`}
-            >
-              <span className="flex items-center gap-2.5 truncate">
-                <Clock className="w-4 h-4 shrink-0" />
-                <span className="truncate">04. Duty Log &amp; Tamper Ledger</span>
-              </span>
-              <span className="font-mono-code tabular-nums text-[11px] opacity-90">
-                {dutySessions.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveNav('ai_syndicate')}
-              className={`w-full px-3 py-2.5 rounded-lg text-left text-xs font-medium transition-colors cursor-pointer flex items-center justify-between ${
-                activeNav === 'ai_syndicate'
-                  ? 'bg-[#FF4D15] text-white font-semibold'
-                  : 'text-zinc-300 hover:bg-white/5'
-              }`}
-            >
-              <span className="flex items-center gap-2.5 truncate">
-                <Sparkles className="w-4 h-4 shrink-0" />
-                <span className="truncate">05. AI Syndicate Correlation</span>
-              </span>
-            </button>
-          </div>
-
-          {/* Clean Workstation Summary Metrics */}
-          <div className="p-4 rounded-xl bg-[#111116] border border-white/10 space-y-3">
-            <div className="text-[11px] font-mono-code text-zinc-400">
-              Workstation Overview
-            </div>
-            <div className="grid grid-cols-2 gap-2.5 text-xs">
-              <div className="p-3 rounded-lg bg-[#070709] border border-white/5">
-                <div className="text-lg font-bold text-white font-mono-code tabular-nums">
-                  {incidents.length}
-                </div>
-                <div className="text-[11px] text-zinc-400">Total Dockets</div>
-              </div>
-              <div className="p-3 rounded-lg bg-[#070709] border border-white/5">
-                <div className="text-lg font-bold text-emerald-400 font-mono-code tabular-nums">
-                  {courtSealedCasesCount}
-                </div>
-                <div className="text-[11px] text-zinc-400">Sealed for Court</div>
-              </div>
-              <div className="p-3 rounded-lg bg-[#070709] border border-white/5">
-                <div className="text-lg font-bold text-amber-400 font-mono-code tabular-nums">
-                  {pendingSharedProblems.length}
-                </div>
-                <div className="text-[11px] text-zinc-400">Pending Links</div>
-              </div>
-              <div className="p-3 rounded-lg bg-[#070709] border border-white/5">
-                <div className="text-lg font-bold text-rose-400 font-mono-code tabular-nums">
-                  {totalTamperAttemptsCount}
-                </div>
-                <div className="text-[11px] text-zinc-400">Tamper Caught</div>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Content Viewport (9 Columns on Desktop) */}
-        <main className="lg:col-span-9 space-y-6">
-          {/* =====================================================================
-              SECTOR 01: CASE DOCKETS & "SEAL IT FOR THE COURT"
-          ===================================================================== */}
-          {activeNav === 'workflows' && (
+      <div className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7">
+        {/* Main Floating App Shell */}
+        <div className="bg-[#F8F9FB] rounded-[28px] border border-[#E6E8EE] shadow-[0_24px_60px_rgba(15,23,42,0.06)] overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[820px]">
+          {/* =================================================================
+              LEFT SIDEBAR (CRISP WHITE #FFFFFF, OBSIDIAN #14161D ACTIVE PILL)
+          ================================================================= */}
+          <aside className="lg:col-span-3 bg-white border-b lg:border-b-0 lg:border-r border-[#ECEEF2] p-5 flex flex-col justify-between gap-6">
             <div className="space-y-6">
-              {/* Top Quick-Access Strip for Incoming Shared Problems & PDF Approvals */}
-              {(pendingSharedProblems.length > 0 ||
-                pendingCrimeStories.length > 0) && (
-                <div className="p-4 rounded-xl bg-[#111116] border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="text-xs text-zinc-300">
-                    <strong className="text-white">Live Incoming Queues:</strong>{' '}
-                    <span>
-                      {pendingSharedProblems.length} Shared Problem Link(s) awaiting
-                      inspection
-                    </span>{' '}
-                    ·{' '}
-                    <span>
-                      {pendingCrimeStories.length} Citizen Crime Story PDF(s)
-                      awaiting approval
+              {/* Brand Mark */}
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-[#14161D] text-white flex items-center justify-center shadow-sm">
+                    <Shield className="w-5 h-5 text-[#FF4D15]" />
+                  </div>
+                  <div>
+                    <div className="text-base font-extrabold tracking-tight text-[#111318] leading-none">
+                      I4C Workstation
+                    </div>
+                    <div className="text-[11px] text-slate-400 font-medium mt-0.5">
+                      Senior Investigator Console
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation Links */}
+              <nav className="space-y-1">
+                {sectorNavItems.map((item) => {
+                  const isActive = activeNav === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveNav(item.id)}
+                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                        isActive
+                          ? 'bg-[#14161D] text-white shadow-[0_8px_20px_rgba(20,22,29,0.16)]'
+                          : 'text-slate-500 hover:bg-[#F4F5F8] hover:text-[#111318]'
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5 min-w-0">
+                        <span
+                          className={
+                            isActive ? 'text-[#FF4D15]' : 'text-slate-400'
+                          }
+                        >
+                          {item.icon}
+                        </span>
+                        <span className="truncate">{item.label}</span>
+                      </span>
+                      {item.badge !== undefined && (
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold tabular-nums ${
+                            isActive
+                              ? 'bg-white/15 text-white'
+                              : 'bg-[#F4F5F8] text-slate-600'
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+
+              {/* Selective Obsidian Officer Credential Card (Mirrors Wallet Card) */}
+              <div className="rounded-[22px] bg-[#14161D] text-white p-5 relative overflow-hidden shadow-[0_16px_32px_rgba(20,22,29,0.2)] space-y-4">
+                <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-[#FF4D15]/20 blur-xl pointer-events-none" />
+                <div className="flex items-center justify-between relative z-10">
+                  <span className="text-[11px] font-mono-code text-zinc-400">
+                    ON-DUTY CLEARANCE
+                  </span>
+                  <Wifi className="w-4 h-4 text-zinc-400 rotate-90" />
+                </div>
+
+                <div className="flex items-center gap-3 relative z-10">
+                  {selectedOfficer.avatarUrl ? (
+                    <img
+                      src={selectedOfficer.avatarUrl}
+                      alt={selectedOfficer.name}
+                      referrerPolicy="no-referrer"
+                      className="w-11 h-11 rounded-full object-cover object-top border-2 border-white/20 shrink-0"
+                    />
+                  ) : (
+                    <div className="w-11 h-11 rounded-full bg-[#FF4D15] text-white font-bold flex items-center justify-center shrink-0">
+                      {selectedOfficer.avatarInitials}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <div className="text-sm font-bold text-white truncate">
+                      {activeDutySession.investigatorName}
+                    </div>
+                    <div className="text-[11px] font-mono-code text-zinc-400 truncate">
+                      {activeDutySession.badgeNumber}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-white/10 space-y-1 text-[11px] font-mono-code relative z-10">
+                  <div className="flex items-center justify-between text-zinc-400">
+                    <span>Session ID:</span>
+                    <span className="text-white font-semibold">
+                      {activeDutySession.id}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={() => setActiveNav('shared_problems')}
-                      className="px-3 py-1.5 rounded-lg bg-[#FF4D15] hover:bg-[#e03e0b] text-white text-xs font-semibold cursor-pointer whitespace-nowrap"
-                    >
-                      Inspect Problem Links ({pendingSharedProblems.length})
-                    </button>
-                    <button
-                      onClick={() => setActiveNav('story_approvals')}
-                      className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold cursor-pointer whitespace-nowrap"
-                    >
-                      Verify PDFs ({pendingCrimeStories.length})
-                    </button>
+                  <div className="flex items-center justify-between text-zinc-400">
+                    <span>Login Time:</span>
+                    <span className="text-emerald-400 font-semibold tabular-nums">
+                      {activeDutySession.loginTime.slice(0, 19)}
+                    </span>
                   </div>
                 </div>
-              )}
+              </div>
+            </div>
 
-              {/* Search & Filter Toolbar */}
-              <div className="p-4 rounded-xl bg-[#111116] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="relative flex-1">
-                  <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search case dockets by tracking ID, citizen name, or category..."
-                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-[#070709] border border-white/10 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
-                  />
+            {/* Sidebar Summary Metrics & Logout */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-3 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE]">
+                  <div className="text-lg font-extrabold text-[#111318] font-mono-code tabular-nums">
+                    {incidents.length}
+                  </div>
+                  <div className="text-[11px] text-slate-500">Total Cases</div>
                 </div>
-                <div className="flex items-center gap-1 p-1 rounded-lg bg-[#070709] border border-white/10">
-                  <button
-                    onClick={() => setStatusFilter('ALL')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer whitespace-nowrap ${
-                      statusFilter === 'ALL'
-                        ? 'bg-white/15 text-white'
-                        : 'text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    All ({incidents.length})
-                  </button>
-                  <button
-                    onClick={() => setStatusFilter('ACTIVE')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer whitespace-nowrap ${
-                      statusFilter === 'ACTIVE'
-                        ? 'bg-white/15 text-white'
-                        : 'text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    In Progress ({incidents.length - courtSealedCasesCount})
-                  </button>
-                  <button
-                    onClick={() => setStatusFilter('SUBMITTED_TO_COURT')}
-                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer whitespace-nowrap ${
-                      statusFilter === 'SUBMITTED_TO_COURT'
-                        ? 'bg-emerald-500/20 text-emerald-300'
-                        : 'text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    Sealed for Court ({courtSealedCasesCount})
-                  </button>
+                <div className="p-3 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE]">
+                  <div className="text-lg font-extrabold text-emerald-600 font-mono-code tabular-nums">
+                    {courtSealedCasesCount}
+                  </div>
+                  <div className="text-[11px] text-slate-500">
+                    Sealed Court
+                  </div>
                 </div>
               </div>
 
-              {/* Two-Column Case List + Selected Case Inspector */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                {/* Left Column: Case List (5 Cols) */}
-                <div className="lg:col-span-5 space-y-2.5">
-                  {filteredIncidents.map((inc) => {
-                    const isSelected = selectedCase?.id === inc.id;
-                    const isSealedForCourt = inc.status === 'SUBMITTED_TO_COURT';
-                    return (
-                      <div
-                        key={inc.id}
-                        onClick={() => setSelectedCaseId(inc.id)}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer space-y-2 ${
-                          isSelected
-                            ? 'bg-[#171312] border-[#FF4D15]'
-                            : 'bg-[#111116] border-white/10 hover:border-white/25'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between text-xs font-mono-code tabular-nums">
-                          <span className="text-[#FF4D15] font-semibold">
-                            {inc.trackingCode}
-                          </span>
-                          <span
-                            className={
-                              isSealedForCourt
-                                ? 'text-emerald-400 font-semibold'
-                                : 'text-amber-400'
-                            }
-                          >
-                            {isSealedForCourt
-                              ? '✓ Sealed for Court'
-                              : inc.status.replace(/_/g, ' ')}
-                          </span>
-                        </div>
-                        <h3 className="text-sm font-semibold text-white line-clamp-1">
-                          {inc.title}
-                        </h3>
-                        <div className="text-xs text-zinc-400 flex items-center justify-between">
-                          <span>{inc.citizenName}</span>
-                          <span className="font-mono-code tabular-nums">
-                            {(inc.evidenceFiles || []).length} file(s)
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
+              <button
+                onClick={handleDutySignOut}
+                className="w-full py-2.5 px-4 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 hover:border-rose-600 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Log Out &amp; Capture Exit Time</span>
+              </button>
+            </div>
+          </aside>
+
+          {/* =================================================================
+              MAIN WORKSPACE CONTENT VIEWPORT
+          ================================================================= */}
+          <main className="lg:col-span-9 p-4 sm:p-6 lg:p-7 space-y-6">
+            {/* Top Utility Header Bar */}
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
+              <div className="relative flex-1 max-w-md">
+                <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search case dockets, tracking IDs, or citizens..."
+                  className="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-white border border-[#E6E8EE] text-xs text-[#111318] placeholder-slate-400 focus:outline-none focus:border-[#14161D] shadow-xs"
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2.5">
+                <div className="px-3.5 py-2 rounded-xl bg-white border border-[#E6E8EE] text-xs font-mono-code tabular-nums text-emerald-700 font-semibold flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>WORM Clock: {liveClock.slice(11, 19)} UTC</span>
                 </div>
 
-                {/* Right Column: Focused Case Forensic Inspector & "Seal it for the Court" (7 Cols) */}
-                <div className="lg:col-span-7">
-                  {selectedCase ? (
-                    <div className="p-6 rounded-xl bg-[#111116] border border-white/15 space-y-6">
-                      {/* Case Header */}
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-white/10">
-                        <div className="space-y-1">
-                          <div className="text-xs font-mono-code text-zinc-400">
-                            {selectedCase.trackingCode} · {selectedCase.category} ·{' '}
-                            {selectedCase.dateReported}
-                          </div>
-                          <h2 className="text-lg sm:text-xl font-bold text-white">
-                            {selectedCase.title}
-                          </h2>
-                          <div className="text-xs text-zinc-400">
-                            Reporter:{' '}
-                            <strong className="text-white">
-                              {selectedCase.citizenName}
-                            </strong>{' '}
-                            ({selectedCase.citizenEmail}) · Loss:{' '}
-                            <strong className="text-white">
-                              {selectedCase.lossAmount || 'Under Assessment'}
-                            </strong>
-                          </div>
-                        </div>
+                <button
+                  onClick={() => setActiveNav('duty_ledger')}
+                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-[#F4F5F8] border border-[#E6E8EE] text-xs font-bold text-[#111318] transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <Shield className="w-3.5 h-3.5 text-[#FF4D15]" />
+                  <span>
+                    Duty &amp; Tamper Ledger ({dutySessions.length}
+                    {totalTamperAttemptsCount > 0
+                      ? ` · ${totalTamperAttemptsCount} Caught`
+                      : ''}
+                    )
+                  </span>
+                </button>
+              </div>
+            </header>
 
-                        {onViewCertificate && (
-                          <button
-                            onClick={() => onViewCertificate(selectedCase)}
-                            className="px-3.5 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5"
-                          >
-                            <Scale className="w-3.5 h-3.5 text-[#FF4D15]" />
-                            <span>Section 65B Certificate</span>
-                          </button>
-                        )}
-                      </div>
+            {/* Caught Tamper Alert Banner */}
+            {lastCaughtTamperAlert && (
+              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="flex items-start sm:items-center gap-2.5 text-rose-800">
+                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5 sm:mt-0" />
+                  <div>
+                    <strong className="text-rose-950">
+                      SECURITY VIOLATION CAUGHT (
+                      {lastCaughtTamperAlert.sessionId}):
+                    </strong>{' '}
+                    Senior Investigator{' '}
+                    <strong className="text-rose-700">
+                      {lastCaughtTamperAlert.actor}
+                    </strong>{' '}
+                    attempted to change{' '}
+                    <span className="underline">
+                      {lastCaughtTamperAlert.field}
+                    </span>{' '}
+                    from{' '}
+                    <code className="font-mono-code px-1.5 py-0.5 rounded bg-white border border-rose-200 text-emerald-700">
+                      {lastCaughtTamperAlert.originalValue}
+                    </code>{' '}
+                    to{' '}
+                    <code className="font-mono-code px-1.5 py-0.5 rounded bg-white border border-rose-200 text-rose-700">
+                      {lastCaughtTamperAlert.fakeValue}
+                    </code>
+                    . Edit blocked &amp; permanently recorded.
+                  </div>
+                </div>
+                <button
+                  onClick={() => setLastCaughtTamperAlert(null)}
+                  className="text-rose-700 hover:text-rose-950 text-xs font-bold self-end sm:self-center cursor-pointer whitespace-nowrap"
+                >
+                  Dismiss Notice
+                </button>
+              </div>
+            )}
 
-                      {/* Prominent "SEAL IT FOR THE COURT" Action Box */}
-                      {selectedCase.status === 'SUBMITTED_TO_COURT' ? (
-                        <div className="p-5 rounded-xl bg-emerald-950/30 border border-emerald-500/40 space-y-3">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
-                              <CheckCircle2 className="w-5 h-5 shrink-0" />
-                              <span>
-                                Case Sealed for the Court — Ready for Judicial
-                                Submission
-                              </span>
-                            </div>
-                            <span className="text-xs font-mono-code tabular-nums text-zinc-400">
-                              {selectedCase.courtSealedAt ||
-                                selectedCase.lastInvestigatedAt ||
-                                selectedCase.dateReported}
+            {/* =================================================================
+                SECTOR 01: CASE DOCKETS & "SEAL IT FOR THE COURT"
+            ================================================================= */}
+            {activeNav === 'workflows' && (
+              <div className="space-y-5">
+                {/* Live Incoming Queue Strip */}
+                {(pendingSharedProblems.length > 0 ||
+                  pendingCrimeStories.length > 0) && (
+                  <div className="p-4 rounded-2xl bg-white border border-[#ECEEF2] shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="text-xs text-slate-600">
+                      <strong className="text-[#111318]">
+                        Live Incoming Queues:
+                      </strong>{' '}
+                      <span>
+                        {pendingSharedProblems.length} Shared Problem Link(s)
+                        awaiting inspection
+                      </span>{' '}
+                      ·{' '}
+                      <span>
+                        {pendingCrimeStories.length} Citizen Crime Story PDF(s)
+                        awaiting approval
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => setActiveNav('shared_problems')}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#FF4D15] hover:bg-[#e03e0b] text-white text-xs font-bold cursor-pointer whitespace-nowrap"
+                      >
+                        Inspect Links ({pendingSharedProblems.length})
+                      </button>
+                      <button
+                        onClick={() => setActiveNav('story_approvals')}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#14161D] hover:bg-slate-800 text-white text-xs font-bold cursor-pointer whitespace-nowrap"
+                      >
+                        Verify PDFs ({pendingCrimeStories.length})
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Filter Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h1 className="text-xl font-extrabold text-[#111318]">
+                      Active Forensic Dockets &amp; Court Sealing
+                    </h1>
+                    <p className="text-xs text-slate-500">
+                      Synchronized in real time with Citizen Evidence Vault &amp;
+                      Backend WORM Ledger
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 p-1 rounded-xl bg-white border border-[#E6E8EE]">
+                    <button
+                      onClick={() => setStatusFilter('ALL')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                        statusFilter === 'ALL'
+                          ? 'bg-[#14161D] text-white'
+                          : 'text-slate-500 hover:text-[#111318]'
+                      }`}
+                    >
+                      All ({incidents.length})
+                    </button>
+                    <button
+                      onClick={() => setStatusFilter('ACTIVE')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                        statusFilter === 'ACTIVE'
+                          ? 'bg-[#14161D] text-white'
+                          : 'text-slate-500 hover:text-[#111318]'
+                      }`}
+                    >
+                      In Progress ({incidents.length - courtSealedCasesCount})
+                    </button>
+                    <button
+                      onClick={() => setStatusFilter('SUBMITTED_TO_COURT')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                        statusFilter === 'SUBMITTED_TO_COURT'
+                          ? 'bg-emerald-600 text-white'
+                          : 'text-slate-500 hover:text-[#111318]'
+                      }`}
+                    >
+                      Sealed for Court ({courtSealedCasesCount})
+                    </button>
+                  </div>
+                </div>
+
+                {/* Two-Column Case List + Selected Case Inspector */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                  {/* Left Column: Case List (5 Cols) */}
+                  <div className="lg:col-span-5 space-y-2.5 max-h-[720px] overflow-y-auto pr-1">
+                    {filteredIncidents.map((inc) => {
+                      const isSelected = selectedCase?.id === inc.id;
+                      const isSealedForCourt =
+                        inc.status === 'SUBMITTED_TO_COURT';
+                      return (
+                        <div
+                          key={inc.id}
+                          onClick={() => setSelectedCaseId(inc.id)}
+                          className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-2 ${
+                            isSelected
+                              ? 'bg-white border-[#14161D] shadow-[0_12px_28px_rgba(15,23,42,0.08)] ring-1 ring-[#14161D]/10'
+                              : 'bg-white border-[#ECEEF2] hover:border-slate-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between text-xs font-mono-code tabular-nums">
+                            <span className="text-[#FF4D15] font-bold">
+                              {inc.trackingCode}
+                            </span>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                isSealedForCourt
+                                  ? 'bg-emerald-50 text-emerald-700'
+                                  : 'bg-amber-50 text-amber-700'
+                              }`}
+                            >
+                              {isSealedForCourt
+                                ? '✓ Sealed for Court'
+                                : inc.status.replace(/_/g, ' ')}
                             </span>
                           </div>
-                          <p className="text-xs text-zinc-300 leading-relaxed">
-                            This case has been completely verified and sealed for
-                            the court by{' '}
-                            <strong className="text-white">
-                              {selectedCase.courtSealedBy ||
-                                selectedCase.seniorOfficerAssigned}
-                            </strong>
-                            . All evidence hashes are WORM-locked under Section
-                            65B(4) of the Indian Evidence Act.
-                          </p>
-                          <div className="p-2.5 rounded-lg bg-[#070709] border border-emerald-500/20 font-mono-code text-[11px] text-emerald-300 break-all">
-                            Court Seal SHA-256:{' '}
-                            {selectedCase.courtSealHash || selectedCase.primaryHash}
+                          <h3 className="text-sm font-bold text-[#111318] line-clamp-1">
+                            {inc.title}
+                          </h3>
+                          <div className="text-xs text-slate-500 flex items-center justify-between">
+                            <span>{inc.citizenName}</span>
+                            <span className="font-mono-code tabular-nums">
+                              {(inc.evidenceFiles || []).length} file(s)
+                            </span>
                           </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Right Column: Focused Case Forensic Inspector & "Seal it for the Court" (7 Cols) */}
+                  <div className="lg:col-span-7">
+                    {selectedCase ? (
+                      <div className="p-6 rounded-[24px] bg-white border border-[#ECEEF2] shadow-[0_12px_36px_rgba(15,23,42,0.05)] space-y-6">
+                        {/* Case Header */}
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-[#ECEEF2]">
+                          <div className="space-y-1">
+                            <div className="text-xs font-mono-code text-slate-400">
+                              {selectedCase.trackingCode} ·{' '}
+                              {selectedCase.category} ·{' '}
+                              {selectedCase.dateReported}
+                            </div>
+                            <h2 className="text-lg sm:text-xl font-extrabold text-[#111318]">
+                              {selectedCase.title}
+                            </h2>
+                            <div className="text-xs text-slate-500">
+                              Reporter:{' '}
+                              <strong className="text-[#111318]">
+                                {selectedCase.citizenName}
+                              </strong>{' '}
+                              ({selectedCase.citizenEmail}) · Loss:{' '}
+                              <strong className="text-[#111318]">
+                                {selectedCase.lossAmount || 'Under Assessment'}
+                              </strong>
+                            </div>
+                          </div>
+
                           {onViewCertificate && (
                             <button
                               onClick={() => onViewCertificate(selectedCase)}
-                              className="w-full py-2.5 px-4 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition-colors cursor-pointer flex items-center justify-center gap-2"
+                              className="px-3.5 py-2 rounded-xl bg-[#F4F5F8] hover:bg-[#14161D] text-[#111318] hover:text-white text-xs font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5"
                             >
-                              <Scale className="w-4 h-4" />
-                              <span>
-                                Open &amp; Print Court-Sealed Section 65B Dossier
-                              </span>
+                              <Scale className="w-3.5 h-3.5 text-[#FF4D15]" />
+                              <span>Section 65B Certificate</span>
                             </button>
                           )}
                         </div>
-                      ) : (
-                        <div className="p-5 rounded-xl bg-[#181311] border border-[#FF4D15]/50 space-y-3">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <div>
-                              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                                <Scale className="w-4 h-4 text-[#FF4D15]" />
-                                <span>Final Judicial Action: Seal it for the Court</span>
-                              </h3>
-                              <p className="text-xs text-zinc-400 mt-0.5">
-                                Once your forensic investigation on this case is
-                                complete, seal it to generate the court-ready Section
-                                65B packet.
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => handleSealForCourt(selectedCase)}
-                              disabled={isSealingForCourt}
-                              className="px-5 py-3 rounded-xl bg-[#FF4D15] hover:bg-[#e03e0b] text-white font-bold text-xs transition-colors cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-2 shadow-lg shadow-[#FF4D15]/25 disabled:opacity-50"
-                            >
-                              <Lock className="w-4 h-4" />
-                              <span>
-                                {isSealingForCourt
-                                  ? 'Sealing for Court...'
-                                  : 'Seal it for the Court'}
+
+                        {/* Prominent "SEAL IT FOR THE COURT" Action Box */}
+                        {selectedCase.status === 'SUBMITTED_TO_COURT' ? (
+                          <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                                <span>
+                                  Case Sealed for the Court — Ready for Judicial
+                                  Submission
+                                </span>
+                              </div>
+                              <span className="text-xs font-mono-code tabular-nums text-emerald-700">
+                                {selectedCase.courtSealedAt ||
+                                  selectedCase.lastInvestigatedAt ||
+                                  selectedCase.dateReported}
                               </span>
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Case Narrative & SHA-256 Digest */}
-                      <div className="space-y-3">
-                        <div className="text-xs font-semibold text-zinc-300">
-                          Incident Statement &amp; Primary WORM Hash
-                        </div>
-                        <p className="text-xs text-zinc-300 leading-relaxed p-3.5 rounded-lg bg-[#070709] border border-white/10">
-                          {selectedCase.description}
-                        </p>
-                        <div className="p-3 rounded-lg bg-[#070709] border border-white/10 font-mono-code text-[11px] text-amber-300 break-all">
-                          Primary SHA-256: {selectedCase.primaryHash}
-                        </div>
-                      </div>
-
-                      {/* Evidence Files List with 1-Click Hash Verification */}
-                      <div className="space-y-2.5">
-                        <div className="text-xs font-semibold text-zinc-300">
-                          WORM Evidence Files (
-                          {(selectedCase.evidenceFiles || []).length})
-                        </div>
-                        {(selectedCase.evidenceFiles || []).length > 0 ? (
-                          <div className="space-y-2">
-                            {selectedCase.evidenceFiles.map((file, idx) => {
-                              const fileKey = `${selectedCase.id}-${file.id || idx}`;
-                              const isVerified = verifiedFileHashes[fileKey];
-                              return (
-                                <div
-                                  key={fileKey}
-                                  className="p-3 rounded-lg bg-[#070709] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
-                                >
-                                  <div className="min-w-0">
-                                    <div className="font-semibold text-white truncate">
-                                      {file.name ||
-                                        (file as any).filename ||
-                                        `evidence_${idx + 1}.bin`}
-                                    </div>
-                                    <div className="font-mono-code text-[11px] text-zinc-500 truncate">
-                                      SHA-256: {file.sha256}
-                                    </div>
-                                  </div>
-                                  <button
-                                    onClick={() => {
-                                      setVerifiedFileHashes((prev) => ({
-                                        ...prev,
-                                        [fileKey]: true,
-                                      }));
-                                      showToast(
-                                        `Bit-level SHA-256 integrity verified for ${file.name}. Zero tampering detected.`
-                                      );
-                                    }}
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer whitespace-nowrap shrink-0 ${
-                                      isVerified
-                                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                        : 'bg-white/10 hover:bg-white/15 text-white'
-                                    }`}
-                                  >
-                                    {isVerified
-                                      ? '✓ SHA-256 Match Verified'
-                                      : 'Verify SHA-256 Hash'}
-                                  </button>
-                                </div>
-                              );
-                            })}
+                            </div>
+                            <p className="text-xs text-emerald-900/80 leading-relaxed">
+                              This case has been completely verified and sealed
+                              for the court by{' '}
+                              <strong className="text-emerald-950">
+                                {selectedCase.courtSealedBy ||
+                                  selectedCase.seniorOfficerAssigned}
+                              </strong>
+                              . All evidence hashes are WORM-locked under
+                              Section 65B(4) of the Indian Evidence Act.
+                            </p>
+                            <div className="p-2.5 rounded-xl bg-white border border-emerald-200 font-mono-code text-[11px] text-emerald-800 break-all">
+                              Court Seal SHA-256:{' '}
+                              {selectedCase.courtSealHash ||
+                                selectedCase.primaryHash}
+                            </div>
+                            {onViewCertificate && (
+                              <button
+                                onClick={() => onViewCertificate(selectedCase)}
+                                className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors cursor-pointer flex items-center justify-center gap-2"
+                              >
+                                <Scale className="w-4 h-4" />
+                                <span>
+                                  Open &amp; Print Court-Sealed Section 65B
+                                  Dossier
+                                </span>
+                              </button>
+                            )}
                           </div>
                         ) : (
-                          <div className="p-4 rounded-lg bg-[#070709] border border-white/10 text-xs text-zinc-500">
-                            No binary files attached to this docket yet.
+                          <div className="p-5 rounded-2xl bg-[#14161D] text-white space-y-3 shadow-lg">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                              <div>
+                                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                                  <Scale className="w-4 h-4 text-[#FF4D15]" />
+                                  <span>
+                                    Final Judicial Action: Seal it for the Court
+                                  </span>
+                                </h3>
+                                <p className="text-xs text-zinc-400 mt-0.5">
+                                  Once your forensic investigation on this case
+                                  is complete, seal it to generate the
+                                  court-ready Section 65B packet.
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => handleSealForCourt(selectedCase)}
+                                disabled={isSealingForCourt}
+                                className="px-5 py-3 rounded-xl bg-[#FF4D15] hover:bg-[#e03e0b] text-white font-bold text-xs transition-colors cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-2 shadow-lg shadow-[#FF4D15]/30 disabled:opacity-50"
+                              >
+                                <Lock className="w-4 h-4" />
+                                <span>
+                                  {isSealingForCourt
+                                    ? 'Sealing for Court...'
+                                    : 'Seal it for the Court'}
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Case Narrative & SHA-256 Digest */}
+                        <div className="space-y-2.5">
+                          <div className="text-xs font-bold text-[#111318]">
+                            Incident Statement &amp; Primary WORM Hash
+                          </div>
+                          <p className="text-xs text-slate-600 leading-relaxed p-4 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE]">
+                            {selectedCase.description}
+                          </p>
+                          <div className="p-3 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] font-mono-code text-[11px] text-[#111318] break-all">
+                            <span className="text-slate-400">Primary SHA-256:</span>{' '}
+                            {selectedCase.primaryHash}
+                          </div>
+                        </div>
+
+                        {/* Evidence Files List with 1-Click Hash Verification */}
+                        <div className="space-y-2.5">
+                          <div className="text-xs font-bold text-[#111318]">
+                            WORM Evidence Files (
+                            {(selectedCase.evidenceFiles || []).length})
+                          </div>
+                          {(selectedCase.evidenceFiles || []).length > 0 ? (
+                            <div className="space-y-2">
+                              {selectedCase.evidenceFiles.map((file, idx) => {
+                                const fileKey = `${selectedCase.id}-${file.id || idx}`;
+                                const isVerified = verifiedFileHashes[fileKey];
+                                return (
+                                  <div
+                                    key={fileKey}
+                                    className="p-3.5 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+                                  >
+                                    <div className="min-w-0">
+                                      <div className="font-bold text-[#111318] truncate">
+                                        {file.name ||
+                                          (file as any).filename ||
+                                          `evidence_${idx + 1}.bin`}
+                                      </div>
+                                      <div className="font-mono-code text-[11px] text-slate-500 truncate">
+                                        SHA-256: {file.sha256}
+                                      </div>
+                                    </div>
+                                    <button
+                                      onClick={() => {
+                                        setVerifiedFileHashes((prev) => ({
+                                          ...prev,
+                                          [fileKey]: true,
+                                        }));
+                                        showToast(
+                                          `Bit-level SHA-256 integrity verified for ${file.name}. Zero tampering detected.`
+                                        );
+                                      }}
+                                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer whitespace-nowrap shrink-0 ${
+                                        isVerified
+                                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                          : 'bg-[#14161D] hover:bg-[#FF4D15] text-white'
+                                      }`}
+                                    >
+                                      {isVerified
+                                        ? '✓ SHA-256 Match Verified'
+                                        : 'Verify SHA-256 Hash'}
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <div className="p-4 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] text-xs text-slate-500">
+                              No binary files attached to this docket yet.
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Investigator Examination Notes */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs font-bold text-[#111318]">
+                              Senior Investigator Forensic Notes
+                            </label>
+                            <button
+                              type="button"
+                              onClick={handleSaveInvestigatorNotes}
+                              className="text-xs text-[#FF4D15] hover:underline font-bold cursor-pointer"
+                            >
+                              Save Notes
+                            </button>
+                          </div>
+                          <textarea
+                            rows={3}
+                            value={investigatorNotesInput}
+                            onChange={(e) =>
+                              setInvestigatorNotesInput(e.target.value)
+                            }
+                            placeholder="Record forensic findings, bank freeze directives, or court preparation remarks..."
+                            className="w-full p-3.5 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] text-xs text-[#111318] placeholder-slate-400 focus:outline-none focus:border-[#14161D]"
+                          />
+                        </div>
+
+                        {/* Direct Notice to Citizen */}
+                        <form
+                          onSubmit={handleSendCitizenNotice}
+                          className="pt-3 border-t border-[#ECEEF2] flex items-center gap-2"
+                        >
+                          <input
+                            type="text"
+                            value={messageInput}
+                            onChange={(e) => setMessageInput(e.target.value)}
+                            placeholder={`Send direct update to ${selectedCase.citizenName}...`}
+                            className="flex-1 px-4 py-2.5 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] text-xs text-[#111318] placeholder-slate-400 focus:outline-none focus:border-[#14161D]"
+                          />
+                          <button
+                            type="submit"
+                            className="px-4 py-2.5 rounded-xl bg-[#14161D] hover:bg-[#FF4D15] text-white text-xs font-bold cursor-pointer whitespace-nowrap"
+                          >
+                            Send Update
+                          </button>
+                        </form>
+                      </div>
+                    ) : (
+                      <div className="p-12 rounded-2xl bg-white border border-[#ECEEF2] text-center text-xs text-slate-500">
+                        Select a case docket from the left list to inspect
+                        evidence or seal it for the court.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* =================================================================
+                SECTOR 02: DEDICATED "SHARE A PROBLEM" SECTOR
+            ================================================================= */}
+            {activeNav === 'shared_problems' && (
+              <div className="space-y-6">
+                <div className="p-6 rounded-2xl bg-white border border-[#ECEEF2] shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="text-xs font-mono-code font-bold text-[#FF4D15]">
+                      ZERO-IDENTITY GATEWAY STREAM · NO NAME OR GMAIL REQUIRED
+                    </div>
+                    <h2 className="text-xl font-extrabold text-[#111318]">
+                      02. Dedicated Share a Problem &amp; Origin Link Sector
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      Inspect incoming problems and suspicious origin links
+                      shared from the Cryptographic Credential Gateway and seal
+                      their resolution.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs font-mono-code tabular-nums shrink-0">
+                    <div className="px-3.5 py-2 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE]">
+                      Pending:{' '}
+                      <strong className="text-amber-600">
+                        {pendingSharedProblems.length}
+                      </strong>
+                    </div>
+                    <div className="px-3.5 py-2 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE]">
+                      Solved:{' '}
+                      <strong className="text-emerald-600">
+                        {solvedSharedProblems.length}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  {/* Left Queue */}
+                  <div className="lg:col-span-5 space-y-2.5">
+                    {sharedProblems.map((prob) => {
+                      const isSelected = selectedProblem?.id === prob.id;
+                      const isPending = prob.status === 'PENDING_INSPECTION';
+                      return (
+                        <div
+                          key={prob.id}
+                          onClick={() => setSelectedProblemId(prob.id)}
+                          className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-2 ${
+                            isSelected
+                              ? 'bg-white border-[#14161D] shadow-md'
+                              : 'bg-white border-[#ECEEF2] hover:border-slate-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between text-xs font-mono-code tabular-nums">
+                            <span className="text-[#111318] font-bold">
+                              {prob.trackingCode}
+                            </span>
+                            <span
+                              className={
+                                isPending
+                                  ? 'text-amber-600 font-bold'
+                                  : 'text-emerald-600 font-bold'
+                              }
+                            >
+                              {isPending ? 'Pending Inspection' : '✓ Solved'}
+                            </span>
+                          </div>
+                          <div className="p-2 rounded-lg bg-[#F8F9FB] border border-[#E6E8EE] font-mono-code text-[11px] text-[#FF4D15] truncate">
+                            {prob.sourceLink}
+                          </div>
+                          <p className="text-xs text-slate-600 line-clamp-2">
+                            {prob.problemText}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Right Problem & Origin Link Inspector */}
+                  <div className="lg:col-span-7">
+                    {selectedProblem ? (
+                      <div className="p-6 rounded-2xl bg-white border border-[#ECEEF2] shadow-[0_10px_30px_rgba(15,23,42,0.04)] space-y-5">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#ECEEF2]">
+                          <div>
+                            <div className="text-xs font-mono-code text-slate-400">
+                              {selectedProblem.trackingCode} ·{' '}
+                              {selectedProblem.category} ·{' '}
+                              {selectedProblem.submittedAt}
+                            </div>
+                            <h3 className="text-base font-extrabold text-[#111318] mt-0.5">
+                              Origin Link &amp; Problem Forensic Inspection
+                            </h3>
+                          </div>
+                          <button
+                            onClick={() =>
+                              handleRunDeepLinkScan(selectedProblem)
+                            }
+                            disabled={scanningProblemId === selectedProblem.id}
+                            className="px-3.5 py-2 rounded-xl bg-[#14161D] hover:bg-[#FF4D15] text-xs font-mono-code text-white font-bold cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+                          >
+                            <Scan className="w-3.5 h-3.5" />
+                            <span>
+                              {scanningProblemId === selectedProblem.id
+                                ? 'Scanning...'
+                                : scannedProblemIds[selectedProblem.id]
+                                ? '✓ Link Scanned'
+                                : 'Run Deep Link Scan'}
+                            </span>
+                          </button>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <div className="text-xs font-bold text-[#111318]">
+                            Origin Link (Where the Problem Came From)
+                          </div>
+                          <div className="p-3 rounded-xl bg-[#F8F9FB] border border-[#FF4D15]/30 font-mono-code text-xs text-[#FF4D15] break-all">
+                            {selectedProblem.sourceLink}
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <div className="text-xs font-bold text-[#111318]">
+                            Problem Description Shared
+                          </div>
+                          <p className="p-3.5 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] text-xs text-slate-700 leading-relaxed">
+                            {selectedProblem.problemText}
+                          </p>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <div className="text-xs font-bold text-[#111318]">
+                            URL Heuristic Findings (
+                            {selectedProblem.linkRiskLevel} RISK)
+                          </div>
+                          <div className="space-y-1.5">
+                            {selectedProblem.linkHeuristics.map((flag, i) => (
+                              <div
+                                key={i}
+                                className="p-2.5 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] text-xs text-slate-600 flex items-start gap-2"
+                              >
+                                <AlertCircle className="w-4 h-4 text-[#FF4D15] shrink-0 mt-0.5" />
+                                <span>{flag}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {selectedProblem.status === 'SOLVED' ? (
+                          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2 text-xs">
+                            <div className="font-bold text-emerald-700">
+                              ✓ Problem Solved by{' '}
+                              {selectedProblem.solvedByOfficer} (
+                              {selectedProblem.solvedAt})
+                            </div>
+                            <div className="font-mono-code text-emerald-800">
+                              Action: {selectedProblem.preventiveActionTaken}
+                            </div>
+                            <p className="text-slate-600">
+                              {selectedProblem.resolutionSummary}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="p-4 rounded-2xl bg-[#F8F9FB] border border-[#E6E8EE] space-y-3">
+                            <select
+                              value={
+                                problemActionPreset[selectedProblem.id] ||
+                                'Origin URL Flagged for CERT-In Takedown & Added to National Threat Blocklist'
+                              }
+                              onChange={(e) =>
+                                setProblemActionPreset((prev) => ({
+                                  ...prev,
+                                  [selectedProblem.id]: e.target.value,
+                                }))
+                              }
+                              className="w-full px-3 py-2.5 rounded-xl bg-white border border-[#E6E8EE] text-xs text-[#111318]"
+                            >
+                              <option value="Origin URL Flagged for CERT-In Takedown & Added to National Threat Blocklist">
+                                1. Sinkhole Malicious Origin Link + Dispatch
+                                CERT-In Takedown
+                              </option>
+                              <option value="Source Link Blacklisted + Section 91 CrPC Bank / UPI Telemetry Freeze Issued">
+                                2. Blacklist Source Link + Trigger Section 91
+                                CrPC Freeze
+                              </option>
+                              <option value="Origin URL Indexed in F.I.P. Global Threat Feed + Redirect Chain Neutralized">
+                                3. Index Origin URL in F.I.P. Global Threat Feed
+                              </option>
+                            </select>
+
+                            <textarea
+                              rows={2}
+                              value={
+                                problemResolutionNotes[selectedProblem.id] || ''
+                              }
+                              onChange={(e) =>
+                                setProblemResolutionNotes((prev) => ({
+                                  ...prev,
+                                  [selectedProblem.id]: e.target.value,
+                                }))
+                              }
+                              placeholder="Optional investigator resolution summary..."
+                              className="w-full p-2.5 rounded-xl bg-white border border-[#E6E8EE] text-xs text-[#111318] placeholder-slate-400"
+                            />
+
+                            <button
+                              onClick={() =>
+                                handleSolveSharedProblem(selectedProblem)
+                              }
+                              disabled={solvingProblemId === selectedProblem.id}
+                              className="w-full py-3 px-4 rounded-xl bg-[#14161D] hover:bg-[#FF4D15] text-white font-bold text-xs cursor-pointer transition-colors"
+                            >
+                              {solvingProblemId === selectedProblem.id
+                                ? 'Sealing Solution...'
+                                : 'Solve Problem & Broadcast Resolution'}
+                            </button>
                           </div>
                         )}
                       </div>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            )}
 
-                      {/* Investigator Examination Notes */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs font-semibold text-zinc-300">
-                            Senior Investigator Forensic Notes
-                          </label>
-                          <button
-                            type="button"
-                            onClick={handleSaveInvestigatorNotes}
-                            className="text-xs text-[#FF4D15] hover:underline font-semibold cursor-pointer"
+            {/* =================================================================
+                SECTOR 03: CITIZEN CRIME STORY PDF APPROVALS
+            ================================================================= */}
+            {activeNav === 'story_approvals' && (
+              <div className="space-y-6">
+                <div className="p-6 rounded-2xl bg-white border border-[#ECEEF2] shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="text-xs font-mono-code font-bold text-amber-600">
+                      CITIZEN PDF DOSSIER VERIFICATION QUEUE
+                    </div>
+                    <h2 className="text-xl font-extrabold text-[#111318]">
+                      03. Crime Story &amp; PDF Verification Sector
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      Verify citizen-submitted crime experiences and attached
+                      PDFs before publishing them to the public Crime Stories
+                      page.
+                    </p>
+                  </div>
+                  <div className="text-xs font-mono-code tabular-nums text-slate-600 font-semibold">
+                    {pendingCrimeStories.length} Pending ·{' '}
+                    {approvedCrimeStories.length} Published
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {crimeStories.map((story) => (
+                    <div
+                      key={story.id}
+                      className="p-5 rounded-2xl bg-white border border-[#ECEEF2] shadow-[0_8px_24px_rgba(15,23,42,0.03)] flex flex-col justify-between gap-4"
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between text-xs font-mono-code tabular-nums">
+                          <span className="text-[#FF4D15] font-bold">
+                            {story.trackingCode}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              story.status === 'PENDING_WORKSTATION'
+                                ? 'bg-amber-50 text-amber-700'
+                                : story.status === 'APPROVED_PUBLISHED'
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : 'bg-rose-50 text-rose-700'
+                            }`}
                           >
-                            Save Notes
-                          </button>
+                            {story.status.replace(/_/g, ' ')}
+                          </span>
                         </div>
-                        <textarea
-                          rows={3}
-                          value={investigatorNotesInput}
-                          onChange={(e) =>
-                            setInvestigatorNotesInput(e.target.value)
-                          }
-                          placeholder="Record forensic findings, bank freeze directives, or court preparation remarks..."
-                          className="w-full p-3 rounded-lg bg-[#070709] border border-white/10 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
-                        />
+                        <h3 className="text-base font-bold text-[#111318]">
+                          {story.title}
+                        </h3>
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                          {story.whatHappened}
+                        </p>
+                        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800">
+                          <strong>Safety Lesson:</strong>{' '}
+                          {story.howToStaySafeLesson}
+                        </div>
+                        <div className="p-2.5 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] flex items-center justify-between text-[11px] font-mono-code text-slate-500">
+                          <span>
+                            PDF: {story.pdfFileName} ({story.pdfFileSize})
+                          </span>
+                          <span>SHA: {story.pdfSha256.slice(0, 12)}...</span>
+                        </div>
                       </div>
 
-                      {/* Direct Notice to Citizen */}
-                      <form
-                        onSubmit={handleSendCitizenNotice}
-                        className="pt-3 border-t border-white/10 flex items-center gap-2"
-                      >
-                        <input
-                          type="text"
-                          value={messageInput}
-                          onChange={(e) => setMessageInput(e.target.value)}
-                          placeholder={`Send direct update to ${selectedCase.citizenName}...`}
-                          className="flex-1 px-3.5 py-2 rounded-lg bg-[#070709] border border-white/10 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF4D15]"
-                        />
-                        <button
-                          type="submit"
-                          className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold cursor-pointer whitespace-nowrap"
-                        >
-                          Send Update
-                        </button>
-                      </form>
+                      {story.status === 'PENDING_WORKSTATION' && (
+                        <div className="flex items-center gap-2 pt-3 border-t border-[#ECEEF2]">
+                          <button
+                            onClick={() =>
+                              handleReviewCrimeStory(story, 'APPROVED_PUBLISHED')
+                            }
+                            disabled={reviewingStoryId === story.id}
+                            className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer transition-colors"
+                          >
+                            ✓ Agree &amp; Publish to Crime Stories
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleReviewCrimeStory(story, 'REJECTED')
+                            }
+                            disabled={reviewingStoryId === story.id}
+                            className="py-2.5 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold cursor-pointer transition-colors"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* =================================================================
+                SECTOR 04: IMMUTABLE DUTY LOG & ANTI-TAMPER LEDGER
+            ================================================================= */}
+            {activeNav === 'duty_ledger' && (
+              <div className="space-y-6">
+                <div className="p-6 rounded-2xl bg-white border border-[#ECEEF2] shadow-[0_8px_24px_rgba(15,23,42,0.03)] space-y-2">
+                  <div className="text-xs font-mono-code font-bold text-[#FF4D15]">
+                    WORM SESSION AUDIT · AUTOMATIC LOGIN &amp; LOGOUT CAPTURE
+                  </div>
+                  <h2 className="text-xl font-extrabold text-[#111318]">
+                    04. Senior Investigator Duty Log &amp; Tamper-Catching
+                    Ledger
+                  </h2>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Every Senior Investigator login name, automatic entry
+                    timestamp, and automatic exit timestamp is stored inside
+                    this Workstation with a SHA-256 WORM hash. If any Senior
+                    Investigator attempts to modify or backdate a record, click{' '}
+                    <strong className="text-[#111318]">
+                      &ldquo;Test Tamper / Attempt Edit&rdquo;
+                    </strong>{' '}
+                    on any row below to see how the Workstation immediately
+                    catches and logs the perpetrator.
+                  </p>
+                </div>
+
+                {/* Duty Sessions Table */}
+                <div className="rounded-2xl bg-white border border-[#ECEEF2] shadow-[0_8px_24px_rgba(15,23,42,0.03)] overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="border-b border-[#ECEEF2] bg-[#F8F9FB] text-slate-500 font-mono-code text-[11px]">
+                          <th className="py-3.5 px-4">Session ID</th>
+                          <th className="py-3.5 px-4">Senior Investigator</th>
+                          <th className="py-3.5 px-4">
+                            Login Time (Auto-Captured)
+                          </th>
+                          <th className="py-3.5 px-4">
+                            Logout Time (Auto-Captured)
+                          </th>
+                          <th className="py-3.5 px-4">WORM Integrity Status</th>
+                          <th className="py-3.5 px-4 text-right">
+                            Anti-Tamper Verification
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#ECEEF2]">
+                        {dutySessions.map((sess) => {
+                          const hasTamper =
+                            sess.tamperAttempts &&
+                            sess.tamperAttempts.length > 0;
+                          return (
+                            <tr
+                              key={sess.id}
+                              className={
+                                hasTamper
+                                  ? 'bg-rose-50/70 hover:bg-rose-50'
+                                  : 'hover:bg-[#F8F9FB]'
+                              }
+                            >
+                              <td className="py-3.5 px-4 font-mono-code tabular-nums text-slate-600">
+                                {sess.id}
+                              </td>
+                              <td className="py-3.5 px-4">
+                                <div className="font-bold text-[#111318]">
+                                  {sess.investigatorName}
+                                </div>
+                                <div className="text-[11px] font-mono-code text-slate-400">
+                                  {sess.badgeNumber}
+                                </div>
+                              </td>
+                              <td className="py-3.5 px-4 font-mono-code tabular-nums text-emerald-700 font-semibold">
+                                {sess.loginTime}
+                              </td>
+                              <td className="py-3.5 px-4 font-mono-code tabular-nums">
+                                {sess.logoutTime ? (
+                                  <span className="text-slate-700">
+                                    {sess.logoutTime}
+                                  </span>
+                                ) : (
+                                  <span className="text-amber-600 font-bold">
+                                    Active on Duty
+                                  </span>
+                                )}
+                              </td>
+                              <td className="py-3.5 px-4">
+                                {hasTamper ? (
+                                  <span className="text-rose-600 font-bold flex items-center gap-1.5">
+                                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                                    <span>
+                                      TAMPER CAUGHT (
+                                      {sess.tamperAttempts.length})
+                                    </span>
+                                  </span>
+                                ) : (
+                                  <span className="text-emerald-700 font-semibold flex items-center gap-1.5">
+                                    <Lock className="w-3.5 h-3.5 shrink-0" />
+                                    <span>
+                                      WORM Sealed (
+                                      {sess.wormSha256Hash.slice(0, 10)}...)
+                                    </span>
+                                  </span>
+                                )}
+                              </td>
+                              <td className="py-3.5 px-4 text-right">
+                                <button
+                                  onClick={() => openTamperTrapModal(sess)}
+                                  className="px-3 py-1.5 rounded-lg bg-[#F4F5F8] hover:bg-rose-600 hover:text-white border border-[#E6E8EE] text-xs font-semibold text-[#111318] transition-colors cursor-pointer whitespace-nowrap"
+                                >
+                                  Test Tamper / Attempt Edit
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Permanent Forensic Violation Log of Caught Tamper Attempts */}
+                <div className="p-6 rounded-2xl bg-white border border-[#ECEEF2] shadow-[0_8px_24px_rgba(15,23,42,0.03)] space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-[#111318] flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-rose-600" />
+                      <span>
+                        Caught Tamper Attempts &amp; Unauthorized Modification
+                        Log ({totalTamperAttemptsCount})
+                      </span>
+                    </h3>
+                    <span className="text-xs font-mono-code text-slate-400">
+                      Immutable WORM Violation Record
+                    </span>
+                  </div>
+
+                  {totalTamperAttemptsCount === 0 ? (
+                    <div className="p-4 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] text-xs text-slate-500">
+                      No unauthorized edits detected yet. Click{' '}
+                      <strong className="text-[#111318]">
+                        &ldquo;Test Tamper / Attempt Edit&rdquo;
+                      </strong>{' '}
+                      on any session row above to simulate an investigator
+                      trying to alter a login/logout time and watch the
+                      Workstation catch them.
                     </div>
                   ) : (
-                    <div className="p-12 rounded-xl bg-[#111116] border border-white/10 text-center text-xs text-zinc-500">
-                      Select a case docket from the left list to inspect evidence or
-                      seal it for the court.
+                    <div className="space-y-3">
+                      {dutySessions
+                        .flatMap((s) => s.tamperAttempts || [])
+                        .map((att) => (
+                          <div
+                            key={att.id}
+                            className="p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-2 text-xs"
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                              <span className="font-bold text-rose-800">
+                                CAUGHT: Senior Investigator &ldquo;
+                                {att.attemptedByName}&rdquo; tried to modify{' '}
+                                {att.targetField} on session {att.sessionId}
+                              </span>
+                              <span className="font-mono-code tabular-nums text-rose-600">
+                                Caught At: {att.attemptedAt}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono-code text-[11px]">
+                              <div className="p-2.5 rounded-lg bg-white border border-emerald-200 text-emerald-700">
+                                Original WORM Value (Preserved):{' '}
+                                {att.originalValue}
+                              </div>
+                              <div className="p-2.5 rounded-lg bg-white border border-rose-200 text-rose-700">
+                                Attempted Fake Value (Blocked):{' '}
+                                {att.attemptedFakeValue}
+                              </div>
+                            </div>
+                            <div className="font-mono-code text-[10px] text-slate-500 break-all">
+                              Expected WORM SHA-256:{' '}
+                              {att.expectedSha256.slice(0, 32)}... · Corrupted
+                              Hash Mismatch: {att.corruptedSha256.slice(0, 32)}
+                              ...
+                            </div>
+                          </div>
+                        ))}
                     </div>
                   )}
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* =====================================================================
-              SECTOR 02: DEDICATED "SHARE A PROBLEM" SECTOR
-          ===================================================================== */}
-          {activeNav === 'shared_problems' && (
-            <div className="space-y-6">
-              <div className="p-6 rounded-xl bg-[#111116] border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="text-xs font-mono-code text-[#FF4D15]">
-                    ZERO-IDENTITY GATEWAY STREAM · NO NAME OR GMAIL REQUIRED
-                  </div>
-                  <h2 className="text-xl font-bold text-white">
-                    02. Dedicated Share a Problem &amp; Origin Link Sector
-                  </h2>
-                  <p className="text-xs text-zinc-400">
-                    Inspect incoming problems and suspicious origin links shared from
-                    the Cryptographic Credential Gateway and seal their resolution.
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 text-xs font-mono-code tabular-nums shrink-0">
-                  <div className="px-3.5 py-2 rounded-lg bg-[#070709] border border-white/10">
-                    Pending:{' '}
-                    <strong className="text-amber-400">
-                      {pendingSharedProblems.length}
-                    </strong>
-                  </div>
-                  <div className="px-3.5 py-2 rounded-lg bg-[#070709] border border-white/10">
-                    Solved:{' '}
-                    <strong className="text-emerald-400">
-                      {solvedSharedProblems.length}
-                    </strong>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                {/* Left Queue */}
-                <div className="lg:col-span-5 space-y-2.5">
-                  {sharedProblems.map((prob) => {
-                    const isSelected = selectedProblem?.id === prob.id;
-                    const isPending = prob.status === 'PENDING_INSPECTION';
-                    return (
-                      <div
-                        key={prob.id}
-                        onClick={() => setSelectedProblemId(prob.id)}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer space-y-2 ${
-                          isSelected
-                            ? 'bg-[#171312] border-[#FF4D15]'
-                            : 'bg-[#111116] border-white/10 hover:border-white/25'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between text-xs font-mono-code tabular-nums">
-                          <span className="text-white font-semibold">
-                            {prob.trackingCode}
-                          </span>
-                          <span
-                            className={
-                              isPending ? 'text-amber-400' : 'text-emerald-400'
-                            }
-                          >
-                            {isPending ? 'Pending Inspection' : '✓ Solved'}
-                          </span>
-                        </div>
-                        <div className="p-2 rounded-lg bg-[#070709] border border-white/10 font-mono-code text-[11px] text-amber-300 truncate">
-                          {prob.sourceLink}
-                        </div>
-                        <p className="text-xs text-zinc-300 line-clamp-2">
-                          {prob.problemText}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Right Problem & Origin Link Inspector */}
-                <div className="lg:col-span-7">
-                  {selectedProblem ? (
-                    <div className="p-6 rounded-xl bg-[#111116] border border-white/15 space-y-5">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
-                        <div>
-                          <div className="text-xs font-mono-code text-zinc-400">
-                            {selectedProblem.trackingCode} ·{' '}
-                            {selectedProblem.category} ·{' '}
-                            {selectedProblem.submittedAt}
-                          </div>
-                          <h3 className="text-base font-bold text-white mt-0.5">
-                            Origin Link &amp; Problem Forensic Inspection
-                          </h3>
-                        </div>
-                        <button
-                          onClick={() => handleRunDeepLinkScan(selectedProblem)}
-                          disabled={scanningProblemId === selectedProblem.id}
-                          className="px-3.5 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-xs font-mono-code text-amber-300 font-semibold cursor-pointer whitespace-nowrap flex items-center gap-1.5"
-                        >
-                          <Scan className="w-3.5 h-3.5" />
-                          <span>
-                            {scanningProblemId === selectedProblem.id
-                              ? 'Scanning...'
-                              : scannedProblemIds[selectedProblem.id]
-                              ? '✓ Link Scanned'
-                              : 'Run Deep Link Scan'}
-                          </span>
-                        </button>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <div className="text-xs font-semibold text-zinc-300">
-                          Origin Link (Where the Problem Came From)
-                        </div>
-                        <div className="p-3 rounded-lg bg-[#070709] border border-[#FF4D15]/40 font-mono-code text-xs text-amber-300 break-all">
-                          {selectedProblem.sourceLink}
-                        </div>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <div className="text-xs font-semibold text-zinc-300">
-                          Problem Description Shared
-                        </div>
-                        <p className="p-3.5 rounded-lg bg-[#070709] border border-white/10 text-xs text-zinc-200 leading-relaxed">
-                          {selectedProblem.problemText}
-                        </p>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <div className="text-xs font-semibold text-zinc-300">
-                          URL Heuristic Findings ({selectedProblem.linkRiskLevel}{' '}
-                          RISK)
-                        </div>
-                        <div className="space-y-1.5">
-                          {selectedProblem.linkHeuristics.map((flag, i) => (
-                            <div
-                              key={i}
-                              className="p-2.5 rounded-lg bg-[#070709] border border-white/5 text-xs text-zinc-300 flex items-start gap-2"
-                            >
-                              <AlertCircle className="w-4 h-4 text-[#FF4D15] shrink-0 mt-0.5" />
-                              <span>{flag}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {selectedProblem.status === 'SOLVED' ? (
-                        <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/40 space-y-2 text-xs">
-                          <div className="font-bold text-emerald-400">
-                            ✓ Problem Solved by {selectedProblem.solvedByOfficer} (
-                            {selectedProblem.solvedAt})
-                          </div>
-                          <div className="font-mono-code text-emerald-200">
-                            Action: {selectedProblem.preventiveActionTaken}
-                          </div>
-                          <p className="text-zinc-300">
-                            {selectedProblem.resolutionSummary}
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="p-4 rounded-xl bg-[#181311] border border-[#FF4D15]/40 space-y-3">
-                          <select
-                            value={
-                              problemActionPreset[selectedProblem.id] ||
-                              'Origin URL Flagged for CERT-In Takedown & Added to National Threat Blocklist'
-                            }
-                            onChange={(e) =>
-                              setProblemActionPreset((prev) => ({
-                                ...prev,
-                                [selectedProblem.id]: e.target.value,
-                              }))
-                            }
-                            className="w-full px-3 py-2 rounded-lg bg-[#070709] border border-white/15 text-xs text-white"
-                          >
-                            <option value="Origin URL Flagged for CERT-In Takedown & Added to National Threat Blocklist">
-                              1. Sinkhole Malicious Origin Link + Dispatch CERT-In
-                              Takedown
-                            </option>
-                            <option value="Source Link Blacklisted + Section 91 CrPC Bank / UPI Telemetry Freeze Issued">
-                              2. Blacklist Source Link + Trigger Section 91 CrPC
-                              Freeze
-                            </option>
-                            <option value="Origin URL Indexed in F.I.P. Global Threat Feed + Redirect Chain Neutralized">
-                              3. Index Origin URL in F.I.P. Global Threat Feed
-                            </option>
-                          </select>
-
-                          <textarea
-                            rows={2}
-                            value={problemResolutionNotes[selectedProblem.id] || ''}
-                            onChange={(e) =>
-                              setProblemResolutionNotes((prev) => ({
-                                ...prev,
-                                [selectedProblem.id]: e.target.value,
-                              }))
-                            }
-                            placeholder="Optional investigator resolution summary..."
-                            className="w-full p-2.5 rounded-lg bg-[#070709] border border-white/15 text-xs text-white placeholder-zinc-500"
-                          />
-
-                          <button
-                            onClick={() => handleSolveSharedProblem(selectedProblem)}
-                            disabled={solvingProblemId === selectedProblem.id}
-                            className="w-full py-3 px-4 rounded-lg bg-[#FF4D15] hover:bg-[#e03e0b] text-white font-bold text-xs cursor-pointer transition-colors"
-                          >
-                            {solvingProblemId === selectedProblem.id
-                              ? 'Sealing Solution...'
-                              : 'Solve Problem & Broadcast Resolution'}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* =====================================================================
-              SECTOR 03: CITIZEN CRIME STORY PDF APPROVALS
-          ===================================================================== */}
-          {activeNav === 'story_approvals' && (
-            <div className="space-y-6">
-              <div className="p-6 rounded-xl bg-[#111116] border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="text-xs font-mono-code text-amber-400">
-                    CITIZEN PDF DOSSIER VERIFICATION QUEUE
-                  </div>
-                  <h2 className="text-xl font-bold text-white">
-                    03. Crime Story &amp; PDF Verification Sector
-                  </h2>
-                  <p className="text-xs text-zinc-400">
-                    Verify citizen-submitted crime experiences and attached PDFs
-                    before publishing them to the public Crime Stories page.
-                  </p>
-                </div>
-                <div className="text-xs font-mono-code tabular-nums text-zinc-300">
-                  {pendingCrimeStories.length} Pending ·{' '}
-                  {approvedCrimeStories.length} Published
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {crimeStories.map((story) => (
-                  <div
-                    key={story.id}
-                    className="p-5 rounded-xl bg-[#111116] border border-white/15 flex flex-col justify-between gap-4"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-xs font-mono-code tabular-nums">
-                        <span className="text-[#FF4D15] font-semibold">
-                          {story.trackingCode}
-                        </span>
-                        <span
-                          className={
-                            story.status === 'PENDING_WORKSTATION'
-                              ? 'text-amber-400'
-                              : story.status === 'APPROVED_PUBLISHED'
-                              ? 'text-emerald-400'
-                              : 'text-rose-400'
-                          }
-                        >
-                          {story.status.replace(/_/g, ' ')}
-                        </span>
-                      </div>
-                      <h3 className="text-base font-bold text-white">
-                        {story.title}
-                      </h3>
-                      <p className="text-xs text-zinc-300 leading-relaxed">
-                        {story.whatHappened}
-                      </p>
-                      <div className="p-3 rounded-lg bg-[#070709] border border-white/10 text-xs text-emerald-300">
-                        <strong>Safety Lesson:</strong> {story.howToStaySafeLesson}
-                      </div>
-                      <div className="p-2.5 rounded-lg bg-[#070709] border border-white/10 flex items-center justify-between text-[11px] font-mono-code text-zinc-400">
-                        <span>
-                          PDF: {story.pdfFileName} ({story.pdfFileSize})
-                        </span>
-                        <span>SHA: {story.pdfSha256.slice(0, 12)}...</span>
-                      </div>
-                    </div>
-
-                    {story.status === 'PENDING_WORKSTATION' && (
-                      <div className="flex items-center gap-2 pt-3 border-t border-white/10">
-                        <button
-                          onClick={() =>
-                            handleReviewCrimeStory(story, 'APPROVED_PUBLISHED')
-                          }
-                          disabled={reviewingStoryId === story.id}
-                          className="flex-1 py-2.5 px-4 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs cursor-pointer transition-colors"
-                        >
-                          ✓ Agree &amp; Publish to Crime Stories
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleReviewCrimeStory(story, 'REJECTED')
-                          }
-                          disabled={reviewingStoryId === story.id}
-                          className="py-2.5 px-4 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold cursor-pointer transition-colors"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* =====================================================================
-              SECTOR 04: IMMUTABLE DUTY LOG & ANTI-TAMPER LEDGER
-          ===================================================================== */}
-          {activeNav === 'duty_ledger' && (
-            <div className="space-y-6">
-              <div className="p-6 rounded-xl bg-[#111116] border border-white/15 space-y-2">
-                <div className="text-xs font-mono-code text-[#FF4D15]">
-                  WORM SESSION AUDIT · AUTOMATIC LOGIN &amp; LOGOUT CAPTURE
-                </div>
-                <h2 className="text-xl font-bold text-white">
-                  04. Senior Investigator Duty Log &amp; Tamper-Catching Ledger
-                </h2>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Every Senior Investigator login name, automatic entry timestamp,
-                  and automatic exit timestamp is stored inside this Workstation
-                  with a SHA-256 WORM hash. If any Senior Investigator attempts to
-                  modify or backdate a record, click{' '}
-                  <strong className="text-white">
-                    &ldquo;Test Tamper / Attempt Edit&rdquo;
-                  </strong>{' '}
-                  on any row below to see how the Workstation immediately catches
-                  and logs the perpetrator.
-                </p>
-              </div>
-
-              {/* Duty Sessions Table */}
-              <div className="rounded-xl bg-[#111116] border border-white/15 overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-xs">
-                    <thead>
-                      <tr className="border-b border-white/10 bg-[#0B0B0F] text-zinc-400 font-mono-code text-[11px]">
-                        <th className="py-3.5 px-4">Session ID</th>
-                        <th className="py-3.5 px-4">Senior Investigator</th>
-                        <th className="py-3.5 px-4">
-                          Login Time (Auto-Captured)
-                        </th>
-                        <th className="py-3.5 px-4">
-                          Logout Time (Auto-Captured)
-                        </th>
-                        <th className="py-3.5 px-4">WORM Integrity Status</th>
-                        <th className="py-3.5 px-4 text-right">
-                          Anti-Tamper Verification
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/10">
-                      {dutySessions.map((sess) => {
-                        const hasTamper =
-                          sess.tamperAttempts && sess.tamperAttempts.length > 0;
-                        return (
-                          <tr
-                            key={sess.id}
-                            className={
-                              hasTamper
-                                ? 'bg-rose-950/20 hover:bg-rose-950/30'
-                                : 'hover:bg-white/[0.02]'
-                            }
-                          >
-                            <td className="py-3.5 px-4 font-mono-code tabular-nums text-zinc-300">
-                              {sess.id}
-                            </td>
-                            <td className="py-3.5 px-4">
-                              <div className="font-semibold text-white">
-                                {sess.investigatorName}
-                              </div>
-                              <div className="text-[11px] font-mono-code text-zinc-500">
-                                {sess.badgeNumber}
-                              </div>
-                            </td>
-                            <td className="py-3.5 px-4 font-mono-code tabular-nums text-emerald-400">
-                              {sess.loginTime}
-                            </td>
-                            <td className="py-3.5 px-4 font-mono-code tabular-nums">
-                              {sess.logoutTime ? (
-                                <span className="text-zinc-200">
-                                  {sess.logoutTime}
-                                </span>
-                              ) : (
-                                <span className="text-amber-400 font-semibold">
-                                  Active on Duty
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-3.5 px-4">
-                              {hasTamper ? (
-                                <span className="text-rose-400 font-semibold flex items-center gap-1.5">
-                                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                                  <span>
-                                    TAMPER CAUGHT ({sess.tamperAttempts.length})
-                                  </span>
-                                </span>
-                              ) : (
-                                <span className="text-emerald-400 flex items-center gap-1.5">
-                                  <Lock className="w-3.5 h-3.5 shrink-0" />
-                                  <span>
-                                    WORM Sealed ({sess.wormSha256Hash.slice(0, 10)}
-                                    ...)
-                                  </span>
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-3.5 px-4 text-right">
-                              <button
-                                onClick={() => openTamperTrapModal(sess)}
-                                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-rose-500/20 hover:text-rose-300 border border-white/10 text-xs font-medium text-zinc-200 transition-colors cursor-pointer whitespace-nowrap"
-                              >
-                                Test Tamper / Attempt Edit
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Permanent Forensic Violation Log of Caught Tamper Attempts */}
-              <div className="p-6 rounded-xl bg-[#111116] border border-white/15 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-rose-400" />
-                    <span>
-                      Caught Tamper Attempts &amp; Unauthorized Modification Log (
-                      {totalTamperAttemptsCount})
-                    </span>
-                  </h3>
-                  <span className="text-xs font-mono-code text-zinc-400">
-                    Immutable WORM Violation Record
-                  </span>
-                </div>
-
-                {totalTamperAttemptsCount === 0 ? (
-                  <div className="p-4 rounded-lg bg-[#070709] border border-white/10 text-xs text-zinc-400">
-                    No unauthorized edits detected yet. Click{' '}
-                    <strong className="text-white">
-                      &ldquo;Test Tamper / Attempt Edit&rdquo;
-                    </strong>{' '}
-                    on any session row above to simulate an investigator trying to
-                    alter a login/logout time and watch the Workstation catch them.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {dutySessions
-                      .flatMap((s) => s.tamperAttempts || [])
-                      .map((att) => (
-                        <div
-                          key={att.id}
-                          className="p-4 rounded-xl bg-rose-950/25 border border-rose-500/40 space-y-2 text-xs"
-                        >
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                            <span className="font-bold text-rose-300">
-                              CAUGHT: Senior Investigator &ldquo;
-                              {att.attemptedByName}&rdquo; tried to modify{' '}
-                              {att.targetField} on session {att.sessionId}
-                            </span>
-                            <span className="font-mono-code tabular-nums text-zinc-400">
-                              Caught At: {att.attemptedAt}
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono-code text-[11px]">
-                            <div className="p-2.5 rounded-lg bg-[#070709] border border-emerald-500/30 text-emerald-300">
-                              Original WORM Value (Preserved): {att.originalValue}
-                            </div>
-                            <div className="p-2.5 rounded-lg bg-[#070709] border border-rose-500/40 text-rose-300">
-                              Attempted Fake Value (Blocked):{' '}
-                              {att.attemptedFakeValue}
-                            </div>
-                          </div>
-                          <div className="font-mono-code text-[10px] text-zinc-400 break-all">
-                            Expected WORM SHA-256: {att.expectedSha256.slice(0, 32)}
-                            ... · Corrupted Hash Mismatch:{' '}
-                            {att.corruptedSha256.slice(0, 32)}...
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* =====================================================================
-              SECTOR 05: AI CROSS-CASE SYNDICATE CORRELATION ENGINE
-          ===================================================================== */}
-          {activeNav === 'ai_syndicate' && (
-            <SyndicatePatternEngine
-              incidents={incidents}
-              selectedOfficer={selectedOfficer}
-              onUpdateIncidents={onUpdateIncidents}
-              onSelectCaseForDrawer={(caseId) => {
-                setSelectedCaseId(caseId);
-                setActiveNav('workflows');
-              }}
-              onShowToast={showToast}
-            />
-          )}
-        </main>
+            {/* =================================================================
+                SECTOR 05: AI CROSS-CASE SYNDICATE CORRELATION ENGINE
+            ================================================================= */}
+            {activeNav === 'ai_syndicate' && (
+              <SyndicatePatternEngine
+                incidents={incidents}
+                selectedOfficer={selectedOfficer}
+                onUpdateIncidents={onUpdateIncidents}
+                onSelectCaseForDrawer={(caseId) => {
+                  setSelectedCaseId(caseId);
+                  setActiveNav('workflows');
+                }}
+                onShowToast={showToast}
+              />
+            )}
+          </main>
+        </div>
       </div>
 
       {/* Modal: Attempt to Modify Duty Log (Tamper Trap Demonstration) */}
       {tamperTargetSession && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-2xl bg-[#121218] border border-rose-500/50 p-6 space-y-5 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+          <div className="w-full max-w-lg rounded-3xl bg-white border border-[#E6E8EE] p-6 space-y-5 shadow-2xl text-[#111318]">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="text-xs font-mono-code text-rose-400">
+                <div className="text-xs font-mono-code font-bold text-rose-600">
                   WORM ANTI-TAMPER TRAP · SESSION {tamperTargetSession.id}
                 </div>
-                <h3 className="text-lg font-bold text-white mt-0.5">
+                <h3 className="text-lg font-extrabold text-[#111318] mt-0.5">
                   Attempt to Modify Locked Workstation Log
                 </h3>
               </div>
               <button
                 onClick={() => setTamperTargetSession(null)}
-                className="text-zinc-400 hover:text-white cursor-pointer"
+                className="text-slate-400 hover:text-[#111318] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-zinc-300 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               This simulates an insider or Senior Investigator trying to alter a
               captured login/logout timestamp or name. Because every entry is
-              locked with a SHA-256 WORM hash, attempting to overwrite this record
-              will immediately block the change and catch the investigator.
+              locked with a SHA-256 WORM hash, attempting to overwrite this
+              record will immediately block the change and catch the
+              investigator.
             </p>
 
             <form
@@ -2092,7 +2194,7 @@ export const SeniorInvestigatorWorkstation: React.FC<
               className="space-y-4 text-xs"
             >
               <div className="space-y-1.5">
-                <label className="block font-semibold text-zinc-300">
+                <label className="block font-bold text-[#111318]">
                   Investigator Attempting the Modification
                 </label>
                 <input
@@ -2100,18 +2202,18 @@ export const SeniorInvestigatorWorkstation: React.FC<
                   required
                   value={tamperActorName}
                   onChange={(e) => setTamperActorName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#070709] border border-white/15 text-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] text-[#111318]"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="block font-semibold text-zinc-300">
+                <label className="block font-bold text-[#111318]">
                   Field Being Altered
                 </label>
                 <select
                   value={tamperField}
                   onChange={(e) => setTamperField(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#070709] border border-white/15 text-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8F9FB] border border-[#E6E8EE] text-[#111318]"
                 >
                   <option value="Login Timestamp">
                     Login Timestamp ({tamperTargetSession.loginTime})
@@ -2127,7 +2229,7 @@ export const SeniorInvestigatorWorkstation: React.FC<
               </div>
 
               <div className="space-y-1.5">
-                <label className="block font-semibold text-zinc-300">
+                <label className="block font-bold text-[#111318]">
                   Attempted New / Fake Value
                 </label>
                 <input
@@ -2135,7 +2237,7 @@ export const SeniorInvestigatorWorkstation: React.FC<
                   required
                   value={tamperFakeValue}
                   onChange={(e) => setTamperFakeValue(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#070709] border border-rose-500/40 text-rose-200 font-mono-code"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 font-mono-code"
                 />
               </div>
 
@@ -2143,13 +2245,13 @@ export const SeniorInvestigatorWorkstation: React.FC<
                 <button
                   type="button"
                   onClick={() => setTamperTargetSession(null)}
-                  className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-zinc-300 font-medium cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#F4F5F8] hover:bg-[#E6E8EE] text-slate-600 font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold cursor-pointer"
                 >
                   Attempt Overwrite (Trigger Anti-Tamper Catch)
                 </button>

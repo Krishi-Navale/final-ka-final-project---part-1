@@ -32,10 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenNotifications,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isHome =
-    currentTab === 'home' ||
-    currentTab === 'dashboard' ||
-    currentTab === 'investigator';
+  const isHome = currentTab === 'home';
 
   const userIdentityStr = `${currentUser?.name || ''} ${currentUser?.email || ''}`.toLowerCase();
   const activeAvatarUrl = userIdentityStr.includes('krishi')
